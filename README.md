@@ -51,7 +51,7 @@ QRix/
 ### Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/qrix.git
+git clone https://github.com/nxthxnael/qrix.git
 ```
 
 ### Open the Project
