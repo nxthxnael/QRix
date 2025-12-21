@@ -12,17 +12,19 @@ html {
 :root {
   --milk-white: #f5f5f5;
   --primary-text-color: #2b2b2b;
-  --secondary-text-color: #333333;
-  --tertiary-text-color: #c1c1c1;
-  --heading-font: ;
-  --text-font: ;
+  --secondary-text-color: #636363;
+  --tertiary-text-color: #c7cfd7;
+  --heading-font: "Plus Jakarta Sans", sans-serif;
+  --text-font: "Inter", sans-serif;
 }
 
 body {
   background: #f5f5f5;
   min-height: 100vh;
-  background: radial-gradient(circle at top right, #e0e7ff, #f5f5f5, #fae8ff);
+  background: radial-gradient(circle at top right, #e0e7ff, #f5fbff, #ffffff);
   min-height: 100vh;
+  max-width: 60%;
+  margin: auto;
 }
 
 /* -------- Nav Bar styling -------- */
@@ -47,7 +49,7 @@ body {
 
   /* Modern styling */
   border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 1px 5px 0 rgba(31, 38, 135, 0.37);
+  box-shadow: 0 0.5px 5px 0 rgba(31, 38, 135, 0.3);
 
   /* Layout for the navbar */
   margin-top: 0;
@@ -58,11 +60,18 @@ body {
   align-items: center;
 }
 
+.heading-container {
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  cursor: pointer;
+  gap: 0.5rem;
+}
+
 #nav-logo {
   font-family: "Plus Jakarta Sans", sans-serif;
   font-size: 2.5rem;
   font-weight: 900;
-  cursor: pointer;
 }
 
 #nav-logo a {
@@ -99,6 +108,54 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
 }
+
+.open-card {
+  padding: 1rem 2rem;
+  border: 1px solid var(--secondary-text-color);
+  border-radius: 2rem;
+  margin-bottom: 4rem;
+  font-size: 1.2rem;
+}
+
+.title {
+  text-align: center;
+}
+
+#main-title {
+  font-family: var(--heading-font);
+  font-weight: 800;
+  font-size: 5.5rem;
+  padding-bottom: 3rem;
+}
+
+#main-title > span {
+  display: block;
+  color: var(--secondary-text-color);
+}
+
+#sub-title {
+  font-family: var(--text-font);
+  font-weight: 400;
+  font-size: 1.7rem;
+  max-width: 80rem;
+  text-align: center;
+  padding-bottom: 5rem;
+}
+
+.call-to-action {
+  padding: 1rem 3rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  background-color: var(--primary-text-color);
+  color: var(--milk-white);
+  border-radius: 1rem;
+  font-size: 1.3rem;
+  cursor: pointer;
+  transition: 0.3s ease-in-out;
+}
+
+/* -------- Footer Styling -------- */
