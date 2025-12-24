@@ -160,6 +160,45 @@ body {
   transition: 0.3s ease-in-out;
 }
 
+/* -------- Generation Section Styling -------- */
+.generation-section {
+  min-height: 100vh;
+}
+
+.generation-header {
+  text-align: center;
+  padding: 2rem 0;
+}
+
+.generation-header h2 {
+  color: var(--primary-text-color);
+  font-family: var(--heading-font);
+  font-size: 3.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.generation-header p {
+  font-size: 1.4rem;
+}
+
+.generation-container {
+  min-height: 40rem;
+  width: 100%;
+  box-shadow: 0 5px 10px -5px rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--tertiary-text-color);
+  border-radius: 1rem;
+}
+
+.form-type {
+  display: none;
+  transition: 0.3s ease-in-out;
+}
+
+.form-type.active {
+  display: block;
+}
+
 /* -------- Features Section Styling -------- */
 
 .features-section {

@@ -57,6 +57,88 @@
       </div>
     </div>
 
+    <!-- Generation Section -->
+    <div class="content-wrapper">
+      <div class="generation-section" id="generation-section">
+        <div class="generation-header">
+          <h2>Create Your QR Code</h2>
+          <p>Select a type, enter your content, and customize your QR code</p>
+        </div>
+        <div class="generation-container">
+          <div class="generation-selection">
+            <button class="qr-type-btn active" data-type="url">URL</button>
+            <button class="qr-type-btn" data-type="text">Text</button>
+            <button class="qr-type-btn" data-type="phone">Phone</button>
+            <button class="qr-type-btn" data-type="wifi">Wi-Fi</button>
+            <button class="qr-type-btn" data-type="email">Email</button>
+          </div>
+          <div class="qr-code-generation">
+            <div class="form-section-container">
+              <!-- URL FORM -->
+              <div
+                class="form-section-container form-type active"
+                data-type="url"
+              >
+                <div class="form-row">
+                  <h3>Website URL</h3>
+                  <input type="text" placeholder="https://example.com" />
+                </div>
+              </div>
+
+              <!-- TEXT FORM -->
+              <div class="form-section-container form-type" data-type="text">
+                <div class="form-row">
+                  <h3>Text Content</h3>
+                  <textarea placeholder="Enter your text"></textarea>
+                </div>
+              </div>
+
+              <!-- PHONE FORM -->
+              <div class="form-section-container form-type" data-type="phone">
+                <div class="form-row">
+                  <h3>Phone Number</h3>
+                  <input type="tel" placeholder="+254..." />
+                </div>
+              </div>
+
+              <!-- WIFI FORM -->
+              <div class="form-section-container form-type" data-type="wifi">
+                <div class="form-row">
+                  <h3>Network Name (SSID)</h3>
+                  <input type="text" />
+                </div>
+                <div class="form-row">
+                  <h3>Password</h3>
+                  <input type="password" />
+                </div>
+                <div class="form-row">
+                  <h3>Encryption Type</h3>
+                  <input type="" />
+                </div>
+                <div class="form-row">
+                  <h3>Hidden SSID</h3>
+                  <input type="checkbox" id="hidden" />
+                </div>
+              </div>
+
+              <!-- EMAIL FORM -->
+              <div class="form-section-container form-type" data-type="email">
+                <div class="form-row">
+                  <h3>Email Address</h3>
+                  <input type="email" />
+                </div>
+              </div>
+
+              <div class="size-selector">
+                <input type="range" />
+              </div>
+            </div>
+            <div class="qr-code-container"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Features Section -->
     <div class="content-wrapper">
       <div class="features-section" id="features-section">
@@ -80,7 +162,7 @@
             <div class="icon-container">
               <i class="fa-solid fa-palette"></i>
             </div>
-            <h4>step 1</h4>
+            <h4>step 2</h4>
             <h5>Customize</h5>
             <p>
               Pick your favorite colors and adjust the size to match your brand
@@ -91,7 +173,7 @@
             <div class="icon-container">
               <i class="fa-solid fa-download"></i>
             </div>
-            <h4>step 1</h4>
+            <h4>step 3</h4>
             <h5>Download & Share</h5>
             <p>
               Download your QR code as PNG or SVG, or copy it directly to your
