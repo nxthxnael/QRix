@@ -1,6 +1,10 @@
 /* -------- QR Generation Section -------- */
 
 .qr-type-btn {
+  display: flex;
+  gap: 0.8rem;
+  justify-content: center;
+  align-items: center;
   padding: 0.5rem 2rem;
   border: transparent;
   border-radius: 0.3rem;
@@ -9,11 +13,25 @@
   cursor: pointer;
 }
 
+.qr-type-btn:not(.active) {
+  transition: 0.35s ease;
+}
+
+.qr-type-btn:not(.active):hover {
+  color: var(--primary-text-color);
+  background-color: var(--tertiary-text-color);
+}
+
 .qr-type-btn.active {
   color: var(--primary-text-color);
   background-color: var(--milk-white);
   outline: 1px solid var(--tertiary-text-color);
   box-shadow: 0 3px 10px -5px rgba(0, 0, 0, 0.3);
+  transition: 0.8s ease-in-out;
+}
+
+.qr-type-btn.active:hover {
+  box-shadow: none;
 }
 
 .form-type {

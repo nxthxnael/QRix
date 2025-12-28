@@ -16,12 +16,19 @@
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
     />
-    <link rel="stylesheet" href="css/reset.css" />
-    <link rel="stylesheet" href="css/variables.css" />
-    <link rel="stylesheet" href="css/layout.css" />
-    <link rel="stylesheet" href="css/components.css" />
-    <link rel="stylesheet" href="css/main.css" />
-    <script src="js/app.js" defer></script>
+    <link rel="stylesheet" href="./css/reset.css" />
+    <link rel="stylesheet" href="./css/variables.css" />
+    <link rel="stylesheet" href="./css/layout.css" />
+    <link rel="stylesheet" href="./css/components.css" />
+    <link rel="stylesheet" href="./css/main.css" />
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"
+      integrity="sha512-CNgIRecGo7nphbeZ04Sc13ka07paqdeTu0WR1IM4kNcpmBAUSHSQX0FslNhTDadL4O5SAGapGt4FodqL8My0mA=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+      defer
+    ></script>
+    <script type="module" src="./js/app.js"></script>
     <title>QRix</title>
   </head>
 
@@ -29,8 +36,8 @@
     <!-- Nav bar -->
     <nav class="glass-card">
       <div class="heading-container">
-        <h1 id="nav-logo">
-          <a href="#hero-section">QRix</a>
+        <h1 id="navLogo">
+          <a href="#heroSection">QRix</a>
         </h1>
         <h2>QR CODE GENERATOR</h2>
       </div>
@@ -42,13 +49,13 @@
 
     <!-- Hero Section -->
     <div class="content-wrapper">
-      <div class="hero-section" id="hero-section">
+      <div class="hero-section" id="heroSection">
         <div class="open-card">
           <p>Free & Open source</p>
         </div>
         <div class="title">
-          <h1 id="main-title">Generate QR Codes <span>In Seconds</span></h1>
-          <h2 id="sub-title">
+          <h1 id="mainTitle">Generate QR Codes <span>In Seconds</span></h1>
+          <h2 id="subTitle">
             Create beautiful, customizable QR codes for URLs, text, phone
             numbers, emails, and Wi-Fi credentials. Download as PNG or SVG
             instantly.
@@ -63,18 +70,33 @@
 
     <!-- Generation Section -->
     <div class="content-wrapper">
-      <div class="generation-section" id="generation-section">
+      <div class="generation-section" id="generationSection">
         <div class="generation-header">
           <h2>Create Your QR Code</h2>
           <p>Select a type, enter your content, and customize your QR code</p>
         </div>
         <div class="generation-container">
           <div class="generation-selection">
-            <button class="qr-type-btn active" data-type="url">URL</button>
-            <button class="qr-type-btn" data-type="text">Text</button>
-            <button class="qr-type-btn" data-type="phone">Phone</button>
-            <button class="qr-type-btn" data-type="wifi">Wi-Fi</button>
-            <button class="qr-type-btn" data-type="email">Email</button>
+            <button class="qr-type-btn active" data-type="url">
+              <i class="fa-solid fa-link"></i>
+              <p>URL</p>
+            </button>
+            <button class="qr-type-btn" data-type="text">
+              <i class="fa-solid fa-t"></i>
+              <p>Text</p>
+            </button>
+            <button class="qr-type-btn" data-type="phone">
+              <i class="fa-solid fa-phone"></i>
+              <p>Phone</p>
+            </button>
+            <button class="qr-type-btn" data-type="wi-fi">
+              <i class="fa-solid fa-wifi"></i>
+              <p>Wi-Fi</p>
+            </button>
+            <button class="qr-type-btn" data-type="email">
+              <i class="fa-solid fa-envelope"></i>
+              <p>Email</p>
+            </button>
           </div>
           <div class="qr-code-generation">
             <div class="form-section-container">
@@ -106,7 +128,7 @@
               </div>
 
               <!-- WIFI FORM -->
-              <div class="form-section-container form-type" data-type="wifi">
+              <div class="form-section-container form-type" data-type="wi-fi">
                 <div class="form-row">
                   <h3>Network Name (SSID)</h3>
                   <input type="text" />
@@ -134,6 +156,9 @@
               </div>
             </div>
             <div class="qr-code-container"></div>
+          </div>
+          <div class="qr-code-holder">
+            <img id="qrCode" />
           </div>
         </div>
       </div>
