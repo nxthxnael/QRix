@@ -1,3 +1,5 @@
+<img width="946" height="405" alt="image" src="https://github.com/user-attachments/assets/7d574f6e-a903-48f0-a807-e19c33cb1141" />
+
 # QRix
 
 **QRix** is a fast, minimal, and responsive QR code generator built using **HTML, CSS, and vanilla JavaScript**.  
@@ -67,12 +69,6 @@ No build tools or dependencies required.
 
 ---
 
-## 📸 Screenshots (Optional)
-
-_To be added soon_
-
----
-
 ## Use Cases
 
 - Personal or business QR generation
@@ -108,4 +104,5 @@ This project is licensed under the **MIT License**.
 ## Author
 
 **Nathanael Mutua**
-Software Engineering Student | Frontend Developer
+
+Software Engineering Student | Software Developer
