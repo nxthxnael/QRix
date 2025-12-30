@@ -104,3 +104,23 @@ body {
 .features-header p {
   font-size: 1.4rem;
 }
+
+/* Password Toggle Styling */
+.password-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.password-wrapper input {
+  width: 100%;
+  padding-right: 3rem;
+}
+
+.password-wrapper i {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: var(--tertiary-text-color);
+}

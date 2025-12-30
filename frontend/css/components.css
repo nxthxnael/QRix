@@ -14,7 +14,7 @@
 }
 
 .qr-type-btn:not(.active) {
-  transition: 0.35s ease;
+  transition: 0.3s ease;
 }
 
 .qr-type-btn:not(.active):hover {
@@ -27,7 +27,7 @@
   background-color: var(--milk-white);
   outline: 1px solid var(--tertiary-text-color);
   box-shadow: 0 3px 10px -5px rgba(0, 0, 0, 0.3);
-  transition: 0.8s ease-in-out;
+  transition: 0.3s ease-in-out;
 }
 
 .qr-type-btn.active:hover {
@@ -41,6 +41,35 @@
 
 .form-type.active {
   display: block;
+}
+
+.form-row {
+  margin-bottom: 2rem;
+}
+
+.form-row input,
+.form-row textarea {
+  width: 100%;
+  padding: 1rem;
+}
+
+.color-box {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.color-box input[type="color"] {
+  width: 5rem;
+  height: 3.5rem;
+  padding: 0 0.1rem;
+  border: none;
+  cursor: pointer;
+}
+
+.color-box input[type="text"] {
+  width: 9rem;
+  text-transform: uppercase;
 }
 
 /* -------- How it works Section -------- */

@@ -1,4 +1,7 @@
 import { getQRData } from "./utils.js";
+import { getQRAppearance } from "./color-picker.js";
+
+let qrInstance = null;
 
 export function initQRGenerator() {
   const qrContainer = document.querySelector(".qr-code-container");
@@ -9,27 +12,26 @@ export function initQRGenerator() {
     return;
   }
 
-  // Generate QR whenever user types or changes form
-  generationSection.addEventListener("input", handleGenerate);
-  generationSection.addEventListener("change", handleGenerate);
+  generationSection.addEventListener("input", generateQR);
+  generationSection.addEventListener("change", generateQR);
 
-  function handleGenerate() {
+  function generateQR() {
     const data = getQRData();
-    if (!data) return;
+    if (!data) {
+      qrContainer.innerHTML = "<p>Enter content to generate code</p>";
+      return;
+    }
 
-    renderQR(data);
-  }
+    const { size, colorDark, colorLight } = getQRAppearance();
 
-  function renderQR(text) {
     qrContainer.innerHTML = "";
 
-    new QRCode(qrContainer, {
-      text,
-      width: 220,
-      height: 220,
-      colorDark: "#000000",
-      colorLight: "#ffffff",
-      correctLevel: QRCode.CorrectLevel.H,
+    qrInstance = new QRCode(qrContainer, {
+      text: data,
+      width: size,
+      height: size,
+      colorDark,
+      colorLight,
     });
   }
 }

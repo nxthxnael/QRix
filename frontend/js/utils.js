@@ -5,11 +5,15 @@ export function getQRData() {
   const type = activeForm.dataset.type;
 
   switch (type) {
-    case "url":
-      return activeForm.querySelector("input")?.value.trim();
+    case "url": {
+      const value = activeForm.querySelector("input")?.value.trim();
+      return value || null;
+    }
 
-    case "text":
-      return activeForm.querySelector("textarea")?.value.trim();
+    case "text": {
+      const value = activeForm.querySelector("textarea")?.value.trim();
+      return value || null;
+    }
 
     case "phone": {
       const value = activeForm.querySelector("input")?.value.trim();
@@ -22,18 +26,39 @@ export function getQRData() {
     }
 
     case "wifi": {
-      const inputs = activeForm.querySelectorAll("input");
-      const ssid = inputs[0]?.value;
-      const password = inputs[1]?.value;
-      const encryption = inputs[2]?.value || "WPA";
-      const hidden = inputs[3]?.checked ? "true" : "false";
+      const ssid = activeForm.querySelector('input[type="text"]')?.value.trim();
+      const password = activeForm.querySelector(
+        'input[type="password"]'
+      )?.value;
+      const encryption =
+        activeForm.querySelector("#wifi-encryption")?.value || "WPA";
+      const hidden = activeForm.querySelector("#hidden")?.checked
+        ? "true"
+        : "false";
 
       if (!ssid) return null;
 
-      return `WIFI:T:${encryption};S:${ssid};P:${password};H:${hidden};`;
+      const passwordPart = encryption === "nopass" ? "" : `P:${password};`;
+
+      return `WIFI:T:${encryption};S:${ssid};${passwordPart}H:${hidden};`;
     }
 
     default:
       return null;
+  }
+}
+
+export function togglePassword() {
+  const passwordInput = document.getElementById("wifi-password");
+  const togglePasswordBtn = document.getElementById("toggle-password");
+
+  if (togglePasswordBtn && passwordInput) {
+    togglePasswordBtn.addEventListener("click", () => {
+      const type =
+        passwordInput.getAttribute("type") === "password" ? "text" : "password";
+      passwordInput.setAttribute("type", type);
+      togglePasswordBtn.classList.toggle("fa-eye");
+      togglePasswordBtn.classList.toggle("fa-eye-slash");
+    });
   }
 }

@@ -97,6 +97,46 @@
   justify-content: center;
   gap: 1rem;
   padding: 4rem;
+  flex-wrap: wrap;
+}
+
+.qr-code-generation {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 0 2rem;
+  height: auto;
+  min-height: 35rem;
+  flex-wrap: wrap;
+  gap: 2rem;
+  padding-bottom: 3rem;
+}
+
+.qr-code-container {
+  flex: 1 1 300px;
+  position: sticky;
+  top: 12rem;
+  min-height: 15rem;
+  min-width: 15rem;
+  aspect-ratio: 1 / 1;
+  border-radius: 0.5rem;
+  background-color: #ffffff;
+  border: 2px solid var(--tertiary-text-color);
+  box-shadow: 0 2px 5px 0 rgba(31, 38, 135, 0.3);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+  cursor: pointer;
+  text-align: center;
+  color: var(--tertiary-text-color);
+}
+
+.form-column {
+  flex: 2 1 400px;
+  height: auto;
+  padding: 2rem;
 }
 
 /* -------- How it works Section -------- */

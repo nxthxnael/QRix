@@ -99,66 +99,124 @@
             </button>
           </div>
           <div class="qr-code-generation">
-            <div class="form-section-container">
-              <!-- URL FORM -->
-              <div
-                class="form-section-container form-type active"
-                data-type="url"
-              >
-                <div class="form-row">
-                  <h3>Website URL</h3>
-                  <input type="text" placeholder="https://example.com" />
+            <div class="form-column">
+              <div class="form-section-container">
+                <!-- URL FORM -->
+                <div
+                  class="form-section-container form-type active"
+                  data-type="url"
+                >
+                  <div class="form-row">
+                    <h3>Website URL</h3>
+                    <input type="url" placeholder="https://example.com" />
+                  </div>
+                </div>
+
+                <!-- TEXT FORM -->
+                <div class="form-section-container form-type" data-type="text">
+                  <div class="form-row">
+                    <h3>Text Content</h3>
+                    <input type="text" placeholder="Enter your text" />
+                  </div>
+                </div>
+
+                <!-- PHONE FORM -->
+                <div class="form-section-container form-type" data-type="phone">
+                  <div class="form-row">
+                    <h3>Phone Number</h3>
+                    <input type="tel" placeholder="+123..." />
+                  </div>
+                </div>
+
+                <!-- WIFI FORM -->
+                <div class="form-section-container form-type" data-type="wi-fi">
+                  <div class="form-row">
+                    <h3>Network Name (SSID)</h3>
+                    <input type="text" placeholder="Enter Wi-Fi name" />
+                  </div>
+                  <div class="form-row" id="wifi-password-row">
+                    <h3>Password</h3>
+                    <div class="password-wrapper">
+                      <input
+                        type="password"
+                        id="wifi-password"
+                        placeholder="***..."
+                      />
+                      <i class="fa-regular fa-eye" id="toggle-password"></i>
+                    </div>
+                  </div>
+                  <div class="form-row">
+                    <h3>Encryption Type</h3>
+                    <select id="wifi-encryption">
+                      <option value="WPA" selected>WPA/WPA2/WPA3</option>
+                      <option value="WEP">WEP</option>
+                      <option value="nopass">No Password (Open)</option>
+                    </select>
+                  </div>
+                  <div class="form-row">
+                    <h3>Hidden SSID</h3>
+                    <input type="checkbox" id="hidden" />
+                  </div>
+                </div>
+
+                <!-- EMAIL FORM -->
+                <div class="form-section-container form-type" data-type="email">
+                  <div class="form-row">
+                    <h3>Email Address</h3>
+                    <input type="email" />
+                  </div>
                 </div>
               </div>
 
-              <!-- TEXT FORM -->
-              <div class="form-section-container form-type" data-type="text">
+              <!-- Color Selection -->
+              <div class="color-selection">
                 <div class="form-row">
-                  <h3>Text Content</h3>
-                  <textarea placeholder="Enter your text"></textarea>
+                  <h3>QR Code Color</h3>
+                  <div class="color-box">
+                    <input type="color" id="qr-color" value="#000000" />
+                    <input
+                      type="text"
+                      id="qr-color-text"
+                      value="#000000"
+                      maxlength="7"
+                    />
+                  </div>
+                </div>
+                <div class="form-row">
+                  <h3>Background Color</h3>
+                  <div class="color-box">
+                    <input type="color" id="qr-background" value="#ffffff" />
+                    <input
+                      type="text"
+                      id="qr-background-text"
+                      value="#ffffff"
+                      maxlength="7"
+                    />
+                  </div>
                 </div>
               </div>
 
-              <!-- PHONE FORM -->
-              <div class="form-section-container form-type" data-type="phone">
+              <!-- Size Selection -->
+              <div class="size-selection">
                 <div class="form-row">
-                  <h3>Phone Number</h3>
-                  <input type="tel" placeholder="+254..." />
-                </div>
-              </div>
-
-              <!-- WIFI FORM -->
-              <div class="form-section-container form-type" data-type="wi-fi">
-                <div class="form-row">
-                  <h3>Network Name (SSID)</h3>
-                  <input type="text" />
-                </div>
-                <div class="form-row">
-                  <h3>Password</h3>
-                  <input type="password" />
-                </div>
-                <div class="form-row">
-                  <h3>Encryption Type</h3>
-                  <input type="" />
-                </div>
-                <div class="form-row">
-                  <h3>Hidden SSID</h3>
-                  <input type="checkbox" id="hidden" />
-                </div>
-              </div>
-
-              <!-- EMAIL FORM -->
-              <div class="form-section-container form-type" data-type="email">
-                <div class="form-row">
-                  <h3>Email Address</h3>
-                  <input type="email" />
+                  <h3>
+                    QR Code Size
+                    <span id="qr-size-value">256px</span>
+                  </h3>
+                  <input
+                    type="range"
+                    id="qr-size"
+                    min="128"
+                    max="512"
+                    step="8"
+                    value="256"
+                  />
                 </div>
               </div>
             </div>
-            <div class="qr-code-container"></div>
-          </div>
-          <div class="qr-code-holder">
-            <img id="qrCode" />
+            <div class="qr-code-container">
+              <p>Enter text to generate code</p>
+            </div>
           </div>
         </div>
       </div>

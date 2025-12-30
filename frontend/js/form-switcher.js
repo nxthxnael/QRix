@@ -16,4 +16,15 @@ export function initFormSwitcher() {
       });
     });
   });
+
+  // Password row visibility
+  const encryptionSelect = document.getElementById("wifi-encryption");
+  const passwordRow = document.getElementById("wifi-password-row");
+
+  if (encryptionSelect && passwordRow) {
+    encryptionSelect.addEventListener("change", () => {
+      const isOpenNetwork = encryptionSelect.value === "nopass";
+      passwordRow.style.display = isOpenNetwork ? "none" : "block";
+    });
+  }
 }
