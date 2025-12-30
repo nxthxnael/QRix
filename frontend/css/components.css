@@ -72,6 +72,44 @@
   text-transform: uppercase;
 }
 
+/* QR Code Actions */
+.qr-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 1.5rem;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.qr-actions.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: var(--primary-text-color);
+  color: var(--milk-white);
+  border: none;
+  border-radius: 0.3rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.action-btn:hover {
+  background-color: var(--tertiary-text-color);
+  color: var(--primary-text-color);
+}
+
+.action-btn i {
+  font-size: 0.9rem;
+}
+
 /* -------- How it works Section -------- */
 
 .feature-card {
