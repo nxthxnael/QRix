@@ -10,6 +10,8 @@ export function initQRGenerator() {
   const downloadPngBtn = document.getElementById("downloadPngBtn");
   const downloadSvgBtn = document.getElementById("downloadSvgBtn");
   const copyQrBtn = document.getElementById("copyQrBtn");
+  const exportScale = document.getElementById("exportScale");
+  const exportTransparent = document.getElementById("exportTransparent");
 
   if (
     !qrContainer ||
@@ -17,7 +19,9 @@ export function initQRGenerator() {
     !qrActions ||
     !downloadPngBtn ||
     !downloadSvgBtn ||
-    !copyQrBtn
+    !copyQrBtn ||
+    !exportScale ||
+    !exportTransparent
   ) {
     console.warn("QR Generator: required elements not found");
     return;
@@ -50,7 +54,6 @@ export function initQRGenerator() {
       colorDark,
       colorLight,
       correctLevel: QRCode.CorrectLevel.H,
-      useSVG: true,
     });
 
     // Show actions after a short delay for QR code to render
@@ -60,56 +63,69 @@ export function initQRGenerator() {
     }, 100);
   }
 
-  function downloadAsPng() {
+  // draws the module matrix on a fresh canvas so any scale stays crisp
+  function renderPngBlob() {
+    const { size, colorDark, colorLight } = getQRAppearance();
+    const scale = parseInt(exportScale.value, 10);
+    const model = qrInstance._oQRCode;
+    const count = model.getModuleCount();
+    const cell = Math.ceil((size * scale) / count);
+
+    const canvas = document.createElement("canvas");
+    canvas.width = canvas.height = count * cell;
+    const ctx = canvas.getContext("2d");
+    if (!exportTransparent.checked) {
+      ctx.fillStyle = colorLight;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+    ctx.fillStyle = colorDark;
+    for (let row = 0; row < count; row++) {
+      for (let col = 0; col < count; col++) {
+        if (model.isDark(row, col)) ctx.fillRect(col * cell, row * cell, cell, cell);
+      }
+    }
+    return new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
+  }
+
+  async function downloadAsPng() {
     if (!qrInstance) return;
 
-    const canvas = qrContainer.querySelector("canvas");
-    if (!canvas) return;
-    const svg = qrContainer.querySelector("svg");
-    if (!svg) return;
-
-    const pngUrl = canvas.toDataURL("image/png");
+    const url = URL.createObjectURL(await renderPngBlob());
     const link = document.createElement("a");
     link.download = "qrcode.png";
-    link.href = pngUrl;
+    link.href = url;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    const svgData = new XMLSerializer().serializeToString(svg);
-    const blob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
+    URL.revokeObjectURL(url);
+  }
 
-    const img = new Image();
-    img.onload = () => {
-      const canvas = document.createElement("canvas");
-      canvas.width = parseInt(svg.getAttribute("width"));
-      canvas.height = parseInt(svg.getAttribute("height"));
-      const ctx = canvas.getContext("2d");
-      ctx.drawImage(img, 0, 0);
-
-      const pngUrl = canvas.toDataURL("image/png");
-      const link = document.createElement("a");
-      link.download = "qrcode.png";
-      link.href = pngUrl;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-    };
-    img.src = url;
+  // qrcodejs only draws svg inside svg documents, so build it from the module matrix
+  function buildSvg() {
+    const { colorDark, colorLight } = getQRAppearance();
+    const model = qrInstance._oQRCode;
+    const count = model.getModuleCount();
+    let path = "";
+    for (let row = 0; row < count; row++) {
+      for (let col = 0; col < count; col++) {
+        if (model.isDark(row, col)) path += `M${col} ${row}h1v1h-1z`;
+      }
+    }
+    return (
+      `<?xml version="1.0" standalone="no"?>
+` +
+      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${count} ${count}" shape-rendering="crispEdges">` +
+      (exportTransparent.checked
+        ? ""
+        : `<rect width="${count}" height="${count}" fill="${colorLight}"/>`) +
+      `<path d="${path}" fill="${colorDark}"/></svg>`
+    );
   }
 
   function downloadAsSvg() {
     if (!qrInstance) return;
 
-    const svg = qrContainer.querySelector("svg");
-    if (!svg) return;
-
-    const serializer = new XMLSerializer();
-    let svgString = serializer.serializeToString(svg);
-    svgString = '<?xml version="1.0" standalone="no"?>\r\n' + svgString;
-
-    const svgBlob = new Blob([svgString], {
+    const svgBlob = new Blob([buildSvg()], {
       type: "image/svg+xml;charset=utf-8",
     });
     const svgUrl = URL.createObjectURL(svgBlob);
@@ -127,50 +143,11 @@ export function initQRGenerator() {
     if (!qrInstance) return;
 
     try {
-      const canvas = qrContainer.querySelector("canvas");
-      if (!canvas) return;
-      const svg = qrContainer.querySelector("svg");
-      if (!svg) return;
-
-      canvas.toBlob(async (blob) => {
-        const item = new ClipboardItem({ "image/png": blob });
-        await navigator.clipboard.write([item]);
-        showCopyFeedback();
-      });
-      const svgData = new XMLSerializer().serializeToString(svg);
-      const blob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
-      const url = URL.createObjectURL(blob);
-
-      const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement("canvas");
-        canvas.width = parseInt(svg.getAttribute("width"));
-        canvas.height = parseInt(svg.getAttribute("height"));
-        const ctx = canvas.getContext("2d");
-        ctx.drawImage(img, 0, 0);
-
-        canvas.toBlob(async (blob) => {
-          const item = new ClipboardItem({ "image/png": blob });
-          await navigator.clipboard.write([item]);
-          showCopyFeedback();
-          URL.revokeObjectURL(url);
-        });
-      };
-      img.src = url;
+      const blob = await renderPngBlob();
+      await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
+      showCopyFeedback();
     } catch (err) {
       console.error("Failed to copy QR code: ", err);
-      // Fallback to basic copy if Clipboard API fails
-      try {
-        const canvas = qrContainer.querySelector("canvas");
-        canvas.toBlob((blob) => {
-          const item = new ClipboardItem({ "image/png": blob });
-          navigator.clipboard.write([item]).then(() => {
-            showCopyFeedback();
-          });
-        });
-      } catch (e) {
-        console.error("Fallback copy also failed: ", e);
-      }
     }
   }
 
