@@ -10,6 +10,7 @@ export function initQRGenerator() {
   const downloadPngBtn = document.getElementById("downloadPngBtn");
   const downloadSvgBtn = document.getElementById("downloadSvgBtn");
   const copyQrBtn = document.getElementById("copyQrBtn");
+  const exportScale = document.getElementById("exportScale");
 
   if (
     !qrContainer ||
@@ -17,7 +18,8 @@ export function initQRGenerator() {
     !qrActions ||
     !downloadPngBtn ||
     !downloadSvgBtn ||
-    !copyQrBtn
+    !copyQrBtn ||
+    !exportScale
   ) {
     console.warn("QR Generator: required elements not found");
     return;
@@ -59,18 +61,39 @@ export function initQRGenerator() {
     }, 100);
   }
 
-  function downloadAsPng() {
+  // draws the module matrix on a fresh canvas so any scale stays crisp
+  function renderPngBlob() {
+    const { size, colorDark, colorLight } = getQRAppearance();
+    const scale = parseInt(exportScale.value, 10);
+    const model = qrInstance._oQRCode;
+    const count = model.getModuleCount();
+    const cell = Math.ceil((size * scale) / count);
+
+    const canvas = document.createElement("canvas");
+    canvas.width = canvas.height = count * cell;
+    const ctx = canvas.getContext("2d");
+    ctx.fillStyle = colorLight;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = colorDark;
+    for (let row = 0; row < count; row++) {
+      for (let col = 0; col < count; col++) {
+        if (model.isDark(row, col)) ctx.fillRect(col * cell, row * cell, cell, cell);
+      }
+    }
+    return new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
+  }
+
+  async function downloadAsPng() {
     if (!qrInstance) return;
 
-    const canvas = qrContainer.querySelector("canvas");
-    if (!canvas) return;
-
+    const url = URL.createObjectURL(await renderPngBlob());
     const link = document.createElement("a");
     link.download = "qrcode.png";
-    link.href = canvas.toDataURL("image/png");
+    link.href = url;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   }
 
   // qrcodejs only draws svg inside svg documents, so build it from the module matrix
@@ -111,11 +134,10 @@ export function initQRGenerator() {
   }
 
   async function copyToClipboard() {
-    const canvas = qrContainer.querySelector("canvas");
-    if (!qrInstance || !canvas) return;
+    if (!qrInstance) return;
 
     try {
-      const blob = await new Promise((resolve) => canvas.toBlob(resolve));
+      const blob = await renderPngBlob();
       await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
       showCopyFeedback();
     } catch (err) {
