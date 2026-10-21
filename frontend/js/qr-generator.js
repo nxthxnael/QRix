@@ -112,53 +112,15 @@ export function initQRGenerator() {
   }
 
   async function copyToClipboard() {
-    if (!qrInstance) return;
+    const canvas = qrContainer.querySelector("canvas");
+    if (!qrInstance || !canvas) return;
 
     try {
-      const canvas = qrContainer.querySelector("canvas");
-      if (!canvas) return;
-      const svg = qrContainer.querySelector("svg");
-      if (!svg) return;
-
-      canvas.toBlob(async (blob) => {
-        const item = new ClipboardItem({ "image/png": blob });
-        await navigator.clipboard.write([item]);
-        showCopyFeedback();
-      });
-      const svgData = new XMLSerializer().serializeToString(svg);
-      const blob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
-      const url = URL.createObjectURL(blob);
-
-      const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement("canvas");
-        canvas.width = parseInt(svg.getAttribute("width"));
-        canvas.height = parseInt(svg.getAttribute("height"));
-        const ctx = canvas.getContext("2d");
-        ctx.drawImage(img, 0, 0);
-
-        canvas.toBlob(async (blob) => {
-          const item = new ClipboardItem({ "image/png": blob });
-          await navigator.clipboard.write([item]);
-          showCopyFeedback();
-          URL.revokeObjectURL(url);
-        });
-      };
-      img.src = url;
+      const blob = await new Promise((resolve) => canvas.toBlob(resolve));
+      await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
+      showCopyFeedback();
     } catch (err) {
       console.error("Failed to copy QR code: ", err);
-      // Fallback to basic copy if Clipboard API fails
-      try {
-        const canvas = qrContainer.querySelector("canvas");
-        canvas.toBlob((blob) => {
-          const item = new ClipboardItem({ "image/png": blob });
-          navigator.clipboard.write([item]).then(() => {
-            showCopyFeedback();
-          });
-        });
-      } catch (e) {
-        console.error("Fallback copy also failed: ", e);
-      }
     }
   }
 
