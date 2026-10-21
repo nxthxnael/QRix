@@ -63,31 +63,15 @@ export function initQRGenerator() {
   function downloadAsPng() {
     if (!qrInstance) return;
 
-    const svg = qrContainer.querySelector("svg");
-    if (!svg) return;
+    const canvas = qrContainer.querySelector("canvas");
+    if (!canvas) return;
 
-    const svgData = new XMLSerializer().serializeToString(svg);
-    const blob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-
-    const img = new Image();
-    img.onload = () => {
-      const canvas = document.createElement("canvas");
-      canvas.width = parseInt(svg.getAttribute("width"));
-      canvas.height = parseInt(svg.getAttribute("height"));
-      const ctx = canvas.getContext("2d");
-      ctx.drawImage(img, 0, 0);
-
-      const pngUrl = canvas.toDataURL("image/png");
-      const link = document.createElement("a");
-      link.download = "qrcode.png";
-      link.href = pngUrl;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-    };
-    img.src = url;
+    const link = document.createElement("a");
+    link.download = "qrcode.png";
+    link.href = canvas.toDataURL("image/png");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   }
 
   function downloadAsSvg() {
