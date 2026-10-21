@@ -50,7 +50,6 @@ export function initQRGenerator() {
       colorDark,
       colorLight,
       correctLevel: QRCode.CorrectLevel.H,
-      useSVG: true,
     });
 
     // Show actions after a short delay for QR code to render
