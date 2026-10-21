@@ -11,6 +11,7 @@ export function initQRGenerator() {
   const downloadSvgBtn = document.getElementById("downloadSvgBtn");
   const copyQrBtn = document.getElementById("copyQrBtn");
   const exportScale = document.getElementById("exportScale");
+  const exportTransparent = document.getElementById("exportTransparent");
 
   if (
     !qrContainer ||
@@ -19,7 +20,8 @@ export function initQRGenerator() {
     !downloadPngBtn ||
     !downloadSvgBtn ||
     !copyQrBtn ||
-    !exportScale
+    !exportScale ||
+    !exportTransparent
   ) {
     console.warn("QR Generator: required elements not found");
     return;
@@ -72,8 +74,10 @@ export function initQRGenerator() {
     const canvas = document.createElement("canvas");
     canvas.width = canvas.height = count * cell;
     const ctx = canvas.getContext("2d");
-    ctx.fillStyle = colorLight;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    if (!exportTransparent.checked) {
+      ctx.fillStyle = colorLight;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
     ctx.fillStyle = colorDark;
     for (let row = 0; row < count; row++) {
       for (let col = 0; col < count; col++) {
@@ -111,7 +115,9 @@ export function initQRGenerator() {
       `<?xml version="1.0" standalone="no"?>
 ` +
       `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${count} ${count}" shape-rendering="crispEdges">` +
-      `<rect width="${count}" height="${count}" fill="${colorLight}"/>` +
+      (exportTransparent.checked
+        ? ""
+        : `<rect width="${count}" height="${count}" fill="${colorLight}"/>`) +
       `<path d="${path}" fill="${colorDark}"/></svg>`
     );
   }
