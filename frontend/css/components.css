@@ -153,6 +153,14 @@
   color: var(--primary-text-color);
 }
 
+.action-btn:focus-visible,
+.export-option select:focus-visible,
+.export-option input:focus-visible,
+.form-row select:focus-visible {
+  outline: 2px solid var(--primary-text-color);
+  outline-offset: 2px;
+}
+
 .action-btn i {
   font-size: 0.9rem;
 }
