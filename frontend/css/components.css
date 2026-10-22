@@ -48,9 +48,20 @@
 }
 
 .form-row input,
-.form-row textarea {
+.form-row textarea,
+.form-row select {
   width: 100%;
   padding: 1rem;
+}
+
+.contrast-warning {
+  margin: -1rem 0 2rem;
+  padding: 0.75rem 1rem;
+  border-left: 4px solid #c0392b;
+  border-radius: 0.3rem;
+  background-color: #fdecea;
+  color: #7a1f16;
+  font-size: 0.9rem;
 }
 
 .color-box {
