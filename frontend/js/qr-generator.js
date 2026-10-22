@@ -3,6 +3,9 @@ import { getQRAppearance } from "./color-picker.js";
 
 let qrInstance = null;
 
+// shortcut: fixed delay, not a download-complete signal, enough for the browser to start reading the blob
+const REVOKE_DELAY_MS = 10000;
+
 export function initQRGenerator() {
   const qrContainer = document.querySelector(".qr-code-container");
   const generationSection = document.querySelector(".generation-section");
@@ -97,7 +100,7 @@ export function initQRGenerator() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    setTimeout(() => URL.revokeObjectURL(url), REVOKE_DELAY_MS);
   }
 
   // qrcodejs only draws svg inside svg documents, so build it from the module matrix
@@ -136,7 +139,7 @@ export function initQRGenerator() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    URL.revokeObjectURL(svgUrl);
+    setTimeout(() => URL.revokeObjectURL(svgUrl), REVOKE_DELAY_MS);
   }
 
   async function copyToClipboard() {
