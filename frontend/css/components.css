@@ -154,6 +154,10 @@
   transition: background-color 0.2s ease;
 }
 
+.action-btn[hidden] {
+  display: none;
+}
+
 .action-btn:hover {
   background-color: var(--tertiary-text-color);
   color: var(--primary-text-color);
