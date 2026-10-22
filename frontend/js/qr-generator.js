@@ -38,7 +38,10 @@ export function initQRGenerator() {
 
   let actionsTimer;
 
-  function generateQR() {
+  function generateQR(event) {
+    // export options only change the downloaded file, not the preview
+    if (event?.target.closest(".qr-actions")) return;
+
     clearTimeout(actionsTimer);
     const data = getQRData();
     if (!data) {
