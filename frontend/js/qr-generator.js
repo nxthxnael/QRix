@@ -18,6 +18,7 @@ export function initQRGenerator() {
   const copyQrBtn = document.getElementById("copyQrBtn");
   const exportScale = document.getElementById("exportScale");
   const exportTransparent = document.getElementById("exportTransparent");
+  const errorCorrection = document.getElementById("qr-error-correction");
 
   if (
     !qrContainer ||
@@ -64,7 +65,7 @@ export function initQRGenerator() {
       height: size,
       colorDark,
       colorLight,
-      correctLevel: QRCode.CorrectLevel.H,
+      correctLevel: QRCode.CorrectLevel[errorCorrection?.value] ?? QRCode.CorrectLevel.H,
     });
 
     // Show actions after a short delay for QR code to render
