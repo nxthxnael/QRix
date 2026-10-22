@@ -3,6 +3,14 @@ const MAX_LOGO_BYTES = 512 * 1024;
 
 let logo = null;
 
+// control id -> value; color texts take #RRGGBB and are read by the color picker on input
+export const PRESETS = {
+  classic: { "qr-shape": "square", "qr-corner": "square", "qr-gradient": "none", "qr-color-text": "#000000", "qr-background-text": "#FFFFFF" },
+  soft: { "qr-shape": "rounded", "qr-corner": "rounded", "qr-gradient": "none", "qr-color-text": "#1F2937", "qr-background-text": "#FFFFFF" },
+  dots: { "qr-shape": "dots", "qr-corner": "circle", "qr-gradient": "none", "qr-color-text": "#111827", "qr-background-text": "#FFFFFF", "qr-error-correction": "H" },
+  ocean: { "qr-shape": "rounded", "qr-corner": "rounded", "qr-gradient": "diagonal", "qr-color-text": "#0F172A", "qr-color2-text": "#2563EB", "qr-background-text": "#FFFFFF" },
+};
+
 // reads the style controls at render time, like the export options do
 export function getQRStyle() {
   return {
@@ -19,6 +27,18 @@ export function initQRStyle() {
   const level = document.getElementById("qr-error-correction");
   let previousLevel;
   if (!input) return;
+
+  document.querySelectorAll("[data-preset]").forEach((button) =>
+    button.addEventListener("click", () => {
+      for (const [id, value] of Object.entries(PRESETS[button.dataset.preset] ?? {})) {
+        const control = document.getElementById(id);
+        // a logo keeps the error correction locked on high
+        if (!control || control.disabled) continue;
+        control.value = value;
+        control.dispatchEvent(new Event(control.tagName === "SELECT" ? "change" : "input", { bubbles: true }));
+      }
+    })
+  );
 
   // a logo needs high error correction, so show that and lock the select until the logo goes
   const lockLevel = () => {
