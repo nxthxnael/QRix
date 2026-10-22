@@ -86,10 +86,8 @@
 /* QR Code Actions */
 .qr-actions {
   display: flex;
-  gap: 1rem;
-  justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 1.5rem;
   margin-top: 2rem;
   opacity: 0;
   transform: translateY(10px);
@@ -99,6 +97,27 @@
 .qr-actions.visible {
   opacity: 1;
   transform: translateY(0);
+}
+
+.export-options,
+.export-buttons {
+  display: flex;
+  gap: 1rem 2rem;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.export-buttons {
+  flex-wrap: nowrap;
+  gap: 1rem;
+}
+
+.export-buttons .action-btn {
+  flex: 1 1 0;
+  max-width: 14rem;
+  justify-content: center;
+  padding: 0.5rem 0.8rem;
 }
 
 .export-option {
