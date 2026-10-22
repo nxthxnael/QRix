@@ -6,6 +6,9 @@ let qrInstance = null;
 // shortcut: fixed delay, not a download-complete signal, enough for the browser to start reading the blob
 const REVOKE_DELAY_MS = 10000;
 
+// clear border the qr standard asks for, measured in modules
+const QUIET_ZONE = 4;
+
 export function initQRGenerator() {
   const qrContainer = document.querySelector(".qr-code-container");
   const generationSection = document.querySelector(".generation-section");
@@ -77,10 +80,11 @@ export function initQRGenerator() {
     const scale = parseInt(exportScale?.value ?? "1", 10);
     const model = qrInstance._oQRCode;
     const count = model.getModuleCount();
-    const cell = Math.ceil((size * scale) / count);
+    const total = count + QUIET_ZONE * 2;
+    const cell = Math.ceil((size * scale) / total);
 
     const canvas = document.createElement("canvas");
-    canvas.width = canvas.height = count * cell;
+    canvas.width = canvas.height = total * cell;
     const ctx = canvas.getContext("2d");
     if (!exportTransparent?.checked) {
       ctx.fillStyle = colorLight;
@@ -89,7 +93,7 @@ export function initQRGenerator() {
     ctx.fillStyle = colorDark;
     for (let row = 0; row < count; row++) {
       for (let col = 0; col < count; col++) {
-        if (model.isDark(row, col)) ctx.fillRect(col * cell, row * cell, cell, cell);
+        if (model.isDark(row, col)) ctx.fillRect((col + QUIET_ZONE) * cell, (row + QUIET_ZONE) * cell, cell, cell);
       }
     }
     return new Promise((resolve, reject) =>
@@ -127,19 +131,19 @@ export function initQRGenerator() {
     const { colorDark, colorLight } = getQRAppearance();
     const model = qrInstance._oQRCode;
     const count = model.getModuleCount();
+    const total = count + QUIET_ZONE * 2;
     let path = "";
     for (let row = 0; row < count; row++) {
       for (let col = 0; col < count; col++) {
-        if (model.isDark(row, col)) path += `M${col} ${row}h1v1h-1z`;
+        if (model.isDark(row, col)) path += `M${col + QUIET_ZONE} ${row + QUIET_ZONE}h1v1h-1z`;
       }
     }
     return (
-      `<?xml version="1.0" standalone="no"?>
-` +
-      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${count} ${count}" shape-rendering="crispEdges">` +
+      `<?xml version="1.0" standalone="no"?>\r\n` +
+      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${total} ${total}" shape-rendering="crispEdges">` +
       (exportTransparent?.checked
         ? ""
-        : `<rect width="${count}" height="${count}" fill="${colorLight}"/>`) +
+        : `<rect width="${total}" height="${total}" fill="${colorLight}"/>`) +
       `<path d="${path}" fill="${colorDark}"/></svg>`
     );
   }
