@@ -22,9 +22,7 @@ export function initQRGenerator() {
     !qrActions ||
     !downloadPngBtn ||
     !downloadSvgBtn ||
-    !copyQrBtn ||
-    !exportScale ||
-    !exportTransparent
+    !copyQrBtn
   ) {
     console.warn("QR Generator: required elements not found");
     return;
@@ -69,7 +67,7 @@ export function initQRGenerator() {
   // draws the module matrix on a fresh canvas so any scale stays crisp
   function renderPngBlob() {
     const { size, colorDark, colorLight } = getQRAppearance();
-    const scale = parseInt(exportScale.value, 10);
+    const scale = parseInt(exportScale?.value ?? "1", 10);
     const model = qrInstance._oQRCode;
     const count = model.getModuleCount();
     const cell = Math.ceil((size * scale) / count);
@@ -77,7 +75,7 @@ export function initQRGenerator() {
     const canvas = document.createElement("canvas");
     canvas.width = canvas.height = count * cell;
     const ctx = canvas.getContext("2d");
-    if (!exportTransparent.checked) {
+    if (!exportTransparent?.checked) {
       ctx.fillStyle = colorLight;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
@@ -132,7 +130,7 @@ export function initQRGenerator() {
       `<?xml version="1.0" standalone="no"?>
 ` +
       `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${count} ${count}" shape-rendering="crispEdges">` +
-      (exportTransparent.checked
+      (exportTransparent?.checked
         ? ""
         : `<rect width="${count}" height="${count}" fill="${colorLight}"/>`) +
       `<path d="${path}" fill="${colorDark}"/></svg>`
