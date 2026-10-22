@@ -2,5 +2,6 @@
 export function getQRStyle() {
   return {
     shape: document.getElementById("qr-shape")?.value ?? "square",
+    corner: document.getElementById("qr-corner")?.value ?? "square",
   };
 }
