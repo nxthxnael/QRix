@@ -1,13 +1,12 @@
 import { getQRData } from "./utils.js";
 import { getQRAppearance } from "./color-picker.js";
+import { buildSvg, QUIET_ZONE } from "./qr-svg.js";
+import { getQRStyle } from "./qr-style.js";
 
 let qrInstance = null;
 
 // shortcut: fixed delay, not a download-complete signal, enough for the browser to start reading the blob
 const REVOKE_DELAY_MS = 10000;
-
-// clear border the qr standard asks for, measured in modules
-const QUIET_ZONE = 4;
 
 export function initQRGenerator() {
   const qrContainer = document.querySelector(".qr-code-container");
@@ -55,18 +54,18 @@ export function initQRGenerator() {
       return;
     }
 
-    const { size, colorDark, colorLight } = getQRAppearance();
+    const { size } = getQRAppearance();
 
-    qrContainer.innerHTML = "";
-
-    qrInstance = new QRCode(qrContainer, {
+    // qrcodejs only encodes here; the preview and exports are drawn from its matrix as svg
+    qrInstance = new QRCode(document.createElement("div"), {
       text: data,
       width: size,
       height: size,
-      colorDark,
-      colorLight,
-      correctLevel: QRCode.CorrectLevel[errorCorrection?.value] ?? QRCode.CorrectLevel.H,
+      correctLevel: QRCode.CorrectLevel[getQRStyle().logo ? "H" : errorCorrection?.value] ?? QRCode.CorrectLevel.H,
     });
+
+    const svg = new DOMParser().parseFromString(svgMarkup({ size }), "image/svg+xml");
+    qrContainer.replaceChildren(document.importNode(svg.documentElement, true));
 
     // Show actions after a short delay for QR code to render
     actionsTimer = setTimeout(() => {
@@ -75,34 +74,47 @@ export function initQRGenerator() {
     }, 100);
   }
 
-  // draws the module matrix on a fresh canvas so any scale stays crisp
-  function renderPngBlob() {
-    const { size, colorDark, colorLight } = getQRAppearance();
-    const scale = parseInt(exportScale?.value ?? "1", 10);
-    const model = qrInstance._oQRCode;
-    const count = model.getModuleCount();
-    const total = count + QUIET_ZONE * 2;
-    const cell = Math.ceil((size * scale) / total);
+  function svgMarkup({ size, transparent = false } = {}) {
+    const { colorDark, colorLight, colorDark2, gradient } = getQRAppearance();
+    return buildSvg({
+      model: qrInstance._oQRCode,
+      colorDark,
+      colorLight,
+      colorDark2,
+      gradient,
+      transparent,
+      size,
+      ...getQRStyle(),
+    });
+  }
 
-    const canvas = document.createElement("canvas");
-    canvas.width = canvas.height = total * cell;
-    const ctx = canvas.getContext("2d");
-    if (!exportTransparent?.checked) {
-      ctx.fillStyle = colorLight;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+  // rasterizes the same svg the preview uses so png, svg and preview always match
+  async function renderPngBlob() {
+    const { size } = getQRAppearance();
+    const scale = parseInt(exportScale?.value ?? "1", 10);
+    const total = qrInstance._oQRCode.getModuleCount() + QUIET_ZONE * 2;
+    // whole pixels per module keep edges crisp
+    const px = total * Math.ceil((size * scale) / total);
+
+    const markup = svgMarkup({ size: px, transparent: exportTransparent?.checked });
+    const url = URL.createObjectURL(new Blob([markup], { type: "image/svg+xml;charset=utf-8" }));
+    try {
+      const img = new Image();
+      img.src = url;
+      await img.decode();
+
+      const canvas = document.createElement("canvas");
+      canvas.width = canvas.height = px;
+      canvas.getContext("2d").drawImage(img, 0, 0, px, px);
+      return await new Promise((resolve, reject) =>
+        canvas.toBlob(
+          (blob) => (blob ? resolve(blob) : reject(new Error("png encoding failed"))),
+          "image/png"
+        )
+      );
+    } finally {
+      URL.revokeObjectURL(url);
     }
-    ctx.fillStyle = colorDark;
-    for (let row = 0; row < count; row++) {
-      for (let col = 0; col < count; col++) {
-        if (model.isDark(row, col)) ctx.fillRect((col + QUIET_ZONE) * cell, (row + QUIET_ZONE) * cell, cell, cell);
-      }
-    }
-    return new Promise((resolve, reject) =>
-      canvas.toBlob(
-        (blob) => (blob ? resolve(blob) : reject(new Error("png encoding failed"))),
-        "image/png"
-      )
-    );
   }
 
   async function downloadAsPng() {
@@ -127,34 +139,13 @@ export function initQRGenerator() {
     setTimeout(() => URL.revokeObjectURL(url), REVOKE_DELAY_MS);
   }
 
-  // qrcodejs only draws svg inside svg documents, so build it from the module matrix
-  function buildSvg() {
-    const { colorDark, colorLight } = getQRAppearance();
-    const model = qrInstance._oQRCode;
-    const count = model.getModuleCount();
-    const total = count + QUIET_ZONE * 2;
-    let path = "";
-    for (let row = 0; row < count; row++) {
-      for (let col = 0; col < count; col++) {
-        if (model.isDark(row, col)) path += `M${col + QUIET_ZONE} ${row + QUIET_ZONE}h1v1h-1z`;
-      }
-    }
-    return (
-      `<?xml version="1.0" standalone="no"?>\r\n` +
-      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${total} ${total}" shape-rendering="crispEdges">` +
-      (exportTransparent?.checked
-        ? ""
-        : `<rect width="${total}" height="${total}" fill="${colorLight}"/>`) +
-      `<path d="${path}" fill="${colorDark}"/></svg>`
-    );
-  }
-
   function downloadAsSvg() {
     if (!qrInstance) return;
 
-    const svgBlob = new Blob([buildSvg()], {
-      type: "image/svg+xml;charset=utf-8",
-    });
+    const svgBlob = new Blob(
+      [`<?xml version="1.0" standalone="no"?>\r\n${svgMarkup({ transparent: exportTransparent?.checked })}`],
+      { type: "image/svg+xml;charset=utf-8" }
+    );
     const svgUrl = URL.createObjectURL(svgBlob);
 
     const link = document.createElement("a");

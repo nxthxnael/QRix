@@ -154,17 +154,48 @@
   transition: background-color 0.2s ease;
 }
 
+.action-btn[hidden] {
+  display: none;
+}
+
 .action-btn:hover {
   background-color: var(--tertiary-text-color);
   color: var(--primary-text-color);
 }
 
 .action-btn:focus-visible,
+.preset-btn:focus-visible,
+.form-row input[type="file"]:focus-visible,
 .export-option select:focus-visible,
 .export-option input:focus-visible,
 .form-row select:focus-visible {
   outline: 2px solid var(--primary-text-color);
   outline-offset: 2px;
+}
+
+.preset-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.preset-btn {
+  padding: 0.6rem 1.4rem;
+  border: 1px solid var(--tertiary-text-color);
+  border-radius: 0.3rem;
+  background-color: var(--white);
+  color: var(--primary-text-color);
+  font-size: 1.3rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.preset-btn:hover {
+  background-color: var(--tertiary-text-color);
+}
+
+.logo-selection .action-btn {
+  margin-top: 1rem;
 }
 
 .action-btn i {

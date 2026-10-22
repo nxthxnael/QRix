@@ -168,6 +168,19 @@
                 </div>
               </div>
 
+              <!-- Style Presets -->
+              <div class="preset-selection">
+                <div class="form-row">
+                  <h3>Style Presets</h3>
+                  <div class="preset-buttons">
+                    <button type="button" class="preset-btn" data-preset="classic">Classic</button>
+                    <button type="button" class="preset-btn" data-preset="soft">Soft</button>
+                    <button type="button" class="preset-btn" data-preset="dots">Dots</button>
+                    <button type="button" class="preset-btn" data-preset="ocean">Ocean</button>
+                  </div>
+                </div>
+              </div>
+
               <!-- Color Selection -->
               <div class="color-selection">
                 <div class="form-row">
@@ -194,7 +207,73 @@
                     />
                   </div>
                 </div>
+                <div class="form-row">
+                  <h3>Gradient</h3>
+                  <select id="qr-gradient">
+                    <option value="none" selected>None</option>
+                    <option value="horizontal">Horizontal</option>
+                    <option value="vertical">Vertical</option>
+                    <option value="diagonal">Diagonal</option>
+                  </select>
+                </div>
+                <div class="form-row">
+                  <h3>Gradient End Color</h3>
+                  <div class="color-box">
+                    <input type="color" id="qr-color2" value="#2563eb" />
+                    <input
+                      type="text"
+                      id="qr-color2-text"
+                      value="#2563EB"
+                      maxlength="7"
+                    />
+                  </div>
+                </div>
                 <p id="qr-contrast-warning" class="contrast-warning" role="alert" hidden></p>
+              </div>
+
+              <!-- Module Shape -->
+              <div class="shape-selection">
+                <div class="form-row">
+                  <h3>Module Shape</h3>
+                  <select id="qr-shape">
+                    <option value="square" selected>Square</option>
+                    <option value="rounded">Rounded</option>
+                    <option value="dots">Dots</option>
+                  </select>
+                  <p class="field-hint">
+                    Dots scan best with High error correction.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Corner Style -->
+              <div class="corner-selection">
+                <div class="form-row">
+                  <h3>Corner Style</h3>
+                  <select id="qr-corner">
+                    <option value="square" selected>Square</option>
+                    <option value="rounded">Rounded</option>
+                    <option value="circle">Circle</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Logo -->
+              <div class="logo-selection">
+                <div class="form-row">
+                  <h3>Logo</h3>
+                  <input
+                    type="file"
+                    id="qr-logo"
+                    accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                  />
+                  <button type="button" class="action-btn" id="qr-logo-clear" hidden>
+                    Remove logo
+                  </button>
+                  <p class="field-hint">
+                    A logo uses High error correction and clears the modules behind it.
+                  </p>
+                </div>
               </div>
 
               <!-- Size Selection -->
