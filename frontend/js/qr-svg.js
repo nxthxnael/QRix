@@ -3,6 +3,11 @@ export const QUIET_ZONE = 4;
 
 const FINDER = 7;
 
+// logo width as a share of the code width, kept small so high error correction can cover the cleared modules
+const LOGO_RATIO = 0.24;
+// shortcut: tiny codes have no room for a logo clear of the finders, so they get none
+const LOGO_MIN_MODULES = 25;
+
 // the three 7x7 position squares scanners lock onto
 const isFinder = (count, row, col) =>
   (row < FINDER && (col < FINDER || col >= count - FINDER)) || (row >= count - FINDER && col < FINDER);
@@ -46,13 +51,19 @@ export function buildSvg({
   size,
   shape = "square",
   corner = "square",
+  logo = null,
 }) {
   const count = model.getModuleCount();
   const total = count + QUIET_ZONE * 2;
   const draw = SHAPES[shape] ?? square;
+  const side = logo && count >= LOGO_MIN_MODULES ? Math.round(count * LOGO_RATIO) : 0;
+  const start = Math.floor((count - side) / 2);
+  // modules under the logo and one module around it are left out
+  const underLogo = (n) => side > 0 && n >= start - 1 && n < start + side + 1;
   let path = "";
   for (let row = 0; row < count; row++) {
     for (let col = 0; col < count; col++) {
+      if (underLogo(row) && underLogo(col)) continue;
       if (model.isDark(row, col) && !isFinder(count, row, col)) path += draw(col + QUIET_ZONE, row + QUIET_ZONE);
     }
   }
@@ -71,6 +82,10 @@ export function buildSvg({
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${total} ${total}"${dimensions} shape-rendering="${rendering}">` +
     defs +
     (transparent ? "" : `<rect width="${total}" height="${total}" fill="${colorLight}"/>`) +
-    `<path d="${path}" fill="${fill}"/></svg>`
+    `<path d="${path}" fill="${fill}"/>` +
+    (side
+      ? `<image href="${logo}" x="${start + QUIET_ZONE}" y="${start + QUIET_ZONE}" width="${side}" height="${side}" preserveAspectRatio="xMidYMid meet"/>`
+      : "") +
+    "</svg>"
   );
 }

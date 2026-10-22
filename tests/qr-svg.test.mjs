@@ -31,4 +31,15 @@ assert.ok(graded.includes('fill="url(#qr-gradient-fill)"'), "modules use the gra
 assert.ok(graded.includes('stop-color="#2563eb"'), "gradient ends on the second color");
 assert.ok(!svg.includes("linearGradient"), "no gradient by default");
 
+const logoUrl = "data:image/png;base64,AAAA";
+const grid = (count) => ({ getModuleCount: () => count, isDark: () => true });
+const withLogo = buildSvg({ ...base, model: grid(29), logo: logoUrl });
+assert.ok(withLogo.includes(`<image href="${logoUrl}"`), "logo is drawn as an image");
+// 29 modules: side 7, start 11, so a data module at 14,14 is cleared and one at 9,9 is kept
+assert.ok(!withLogo.includes(`M${14 + QUIET_ZONE} ${14 + QUIET_ZONE}h`), "modules behind the logo are cleared");
+assert.ok(withLogo.includes(`M${9 + QUIET_ZONE} ${9 + QUIET_ZONE}h`), "modules away from the logo are kept");
+assert.ok(withLogo.includes(`M${QUIET_ZONE} ${QUIET_ZONE}h7v7h-7z`), "finders are untouched by the logo");
+assert.ok(!buildSvg({ ...base, model: grid(21), logo: logoUrl }).includes("<image"), "tiny codes get no logo");
+assert.ok(!buildSvg({ ...base, model: grid(29) }).includes("<image"), "no logo by default");
+
 console.log("qr-svg: ok");

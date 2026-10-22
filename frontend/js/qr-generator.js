@@ -61,7 +61,7 @@ export function initQRGenerator() {
       text: data,
       width: size,
       height: size,
-      correctLevel: QRCode.CorrectLevel[errorCorrection?.value] ?? QRCode.CorrectLevel.H,
+      correctLevel: QRCode.CorrectLevel[getQRStyle().logo ? "H" : errorCorrection?.value] ?? QRCode.CorrectLevel.H,
     });
 
     const svg = new DOMParser().parseFromString(svgMarkup({ size }), "image/svg+xml");
