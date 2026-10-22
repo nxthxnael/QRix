@@ -1,6 +1,7 @@
 import { getQRData } from "./utils.js";
 import { getQRAppearance } from "./color-picker.js";
 import { buildSvg, QUIET_ZONE } from "./qr-svg.js";
+import { getQRStyle } from "./qr-style.js";
 
 let qrInstance = null;
 
@@ -75,7 +76,7 @@ export function initQRGenerator() {
 
   function svgMarkup({ size, transparent = false } = {}) {
     const { colorDark, colorLight } = getQRAppearance();
-    return buildSvg({ model: qrInstance._oQRCode, colorDark, colorLight, transparent, size });
+    return buildSvg({ model: qrInstance._oQRCode, colorDark, colorLight, transparent, size, ...getQRStyle() });
   }
 
   // rasterizes the same svg the preview uses so png, svg and preview always match

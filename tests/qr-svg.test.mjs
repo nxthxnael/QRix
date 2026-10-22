@@ -15,4 +15,11 @@ assert.ok(!buildSvg({ ...base, transparent: true }).includes("<rect"), "transpar
 assert.ok(buildSvg({ ...base, size: 256 }).includes('width="256"'), "size adds dimensions for the preview");
 assert.ok(!svg.includes("width=\"256\""), "export svg has no fixed dimensions");
 
+const big = { getModuleCount: () => 21, isDark: (row, col) => (row === 10 && col === 10) || (row === 0 && col === 0) };
+const rounded = buildSvg({ ...base, model: big, shape: "rounded" });
+assert.ok(rounded.includes("a0.3 0.3"), "rounded shape draws arcs for data modules");
+assert.ok(rounded.includes(`M${QUIET_ZONE} ${QUIET_ZONE}h1v1h-1z`), "finder modules stay square");
+assert.ok(buildSvg({ ...base, model: big, shape: "dots" }).includes("a0.5 0.5"), "dots shape draws circles");
+assert.ok(buildSvg({ ...base, shape: "nope" }).includes("h1v1h-1z"), "unknown shape falls back to square");
+
 console.log("qr-svg: ok");
