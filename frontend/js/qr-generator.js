@@ -36,9 +36,13 @@ export function initQRGenerator() {
   downloadSvgBtn.addEventListener("click", downloadAsSvg);
   copyQrBtn.addEventListener("click", copyToClipboard);
 
+  let actionsTimer;
+
   function generateQR() {
+    clearTimeout(actionsTimer);
     const data = getQRData();
     if (!data) {
+      qrInstance = null;
       qrContainer.innerHTML = "<p>Enter content to generate code</p>";
       qrActions.style.display = "none";
       return;
@@ -58,7 +62,7 @@ export function initQRGenerator() {
     });
 
     // Show actions after a short delay for QR code to render
-    setTimeout(() => {
+    actionsTimer = setTimeout(() => {
       qrActions.style.display = "flex";
       setTimeout(() => qrActions.classList.add("visible"), 10);
     }, 100);
