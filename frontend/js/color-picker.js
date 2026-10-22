@@ -97,9 +97,14 @@ export function initColorPicker(onChange) {
 
   if (color2Input && color2Text) syncColorInputs(color2Input, color2Text, "colorDark2");
 
+  // the end color only matters while a gradient is on
+  const color2Row = color2Input?.closest(".form-row");
+  if (color2Row) color2Row.hidden = qrAppearance.gradient === "none";
+
   if (gradientSelect) {
     gradientSelect.addEventListener("change", () => {
       qrAppearance.gradient = gradientSelect.value;
+      if (color2Row) color2Row.hidden = qrAppearance.gradient === "none";
       updateWarning();
       if (onChange) onChange(qrAppearance);
     });
