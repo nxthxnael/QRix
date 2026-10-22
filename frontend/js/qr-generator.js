@@ -165,21 +165,27 @@ export function initQRGenerator() {
     if (!qrInstance) return;
 
     try {
-      const blob = await renderPngBlob();
-      await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
-      showCopyFeedback();
+      // pass the promise so the write starts inside the click's user activation
+      await navigator.clipboard.write([
+        new ClipboardItem({ "image/png": renderPngBlob() }),
+      ]);
+      showCopyFeedback('<i class="fas fa-check"></i> Copied!', "#4CAF50");
     } catch (err) {
       console.error("Failed to copy QR code: ", err);
+      showCopyFeedback('<i class="fas fa-xmark"></i> Copy failed', "#c0392b");
     }
   }
 
-  function showCopyFeedback() {
-    const originalText = copyQrBtn.innerHTML;
-    copyQrBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
-    copyQrBtn.style.backgroundColor = "#4CAF50";
+  const copyLabel = copyQrBtn.innerHTML;
+  let feedbackTimer;
 
-    setTimeout(() => {
-      copyQrBtn.innerHTML = originalText;
+  function showCopyFeedback(html, color) {
+    clearTimeout(feedbackTimer);
+    copyQrBtn.innerHTML = html;
+    copyQrBtn.style.backgroundColor = color;
+
+    feedbackTimer = setTimeout(() => {
+      copyQrBtn.innerHTML = copyLabel;
       copyQrBtn.style.backgroundColor = "";
     }, 2000);
   }
