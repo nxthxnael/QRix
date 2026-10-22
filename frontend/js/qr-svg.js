@@ -17,6 +17,9 @@ const dots = (x, y) => `M${x} ${y + 0.5}a0.5 0.5 0 1 0 1 0a0.5 0.5 0 1 0-1 0z`;
 
 export const SHAPES = { square, rounded, dots };
 
+// [x1, y1, x2, y2] of the linear gradient across the code, as fractions of its box
+const GRADIENTS = { horizontal: [0, 0, 1, 0], vertical: [0, 0, 0, 1], diagonal: [0, 0, 1, 1] };
+
 // clockwise and counter-clockwise rounded rects; the opposite winding cuts the ring hole
 const rr = (x, y, w, h, r) =>
   `M${x + r} ${y}h${w - 2 * r}a${r} ${r} 0 0 1 ${r} ${r}v${h - 2 * r}a${r} ${r} 0 0 1-${r} ${r}h-${w - 2 * r}a${r} ${r} 0 0 1-${r}-${r}v-${h - 2 * r}a${r} ${r} 0 0 1 ${r}-${r}z`;
@@ -33,7 +36,17 @@ function finder(x, y, style) {
 }
 
 // model needs getModuleCount() and isDark(row, col); size adds width/height for the preview
-export function buildSvg({ model, colorDark, colorLight, transparent = false, size, shape = "square", corner = "square" }) {
+export function buildSvg({
+  model,
+  colorDark,
+  colorLight,
+  colorDark2,
+  gradient = "none",
+  transparent = false,
+  size,
+  shape = "square",
+  corner = "square",
+}) {
   const count = model.getModuleCount();
   const total = count + QUIET_ZONE * 2;
   const draw = SHAPES[shape] ?? square;
@@ -48,10 +61,16 @@ export function buildSvg({ model, colorDark, colorLight, transparent = false, si
     path += finder(col + QUIET_ZONE, row + QUIET_ZONE, corner);
   }
   const dimensions = size ? ` width="${size}" height="${size}" style="max-width:100%;height:auto"` : "";
+  const vector = GRADIENTS[gradient];
+  const defs = vector
+    ? `<defs><linearGradient id="qr-gradient-fill" x1="${vector[0]}" y1="${vector[1]}" x2="${vector[2]}" y2="${vector[3]}"><stop offset="0" stop-color="${colorDark}"/><stop offset="1" stop-color="${colorDark2}"/></linearGradient></defs>`
+    : "";
+  const fill = vector ? "url(#qr-gradient-fill)" : colorDark;
   const rendering = shape === "square" && corner === "square" ? "crispEdges" : "geometricPrecision";
   return (
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${total} ${total}"${dimensions} shape-rendering="${rendering}">` +
+    defs +
     (transparent ? "" : `<rect width="${total}" height="${total}" fill="${colorLight}"/>`) +
-    `<path d="${path}" fill="${colorDark}"/></svg>`
+    `<path d="${path}" fill="${fill}"/></svg>`
   );
 }

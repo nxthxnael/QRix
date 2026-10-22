@@ -2,6 +2,8 @@ let qrAppearance = {
   size: 256,
   colorDark: "#000000",
   colorLight: "#ffffff",
+  colorDark2: "#2563eb",
+  gradient: "none",
 };
 
 // WCAG relative luminance of a #rrggbb color
@@ -16,7 +18,7 @@ function luminance(hex) {
 // shortcut: 3:1 is a rule of thumb for phone scanners, not a guarantee; tune it after real scan tests
 const MIN_CONTRAST = 3;
 
-export function getContrastWarning({ colorDark, colorLight }) {
+function pairWarning(colorDark, colorLight) {
   const dark = luminance(colorDark);
   const light = luminance(colorLight);
   if (dark > light) {
@@ -28,6 +30,12 @@ export function getContrastWarning({ colorDark, colorLight }) {
   return "";
 }
 
+// a gradient has to pass at both of its colors
+export function getContrastWarning({ colorDark, colorLight, colorDark2, gradient = "none" }) {
+  const stops = gradient === "none" ? [colorDark] : [colorDark, colorDark2];
+  return stops.map((stop) => pairWarning(stop, colorLight)).find(Boolean) ?? "";
+}
+
 export function initColorPicker(onChange) {
   const colorInput = document.getElementById("qr-color");
   const bgInput = document.getElementById("qr-background");
@@ -35,6 +43,9 @@ export function initColorPicker(onChange) {
   const sizeLabel = document.getElementById("qr-size-value");
   const colorText = document.getElementById("qr-color-text");
   const bgText = document.getElementById("qr-background-text");
+  const color2Input = document.getElementById("qr-color2");
+  const color2Text = document.getElementById("qr-color2-text");
+  const gradientSelect = document.getElementById("qr-gradient");
   const warning = document.getElementById("qr-contrast-warning");
 
   function updateWarning() {
@@ -79,6 +90,16 @@ export function initColorPicker(onChange) {
   } else if (bgInput) {
     bgInput.addEventListener("input", () => {
       qrAppearance.colorLight = bgInput.value;
+      updateWarning();
+      if (onChange) onChange(qrAppearance);
+    });
+  }
+
+  if (color2Input && color2Text) syncColorInputs(color2Input, color2Text, "colorDark2");
+
+  if (gradientSelect) {
+    gradientSelect.addEventListener("change", () => {
+      qrAppearance.gradient = gradientSelect.value;
       updateWarning();
       if (onChange) onChange(qrAppearance);
     });

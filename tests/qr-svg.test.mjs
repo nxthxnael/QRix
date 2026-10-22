@@ -25,4 +25,10 @@ assert.ok(buildSvg({ ...base, model: big, corner: "rounded" }).includes("a1.6 1.
 assert.ok(buildSvg({ ...base, model: big, corner: "circle" }).includes("a3.5 3.5"), "circle corner style draws a round finder");
 assert.ok(buildSvg({ ...base, model: big, corner: "nope" }).includes(`M${QUIET_ZONE} ${QUIET_ZONE}h7v7h-7z`), "unknown corner falls back to square");
 
+const graded = buildSvg({ ...base, colorDark2: "#2563eb", gradient: "diagonal" });
+assert.ok(graded.includes("<linearGradient"), "gradient adds a linearGradient");
+assert.ok(graded.includes('fill="url(#qr-gradient-fill)"'), "modules use the gradient fill");
+assert.ok(graded.includes('stop-color="#2563eb"'), "gradient ends on the second color");
+assert.ok(!svg.includes("linearGradient"), "no gradient by default");
+
 console.log("qr-svg: ok");
