@@ -30,7 +30,8 @@ function pairWarning(colorDark, colorLight) {
   return "";
 }
 
-// a gradient has to pass at both of its colors
+// a gradient has to pass at both of its colors; sRGB luminance is convex, so no blend is
+// lighter than its lightest stop and the stops are the worst case for dark-on-light contrast
 export function getContrastWarning({ colorDark, colorLight, colorDark2, gradient = "none" }) {
   const stops = gradient === "none" ? [colorDark] : [colorDark, colorDark2];
   return stops.map((stop) => pairWarning(stop, colorLight)).find(Boolean) ?? "";
