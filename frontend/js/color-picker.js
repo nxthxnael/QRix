@@ -4,6 +4,30 @@ let qrAppearance = {
   colorLight: "#ffffff",
 };
 
+// WCAG relative luminance of a #rrggbb color
+function luminance(hex) {
+  const [r, g, b] = [1, 3, 5].map((i) => {
+    const channel = parseInt(hex.slice(i, i + 2), 16) / 255;
+    return channel <= 0.03928 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
+  });
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+// shortcut: 3:1 is a rule of thumb for phone scanners, not a guarantee; tune it after real scan tests
+const MIN_CONTRAST = 3;
+
+export function getContrastWarning({ colorDark, colorLight }) {
+  const dark = luminance(colorDark);
+  const light = luminance(colorLight);
+  if (dark > light) {
+    return "The code is lighter than its background. Many scanners cannot read inverted codes.";
+  }
+  if ((light + 0.05) / (dark + 0.05) < MIN_CONTRAST) {
+    return "Low contrast between the code and its background. It may not scan reliably.";
+  }
+  return "";
+}
+
 export function initColorPicker(onChange) {
   const colorInput = document.getElementById("qr-color");
   const bgInput = document.getElementById("qr-background");
@@ -11,12 +35,20 @@ export function initColorPicker(onChange) {
   const sizeLabel = document.getElementById("qr-size-value");
   const colorText = document.getElementById("qr-color-text");
   const bgText = document.getElementById("qr-background-text");
+  const warning = document.getElementById("qr-contrast-warning");
+
+  function updateWarning() {
+    if (!warning) return;
+    warning.textContent = getContrastWarning(qrAppearance);
+    warning.hidden = !warning.textContent;
+  }
 
   function syncColorInputs(picker, textInput, property) {
     // Update text when picker changes
     picker.addEventListener("input", () => {
       textInput.value = picker.value.toUpperCase();
       qrAppearance[property] = picker.value;
+      updateWarning();
       if (onChange) onChange(qrAppearance);
     });
 
@@ -26,6 +58,7 @@ export function initColorPicker(onChange) {
       if (/^#[0-9A-F]{6}$/i.test(val)) {
         picker.value = val;
         qrAppearance[property] = val;
+        updateWarning();
         if (onChange) onChange(qrAppearance);
       }
     });
@@ -36,6 +69,7 @@ export function initColorPicker(onChange) {
   } else if (colorInput) {
     colorInput.addEventListener("input", () => {
       qrAppearance.colorDark = colorInput.value;
+      updateWarning();
       if (onChange) onChange(qrAppearance);
     });
   }
@@ -45,6 +79,7 @@ export function initColorPicker(onChange) {
   } else if (bgInput) {
     bgInput.addEventListener("input", () => {
       qrAppearance.colorLight = bgInput.value;
+      updateWarning();
       if (onChange) onChange(qrAppearance);
     });
   }

@@ -48,9 +48,26 @@
 }
 
 .form-row input,
-.form-row textarea {
+.form-row textarea,
+.form-row select {
   width: 100%;
   padding: 1rem;
+}
+
+.field-hint {
+  margin-top: 0.8rem;
+  font-size: 1.2rem;
+  color: var(--secondary-text-color);
+}
+
+.contrast-warning {
+  margin: -1rem 0 2rem;
+  padding: 0.75rem 1rem;
+  border-left: 4px solid #c0392b;
+  border-radius: 0.3rem;
+  background-color: #fdecea;
+  color: #7a1f16;
+  font-size: 1.3rem;
 }
 
 .color-box {
@@ -75,11 +92,9 @@
 /* QR Code Actions */
 .qr-actions {
   display: flex;
-  gap: 1rem;
-  justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
-  margin-top: 1.5rem;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-top: 2rem;
   opacity: 0;
   transform: translateY(10px);
   transition: opacity 0.3s ease, transform 0.3s ease;
@@ -90,11 +105,32 @@
   transform: translateY(0);
 }
 
+.export-options,
+.export-buttons {
+  display: flex;
+  gap: 1rem 2rem;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.export-buttons {
+  flex-wrap: nowrap;
+  gap: 1rem;
+}
+
+.export-buttons .action-btn {
+  flex: 1 1 0;
+  max-width: 14rem;
+  justify-content: center;
+  padding: 0.5rem 0.8rem;
+}
+
 .export-option {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 0.9rem;
+  font-size: 1.3rem;
   color: var(--secondary-text-color);
 }
 
@@ -121,6 +157,14 @@
 .action-btn:hover {
   background-color: var(--tertiary-text-color);
   color: var(--primary-text-color);
+}
+
+.action-btn:focus-visible,
+.export-option select:focus-visible,
+.export-option input:focus-visible,
+.form-row select:focus-visible {
+  outline: 2px solid var(--primary-text-color);
+  outline-offset: 2px;
 }
 
 .action-btn i {

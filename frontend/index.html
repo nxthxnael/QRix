@@ -194,6 +194,7 @@
                     />
                   </div>
                 </div>
+                <p id="qr-contrast-warning" class="contrast-warning" role="alert" hidden></p>
               </div>
 
               <!-- Size Selection -->
@@ -213,44 +214,64 @@
                   />
                 </div>
               </div>
+
+              <!-- Error Correction -->
+              <div class="error-correction-selection">
+                <div class="form-row">
+                  <h3>Error Correction</h3>
+                  <select id="qr-error-correction">
+                    <option value="L">Low (7%)</option>
+                    <option value="M">Medium (15%)</option>
+                    <option value="Q">Quartile (25%)</option>
+                    <option value="H" selected>High (30%)</option>
+                  </select>
+                  <p class="field-hint">
+                    Higher levels survive more damage but make a denser code.
+                  </p>
+                </div>
+              </div>
             </div>
             <div class="qr-code-container">
               <p>Enter text to generate code</p>
             </div>
             <div class="qr-actions" style="display: none">
-              <label class="export-option" for="exportScale">
-                PNG scale
-                <select id="exportScale">
-                  <option value="1" selected>1x</option>
-                  <option value="2">2x</option>
-                  <option value="4">4x</option>
-                </select>
-              </label>
-              <label class="export-option" for="exportTransparent">
-                <input type="checkbox" id="exportTransparent" />
-                Transparent background
-              </label>
-              <button
-                class="action-btn"
-                id="downloadPngBtn"
-                title="Download as PNG"
-              >
-                <i class="fas fa-download"></i> PNG
-              </button>
-              <button
-                class="action-btn"
-                id="downloadSvgBtn"
-                title="Download as SVG"
-              >
-                <i class="fas fa-download"></i> SVG
-              </button>
-              <button
-                class="action-btn"
-                id="copyQrBtn"
-                title="Copy to clipboard"
-              >
-                <i class="far fa-copy"></i> Copy
-              </button>
+              <div class="export-options">
+                <label class="export-option" for="exportScale">
+                  PNG scale
+                  <select id="exportScale">
+                    <option value="1" selected>1x</option>
+                    <option value="2">2x</option>
+                    <option value="4">4x</option>
+                  </select>
+                </label>
+                <label class="export-option" for="exportTransparent">
+                  <input type="checkbox" id="exportTransparent" />
+                  Transparent background
+                </label>
+              </div>
+              <div class="export-buttons">
+                <button
+                  class="action-btn"
+                  id="downloadPngBtn"
+                  title="Download as PNG"
+                >
+                  <i class="fas fa-download"></i> PNG
+                </button>
+                <button
+                  class="action-btn"
+                  id="downloadSvgBtn"
+                  title="Download as SVG"
+                >
+                  <i class="fas fa-download"></i> SVG
+                </button>
+                <button
+                  class="action-btn"
+                  id="copyQrBtn"
+                  title="Copy to clipboard"
+                >
+                  <i class="far fa-copy"></i> Copy
+                </button>
+              </div>
             </div>
           </div>
         </div>
