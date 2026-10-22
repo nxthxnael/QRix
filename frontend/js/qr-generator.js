@@ -87,13 +87,27 @@ export function initQRGenerator() {
         if (model.isDark(row, col)) ctx.fillRect(col * cell, row * cell, cell, cell);
       }
     }
-    return new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
+    return new Promise((resolve, reject) =>
+      canvas.toBlob(
+        (blob) => (blob ? resolve(blob) : reject(new Error("png encoding failed"))),
+        "image/png"
+      )
+    );
   }
 
   async function downloadAsPng() {
     if (!qrInstance) return;
 
-    const url = URL.createObjectURL(await renderPngBlob());
+    let blob;
+    try {
+      blob = await renderPngBlob();
+    } catch (err) {
+      console.error("Failed to export PNG: ", err);
+      alert("Could not create the PNG. Try a smaller scale.");
+      return;
+    }
+
+    const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.download = "qrcode.png";
     link.href = url;
