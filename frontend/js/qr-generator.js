@@ -3,6 +3,12 @@ import { getQRAppearance } from "./color-picker.js";
 
 let qrInstance = null;
 
+// shortcut: fixed delay, not a download-complete signal, enough for the browser to start reading the blob
+const REVOKE_DELAY_MS = 10000;
+
+// clear border the qr standard asks for, measured in modules
+const QUIET_ZONE = 4;
+
 export function initQRGenerator() {
   const qrContainer = document.querySelector(".qr-code-container");
   const generationSection = document.querySelector(".generation-section");
@@ -19,9 +25,7 @@ export function initQRGenerator() {
     !qrActions ||
     !downloadPngBtn ||
     !downloadSvgBtn ||
-    !copyQrBtn ||
-    !exportScale ||
-    !exportTransparent
+    !copyQrBtn
   ) {
     console.warn("QR Generator: required elements not found");
     return;
@@ -35,9 +39,16 @@ export function initQRGenerator() {
   downloadSvgBtn.addEventListener("click", downloadAsSvg);
   copyQrBtn.addEventListener("click", copyToClipboard);
 
-  function generateQR() {
+  let actionsTimer;
+
+  function generateQR(event) {
+    // export options only change the downloaded file, not the preview
+    if (event?.target.closest(".qr-actions")) return;
+
+    clearTimeout(actionsTimer);
     const data = getQRData();
     if (!data) {
+      qrInstance = null;
       qrContainer.innerHTML = "<p>Enter content to generate code</p>";
       qrActions.style.display = "none";
       return;
@@ -57,7 +68,7 @@ export function initQRGenerator() {
     });
 
     // Show actions after a short delay for QR code to render
-    setTimeout(() => {
+    actionsTimer = setTimeout(() => {
       qrActions.style.display = "flex";
       setTimeout(() => qrActions.classList.add("visible"), 10);
     }, 100);
@@ -66,38 +77,53 @@ export function initQRGenerator() {
   // draws the module matrix on a fresh canvas so any scale stays crisp
   function renderPngBlob() {
     const { size, colorDark, colorLight } = getQRAppearance();
-    const scale = parseInt(exportScale.value, 10);
+    const scale = parseInt(exportScale?.value ?? "1", 10);
     const model = qrInstance._oQRCode;
     const count = model.getModuleCount();
-    const cell = Math.ceil((size * scale) / count);
+    const total = count + QUIET_ZONE * 2;
+    const cell = Math.ceil((size * scale) / total);
 
     const canvas = document.createElement("canvas");
-    canvas.width = canvas.height = count * cell;
+    canvas.width = canvas.height = total * cell;
     const ctx = canvas.getContext("2d");
-    if (!exportTransparent.checked) {
+    if (!exportTransparent?.checked) {
       ctx.fillStyle = colorLight;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
     ctx.fillStyle = colorDark;
     for (let row = 0; row < count; row++) {
       for (let col = 0; col < count; col++) {
-        if (model.isDark(row, col)) ctx.fillRect(col * cell, row * cell, cell, cell);
+        if (model.isDark(row, col)) ctx.fillRect((col + QUIET_ZONE) * cell, (row + QUIET_ZONE) * cell, cell, cell);
       }
     }
-    return new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
+    return new Promise((resolve, reject) =>
+      canvas.toBlob(
+        (blob) => (blob ? resolve(blob) : reject(new Error("png encoding failed"))),
+        "image/png"
+      )
+    );
   }
 
   async function downloadAsPng() {
     if (!qrInstance) return;
 
-    const url = URL.createObjectURL(await renderPngBlob());
+    let blob;
+    try {
+      blob = await renderPngBlob();
+    } catch (err) {
+      console.error("Failed to export PNG: ", err);
+      alert("Could not create the PNG. Try a smaller scale.");
+      return;
+    }
+
+    const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.download = "qrcode.png";
     link.href = url;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    setTimeout(() => URL.revokeObjectURL(url), REVOKE_DELAY_MS);
   }
 
   // qrcodejs only draws svg inside svg documents, so build it from the module matrix
@@ -105,19 +131,19 @@ export function initQRGenerator() {
     const { colorDark, colorLight } = getQRAppearance();
     const model = qrInstance._oQRCode;
     const count = model.getModuleCount();
+    const total = count + QUIET_ZONE * 2;
     let path = "";
     for (let row = 0; row < count; row++) {
       for (let col = 0; col < count; col++) {
-        if (model.isDark(row, col)) path += `M${col} ${row}h1v1h-1z`;
+        if (model.isDark(row, col)) path += `M${col + QUIET_ZONE} ${row + QUIET_ZONE}h1v1h-1z`;
       }
     }
     return (
-      `<?xml version="1.0" standalone="no"?>
-` +
-      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${count} ${count}" shape-rendering="crispEdges">` +
-      (exportTransparent.checked
+      `<?xml version="1.0" standalone="no"?>\r\n` +
+      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${total} ${total}" shape-rendering="crispEdges">` +
+      (exportTransparent?.checked
         ? ""
-        : `<rect width="${count}" height="${count}" fill="${colorLight}"/>`) +
+        : `<rect width="${total}" height="${total}" fill="${colorLight}"/>`) +
       `<path d="${path}" fill="${colorDark}"/></svg>`
     );
   }
@@ -136,28 +162,36 @@ export function initQRGenerator() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    URL.revokeObjectURL(svgUrl);
+    setTimeout(() => URL.revokeObjectURL(svgUrl), REVOKE_DELAY_MS);
   }
 
   async function copyToClipboard() {
     if (!qrInstance) return;
 
     try {
-      const blob = await renderPngBlob();
-      await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
-      showCopyFeedback();
+      // pass the promise so the write starts inside the click's user activation
+      await navigator.clipboard.write([
+        new ClipboardItem({ "image/png": renderPngBlob() }),
+      ]);
+      showCopyFeedback("fas fa-check", "Copied!", "#4CAF50");
     } catch (err) {
       console.error("Failed to copy QR code: ", err);
+      showCopyFeedback("fas fa-xmark", "Copy failed", "#c0392b");
     }
   }
 
-  function showCopyFeedback() {
-    const originalText = copyQrBtn.innerHTML;
-    copyQrBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
-    copyQrBtn.style.backgroundColor = "#4CAF50";
+  const copyLabel = [...copyQrBtn.childNodes].map((node) => node.cloneNode(true));
+  let feedbackTimer;
 
-    setTimeout(() => {
-      copyQrBtn.innerHTML = originalText;
+  function showCopyFeedback(iconClass, text, color) {
+    clearTimeout(feedbackTimer);
+    const icon = document.createElement("i");
+    icon.className = iconClass;
+    copyQrBtn.replaceChildren(icon, ` ${text}`);
+    copyQrBtn.style.backgroundColor = color;
+
+    feedbackTimer = setTimeout(() => {
+      copyQrBtn.replaceChildren(...copyLabel.map((node) => node.cloneNode(true)));
       copyQrBtn.style.backgroundColor = "";
     }, 2000);
   }
