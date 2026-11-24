@@ -39,6 +39,8 @@ export function getQRData() {
         : "false";
 
       if (!ssid) return null;
+      // a secured network with no password gives a code phones cannot join
+      if (encryption !== "nopass" && !password) return null;
 
       const passwordPart = encryption === "nopass" ? "" : `P:${escapeWifi(password)};`;
 

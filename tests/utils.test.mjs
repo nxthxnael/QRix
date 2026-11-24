@@ -53,4 +53,10 @@ assert.equal(getQRData(), "WIFI:T:WPA;S:My\\;Net;P:abc\\;123;H:false;", "ssid an
   assert.deepEqual([input.type, attrs["aria-pressed"], attrs["aria-label"], [...classes]], ["password", "false", "Show password", ["fa-eye"]], "second click hides it again");
 }
 
+useForm("wi-fi", wifi("Home", ""));
+assert.equal(getQRData(), null, "a wpa network with no password gives no code");
+
+useForm("wi-fi", wifi("Home", "", "WEP"));
+assert.equal(getQRData(), null, "a wep network with no password gives no code");
+
 console.log("utils: ok");
