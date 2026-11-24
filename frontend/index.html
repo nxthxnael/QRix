@@ -3,13 +3,6 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
-      integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-    />
     <link rel="stylesheet" href="./css/reset.css" />
     <link rel="stylesheet" href="./css/variables.css" />
     <link rel="stylesheet" href="./css/layout.css" />
@@ -31,6 +24,19 @@
   </head>
 
   <body>
+    <!-- one stroke icon set, drawn in currentColor so icons follow the theme -->
+    <svg hidden xmlns="http://www.w3.org/2000/svg">
+      <symbol id="i-arrow-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12l7 7 7-7"/></symbol>
+      <symbol id="i-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+      <symbol id="i-eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/><path d="M3 3l18 18"/></symbol>
+      <symbol id="i-download" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M4 20h16"/></symbol>
+      <symbol id="i-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></symbol>
+      <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+      <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+      <symbol id="i-pointer" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3l14 7-6.2 2.2L10.5 19z"/></symbol>
+      <symbol id="i-palette" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 0 18c1.2 0 2-.8 2-1.8 0-1.3-1.2-1.6-1.2-2.7 0-1 .8-1.7 1.8-1.7H17a4 4 0 0 0 4-4C21 6.6 17 3 12 3z"/><circle cx="7.5" cy="11" r="1"/><circle cx="10" cy="7" r="1"/><circle cx="15" cy="7.5" r="1"/></symbol>
+      <symbol id="i-heart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></symbol>
+    </svg>
     <!-- Nav bar -->
     <nav class="glass-card">
       <div class="heading-container">
@@ -66,7 +72,7 @@
         </div>
         <a class="call-to-action" href="#generationSection">
           Start Creating
-          <i class="fa-solid fa-arrow-down" aria-hidden="true"></i>
+          <svg class="icon" aria-hidden="true"><use href="#i-arrow-down" /></svg>
         </a>
       </div>
     </div>
@@ -136,7 +142,7 @@
                         aria-label="Show password"
                         aria-pressed="false"
                       >
-                        <i class="fa-regular fa-eye" aria-hidden="true"></i>
+                        <svg class="icon" aria-hidden="true"><use href="#i-eye" /></svg>
                       </button>
                     </div>
                   </div>
@@ -333,21 +339,21 @@
                   id="downloadPngBtn"
                   title="Download as PNG"
                 >
-                  <i class="fas fa-download"></i> PNG
+                  <svg class="icon" aria-hidden="true"><use href="#i-download" /></svg> PNG
                 </button>
                 <button
                   class="action-btn"
                   id="downloadSvgBtn"
                   title="Download as SVG"
                 >
-                  <i class="fas fa-download"></i> SVG
+                  <svg class="icon" aria-hidden="true"><use href="#i-download" /></svg> SVG
                 </button>
                 <button
                   class="action-btn"
                   id="copyQrBtn"
                   title="Copy to clipboard"
                 >
-                  <i class="far fa-copy"></i> Copy
+                  <svg class="icon" aria-hidden="true"><use href="#i-copy" /></svg> Copy
                 </button>
               </div>
               <p id="exportError" class="contrast-warning" role="alert" hidden></p>
@@ -367,7 +373,7 @@
         <div class="features-container">
           <div class="feature-card">
             <div class="icon-container">
-              <i class="fa-solid fa-arrow-pointer"></i>
+              <svg class="icon" aria-hidden="true"><use href="#i-pointer" /></svg>
             </div>
             <h4>step 1</h4>
             <h5>Choose & Enter</h5>
@@ -378,7 +384,7 @@
           </div>
           <div class="feature-card">
             <div class="icon-container">
-              <i class="fa-solid fa-palette"></i>
+              <svg class="icon" aria-hidden="true"><use href="#i-palette" /></svg>
             </div>
             <h4>step 2</h4>
             <h5>Customize</h5>
@@ -389,7 +395,7 @@
           </div>
           <div class="feature-card">
             <div class="icon-container">
-              <i class="fa-solid fa-download"></i>
+              <svg class="icon" aria-hidden="true"><use href="#i-download" /></svg>
             </div>
             <h4>step 3</h4>
             <h5>Download & Share</h5>
@@ -439,7 +445,7 @@
       </div>
       <div class="footer-bottom">
         <p>
-          &copy; 2026 QRix. Made with <i class="fa-solid fa-heart"></i> by
+          &copy; 2026 QRix. Made with <svg class="icon" role="img" aria-label="love"><use href="#i-heart" /></svg> by
           <a href="https://x.com/nxthxnael" target="_blank" rel="noopener">nxthxnael</a>
         </p>
       </div>

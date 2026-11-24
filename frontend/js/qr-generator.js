@@ -191,21 +191,26 @@ export function initQRGenerator() {
       // like the png export, an outcome for a code no longer on screen is not shown
       if (copying !== qrInstance) return;
       if (exportError) exportError.hidden = true;
-      showCopyFeedback("fas fa-check", "Copied!", "#4CAF50");
+      showCopyFeedback("check", "Copied!", "#4CAF50");
     } catch (err) {
       console.error("Failed to copy QR code: ", err);
       if (copying !== qrInstance) return;
-      showCopyFeedback("fas fa-xmark", "Copy failed", "#c0392b");
+      showCopyFeedback("x", "Copy failed", "#c0392b");
     }
   }
 
   const copyLabel = [...copyQrBtn.childNodes].map((node) => node.cloneNode(true));
   let feedbackTimer;
 
-  function showCopyFeedback(iconClass, text, color) {
+  function showCopyFeedback(iconName, text, color) {
     clearTimeout(feedbackTimer);
-    const icon = document.createElement("i");
-    icon.className = iconClass;
+    const SVG = "http://www.w3.org/2000/svg";
+    const icon = document.createElementNS(SVG, "svg");
+    icon.setAttribute("class", "icon");
+    icon.setAttribute("aria-hidden", "true");
+    const use = document.createElementNS(SVG, "use");
+    use.setAttribute("href", `#i-${iconName}`);
+    icon.append(use);
     copyQrBtn.replaceChildren(icon, ` ${text}`);
     copyQrBtn.style.backgroundColor = color;
 
