@@ -34,7 +34,7 @@ body {
 
 #subTitle {
   font-weight: 400;
-  font-size: clamp(1.0625rem, 2.2vw, 1.3125rem);
+  font-size: var(--text-lead);
   color: var(--label-secondary);
   max-width: 50rem;
   text-align: center;
