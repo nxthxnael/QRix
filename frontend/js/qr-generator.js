@@ -140,8 +140,10 @@ export function initQRGenerator() {
       blob = await renderPngBlob();
     } catch (err) {
       console.error("Failed to export PNG: ", err);
-      // the code changed while this render ran, so its failure no longer describes the screen
-      if (exporting !== qrInstance) return;
+    }
+    // the code changed while this render ran, so neither its file nor its failure matches the screen
+    if (exporting !== qrInstance) return;
+    if (!blob) {
       if (exportError) {
         exportError.textContent = "Could not create the PNG. Try a smaller scale.";
         exportError.hidden = false;
