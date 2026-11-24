@@ -54,7 +54,7 @@ body {
   font-size: var(--text-body);
   text-decoration: none;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: background-color var(--duration) var(--ease);
 }
 
 .call-to-action:hover {

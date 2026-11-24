@@ -10,7 +10,7 @@
   color: var(--label);
   font-size: var(--text-subhead);
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: background-color var(--duration) var(--ease);
 }
 
 .qr-type-btn[aria-checked="true"] {
@@ -21,7 +21,6 @@
 
 .form-type {
   display: none;
-  transition: 0.3s ease-in-out;
 }
 
 .form-type.active {
@@ -96,7 +95,7 @@
   margin-top: 1.25rem;
   opacity: 0;
   transform: translateY(10px);
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  transition: opacity var(--duration) var(--ease), transform var(--duration) var(--ease);
 }
 
 .qr-actions.visible {
@@ -156,7 +155,7 @@
   border: none;
   border-radius: var(--radius-s);
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: background-color var(--duration) var(--ease);
 }
 
 .action-btn[hidden] {
@@ -191,7 +190,7 @@
   color: var(--label);
   font-size: var(--text-subhead);
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: background-color var(--duration) var(--ease);
 }
 
 .preset-btn:hover {
@@ -224,7 +223,7 @@
   border: 1px solid transparent;
   border-radius: var(--radius-l);
   box-shadow: var(--shadow-rest);
-  transition: 0.3s ease-in-out;
+  transition: box-shadow var(--duration) var(--ease), border-color var(--duration) var(--ease);
 }
 
 .feature-card:hover {

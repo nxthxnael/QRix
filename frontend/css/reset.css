@@ -11,6 +11,16 @@ body {
   font-size: var(--text-body);
 }
 
+/* visitors who ask for less motion get state changes without the movement */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
 /* one focus ring for every control, shown for keyboard use only */
 :focus-visible {
   outline: 2px solid var(--accent);

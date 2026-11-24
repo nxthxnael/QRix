@@ -222,7 +222,7 @@
 .footer-column a {
   color: var(--footer-link);
   text-decoration: none;
-  transition: color 0.3s ease;
+  transition: color var(--duration) var(--ease);
 }
 
 .footer-column a:hover {
@@ -244,7 +244,7 @@
   background-color: var(--footer-fill);
   border-radius: var(--radius-s);
   color: var(--footer-label);
-  transition: 0.3s ease;
+  transition: background-color var(--duration) var(--ease), color var(--duration) var(--ease);
 }
 
 .footer-bottom a:hover {
