@@ -51,7 +51,9 @@ assert.equal(getQRData(), "WIFI:T:WPA;S:My\\;Net;P:abc\\;123;H:false;", "ssid an
 // the eye button flips the input type, its label and its icon together
 {
   const input = { type: "password" };
-  const icon = { href: "#i-eye", setAttribute: (_, value) => (icon.href = value) };
+  // records attributes by name, so setting the wrong attribute fails the test
+  const iconAttrs = { href: "#i-eye" };
+  const icon = { setAttribute: (name, value) => (iconAttrs[name] = value) };
   const attrs = {};
   let onClick;
   const button = {
@@ -63,9 +65,9 @@ assert.equal(getQRData(), "WIFI:T:WPA;S:My\\;Net;P:abc\\;123;H:false;", "ssid an
   togglePassword();
 
   onClick();
-  assert.deepEqual([input.type, attrs["aria-pressed"], attrs["aria-label"], icon.href], ["text", "true", "Hide password", "#i-eye-off"], "first click shows the password");
+  assert.deepEqual([input.type, attrs["aria-pressed"], attrs["aria-label"], iconAttrs.href], ["text", "true", "Hide password", "#i-eye-off"], "first click shows the password");
   onClick();
-  assert.deepEqual([input.type, attrs["aria-pressed"], attrs["aria-label"], icon.href], ["password", "false", "Show password", "#i-eye"], "second click hides it again");
+  assert.deepEqual([input.type, attrs["aria-pressed"], attrs["aria-label"], iconAttrs.href], ["password", "false", "Show password", "#i-eye"], "second click hides it again");
 }
 
 useForm("wi-fi", wifi("Home", ""));
