@@ -35,6 +35,7 @@ assert.equal(logoType({ name: "notes", type: "" }), "", "no type and no known ex
   };
   const finish = (reader = pending.shift()) => reader.onload();
   const fail = (reader = pending.shift()) => reader.onerror();
+  const abort = (reader = pending.shift()) => reader.onabort();
   initQRStyle();
   globalThis.DataTransfer = class {
     files = [];
@@ -90,6 +91,13 @@ assert.equal(logoType({ name: "notes", type: "" }), "", "no type and no known ex
   assert.equal(error.textContent, "Could not read that image. Try another file.", "a failed read is reported");
   assert.equal(error.hidden, false, "and the report is visible");
   assert.equal(getQRStyle().logo, "data:image/png;base64,quick.png", "a failed read keeps the logo");
+
+  handlers.cancel();
+  pick({ name: "aborted.png", type: "image/png", size: 1000 });
+  abort();
+  assert.deepEqual(input.files.map((f) => f.name), ["quick.png"], "an aborted read puts the picker back");
+  assert.equal(error.hidden, false, "an aborted read is reported");
+  assert.equal(getQRStyle().logo, "data:image/png;base64,quick.png", "an aborted read keeps the logo");
 
   pick({ name: "drawing.svg", type: "", size: 900 });
   finish();

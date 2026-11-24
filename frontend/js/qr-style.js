@@ -98,7 +98,8 @@ export function initQRStyle() {
     }
     const read = ++latestRead;
     const reader = new FileReader();
-    reader.onerror = () => {
+    // an aborted read ends like a failed one: the picker goes back and the visitor is told
+    reader.onerror = reader.onabort = () => {
       if (read !== latestRead) return;
       restorePicker();
       if (error) {
