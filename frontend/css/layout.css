@@ -102,13 +102,18 @@
   margin-bottom: 6.25rem;
 }
 
+/* a segmented control: a track with the selected segment raised */
 .generation-selection {
   display: flex;
-  flex-direction: row;
-  justify-content: center;
-  gap: 0.625rem;
-  padding: 2.5rem;
+  /* on the narrowest phones the five segments wrap to a second row instead of scrolling sideways */
   flex-wrap: wrap;
+  width: fit-content;
+  max-width: calc(100% - 1rem);
+  margin: 2rem auto;
+  padding: 0.25rem;
+  gap: 0.25rem;
+  background-color: var(--fill);
+  border-radius: var(--radius-m);
 }
 
 .qr-code-generation {

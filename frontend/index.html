@@ -79,27 +79,12 @@
           <p>Select a type, enter your content, and customize your QR code</p>
         </div>
         <div class="generation-container">
-          <div class="generation-selection">
-            <button class="qr-type-btn active" data-type="url">
-              <i class="fa-solid fa-link"></i>
-              <p>URL</p>
-            </button>
-            <button class="qr-type-btn" data-type="text">
-              <i class="fa-solid fa-t"></i>
-              <p>Text</p>
-            </button>
-            <button class="qr-type-btn" data-type="phone">
-              <i class="fa-solid fa-phone"></i>
-              <p>Phone</p>
-            </button>
-            <button class="qr-type-btn" data-type="wi-fi">
-              <i class="fa-solid fa-wifi"></i>
-              <p>Wi-Fi</p>
-            </button>
-            <button class="qr-type-btn" data-type="email">
-              <i class="fa-solid fa-envelope"></i>
-              <p>Email</p>
-            </button>
+          <div class="generation-selection" role="radiogroup" aria-label="QR code type">
+            <button type="button" class="qr-type-btn" role="radio" data-type="url" aria-checked="true" tabindex="0">URL</button>
+            <button type="button" class="qr-type-btn" role="radio" data-type="text" aria-checked="false" tabindex="-1">Text</button>
+            <button type="button" class="qr-type-btn" role="radio" data-type="phone" aria-checked="false" tabindex="-1">Phone</button>
+            <button type="button" class="qr-type-btn" role="radio" data-type="wi-fi" aria-checked="false" tabindex="-1">Wi-Fi</button>
+            <button type="button" class="qr-type-btn" role="radio" data-type="email" aria-checked="false" tabindex="-1">Email</button>
           </div>
           <div class="qr-code-generation">
             <div class="form-column">

@@ -1,37 +1,27 @@
 /* -------- QR Generation Section -------- */
 
 .qr-type-btn {
-  display: flex;
-  gap: 0.5rem;
-  justify-content: center;
-  align-items: center;
-  padding: 0.3125rem 1.25rem;
-  border: transparent;
-  border-radius: var(--radius-s);
-  background-color: var(--label);
-  color: var(--label-inverse);
+  flex: 1 1 auto;
+  min-height: 2.75rem;
+  padding: 0.5rem 0.75rem;
+  border: none;
+  border-radius: calc(var(--radius-m) - 0.25rem);
+  background: none;
+  color: var(--label);
+  font-size: var(--text-subhead);
   cursor: pointer;
+  transition: background-color 0.2s ease;
 }
 
-.qr-type-btn:not(.active) {
-  transition: 0.3s ease;
-}
-
-.qr-type-btn:not(.active):hover {
-  color: var(--label);
-  background-color: var(--separator);
-}
-
-.qr-type-btn.active {
-  color: var(--label);
-  background-color: var(--label-inverse);
-  outline: 1px solid var(--separator);
+.qr-type-btn[aria-checked="true"] {
+  background-color: var(--fill-selected);
   box-shadow: var(--shadow-rest);
-  transition: 0.3s ease-in-out;
+  font-weight: 600;
 }
 
-.qr-type-btn.active:hover {
-  box-shadow: none;
+.qr-type-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 .form-type {
