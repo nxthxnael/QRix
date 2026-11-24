@@ -23,7 +23,7 @@ body {
 #mainTitle {
   font-family: var(--heading-font);
   font-weight: 800;
-  font-size: 5.5rem;
+  font-size: clamp(3.6rem, 9vw, 5.5rem);
   padding-bottom: 3rem;
 }
 
@@ -35,7 +35,7 @@ body {
 #subTitle {
   font-family: var(--text-font);
   font-weight: 400;
-  font-size: 1.7rem;
+  font-size: clamp(1.5rem, 3vw, 1.7rem);
   max-width: 80rem;
   text-align: center;
   padding-bottom: 5rem;
