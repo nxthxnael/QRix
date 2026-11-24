@@ -182,15 +182,19 @@ export function initQRGenerator() {
   async function copyToClipboard() {
     if (!qrInstance) return;
 
+    const copying = qrInstance;
     try {
       // pass the promise so the write starts inside the click's user activation
       await navigator.clipboard.write([
         new ClipboardItem({ "image/png": renderPngBlob() }),
       ]);
+      // like the png export, an outcome for a code no longer on screen is not shown
+      if (copying !== qrInstance) return;
       if (exportError) exportError.hidden = true;
       showCopyFeedback("fas fa-check", "Copied!", "#4CAF50");
     } catch (err) {
       console.error("Failed to copy QR code: ", err);
+      if (copying !== qrInstance) return;
       showCopyFeedback("fas fa-xmark", "Copy failed", "#c0392b");
     }
   }
