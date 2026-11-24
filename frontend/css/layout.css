@@ -1,6 +1,7 @@
 .content-wrapper {
-  width: 70%;
+  max-width: 110rem;
   margin: 0 auto;
+  padding: 0 1.6rem;
 }
 
 /* -------- Nav Bar styling -------- */
@@ -16,7 +17,7 @@
   position: fixed;
   top: 0;
   left: 0;
-  width: 100vw;
+  width: 100%;
   z-index: 1000;
   background: rgba(255, 255, 255, 0.2);
 
@@ -27,7 +28,7 @@
   box-shadow: 0 0.5px 5px 0 rgba(31, 38, 135, 0.3);
 
   margin-top: 0;
-  padding: 1.2rem 3rem;
+  padding: 1.2rem clamp(1.6rem, 4vw, 3rem);
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -51,28 +52,6 @@
 #navLogo a {
   text-decoration: none;
   color: var(--primary-text-color);
-}
-
-.theme-icon-container {
-  width: 4rem;
-  height: 4rem;
-  padding: 1rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: 50%;
-  cursor: pointer;
-  transition: 0.3s ease-in-out;
-}
-
-.theme-icon-container:hover {
-  background-color: var(--tertiary-text-color);
-}
-
-.theme-icon-container i {
-  text-align: center;
-  color: #333333;
-  font-size: 1.5rem;
 }
 
 /* -------- Hero section styling -------- */
@@ -130,7 +109,7 @@
   padding: 1rem;
   cursor: pointer;
   text-align: center;
-  color: var(--tertiary-text-color);
+  color: var(--secondary-text-color);
 }
 
 .form-column {

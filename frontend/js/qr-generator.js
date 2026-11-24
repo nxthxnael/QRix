@@ -18,6 +18,7 @@ export function initQRGenerator() {
   const exportScale = document.getElementById("exportScale");
   const exportTransparent = document.getElementById("exportTransparent");
   const errorCorrection = document.getElementById("qr-error-correction");
+  const exportError = document.getElementById("exportError");
 
   if (
     !qrContainer ||
@@ -42,27 +43,31 @@ export function initQRGenerator() {
   let actionsTimer;
 
   function generateQR(event) {
+    // any change, including a new export scale, makes an earlier png failure stale
+    if (exportError) exportError.hidden = true;
     // export options only change the downloaded file, not the preview
     if (event?.target.closest(".qr-actions")) return;
 
     clearTimeout(actionsTimer);
     const data = getQRData();
-    if (!data) {
-      qrInstance = null;
-      qrContainer.innerHTML = "<p>Enter content to generate code</p>";
-      qrActions.style.display = "none";
-      return;
-    }
+    if (!data) return showEmpty("Enter content to generate code");
 
     const { size } = getQRAppearance();
 
     // qrcodejs only encodes here; the preview and exports are drawn from its matrix as svg
-    qrInstance = new QRCode(document.createElement("div"), {
-      text: data,
-      width: size,
-      height: size,
-      correctLevel: QRCode.CorrectLevel[getQRStyle().logo ? "H" : errorCorrection?.value] ?? QRCode.CorrectLevel.H,
-    });
+    try {
+      qrInstance = new QRCode(document.createElement("div"), {
+        text: data,
+        width: size,
+        height: size,
+        correctLevel: QRCode.CorrectLevel[getQRStyle().logo ? "H" : errorCorrection?.value] ?? QRCode.CorrectLevel.H,
+      });
+    } catch {
+      // qrcodejs throws when the content does not fit; never leave the previous code exportable
+      return showEmpty(typeof QRCode === "undefined"
+        ? "The QR library did not load. Check your connection and reload."
+        : "Too long for a QR code. Shorten it or lower the error correction.");
+    }
 
     const svg = new DOMParser().parseFromString(svgMarkup({ size }), "image/svg+xml");
     qrContainer.replaceChildren(document.importNode(svg.documentElement, true));
@@ -72,6 +77,14 @@ export function initQRGenerator() {
       qrActions.style.display = "flex";
       setTimeout(() => qrActions.classList.add("visible"), 10);
     }, 100);
+  }
+
+  function showEmpty(message) {
+    qrInstance = null;
+    const text = document.createElement("p");
+    text.textContent = message;
+    qrContainer.replaceChildren(text);
+    qrActions.style.display = "none";
   }
 
   function svgMarkup({ size, transparent = false } = {}) {
@@ -120,12 +133,21 @@ export function initQRGenerator() {
   async function downloadAsPng() {
     if (!qrInstance) return;
 
+    if (exportError) exportError.hidden = true;
+    const exporting = qrInstance;
     let blob;
     try {
       blob = await renderPngBlob();
     } catch (err) {
       console.error("Failed to export PNG: ", err);
-      alert("Could not create the PNG. Try a smaller scale.");
+    }
+    // the code changed while this render ran, so neither its file nor its failure matches the screen
+    if (exporting !== qrInstance) return;
+    if (!blob) {
+      if (exportError) {
+        exportError.textContent = "Could not create the PNG. Try a smaller scale.";
+        exportError.hidden = false;
+      }
       return;
     }
 
@@ -160,14 +182,19 @@ export function initQRGenerator() {
   async function copyToClipboard() {
     if (!qrInstance) return;
 
+    const copying = qrInstance;
     try {
       // pass the promise so the write starts inside the click's user activation
       await navigator.clipboard.write([
         new ClipboardItem({ "image/png": renderPngBlob() }),
       ]);
+      // like the png export, an outcome for a code no longer on screen is not shown
+      if (copying !== qrInstance) return;
+      if (exportError) exportError.hidden = true;
       showCopyFeedback("fas fa-check", "Copied!", "#4CAF50");
     } catch (err) {
       console.error("Failed to copy QR code: ", err);
+      if (copying !== qrInstance) return;
       showCopyFeedback("fas fa-xmark", "Copy failed", "#c0392b");
     }
   }

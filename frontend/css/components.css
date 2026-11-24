@@ -47,11 +47,23 @@
   margin-bottom: 2rem;
 }
 
+/* same look the h3 headings had, now on real labels */
+.form-row > label,
+.form-label {
+  display: block;
+  font-size: 1.17em;
+  font-weight: 700;
+}
+
 .form-row input,
 .form-row textarea,
 .form-row select {
   width: 100%;
   padding: 1rem;
+}
+
+.form-row input[type="checkbox"] {
+  width: auto;
 }
 
 .field-hint {
@@ -112,6 +124,10 @@
   justify-content: center;
   align-items: center;
   flex-wrap: wrap;
+}
+
+.qr-actions .contrast-warning {
+  margin: 0;
 }
 
 .export-buttons {
@@ -196,6 +212,10 @@
 
 .logo-selection .action-btn {
   margin-top: 1rem;
+}
+
+.logo-selection .contrast-warning {
+  margin: 1rem 0 0;
 }
 
 .action-btn i {

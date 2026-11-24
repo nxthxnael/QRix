@@ -1,3 +1,6 @@
+// the wifi qr format treats \ ; , : " as syntax, so they need a backslash in the ssid and password
+export const escapeWifi = (value) => value.replace(/[\\;,:"]/g, "\\$&");
+
 export function getQRData() {
   const activeForm = document.querySelector(".form-type.active");
   if (!activeForm) return null;
@@ -11,7 +14,7 @@ export function getQRData() {
     }
 
     case "text": {
-      const value = activeForm.querySelector("textarea")?.value.trim();
+      const value = activeForm.querySelector("#qr-text")?.value.trim();
       return value || null;
     }
 
@@ -25,11 +28,10 @@ export function getQRData() {
       return value ? `mailto:${value}` : null;
     }
 
-    case "wifi": {
-      const ssid = activeForm.querySelector('input[type="text"]')?.value.trim();
-      const password = activeForm.querySelector(
-        'input[type="password"]'
-      )?.value;
+    case "wi-fi": {
+      // by id, because the eye button switches the password input's type
+      const ssid = activeForm.querySelector("#wifi-ssid")?.value.trim();
+      const password = activeForm.querySelector("#wifi-password")?.value ?? "";
       const encryption =
         activeForm.querySelector("#wifi-encryption")?.value || "WPA";
       const hidden = activeForm.querySelector("#hidden")?.checked
@@ -37,10 +39,12 @@ export function getQRData() {
         : "false";
 
       if (!ssid) return null;
+      // a secured network with no password gives a code phones cannot join
+      if (encryption !== "nopass" && !password) return null;
 
-      const passwordPart = encryption === "nopass" ? "" : `P:${password};`;
+      const passwordPart = encryption === "nopass" ? "" : `P:${escapeWifi(password)};`;
 
-      return `WIFI:T:${encryption};S:${ssid};${passwordPart}H:${hidden};`;
+      return `WIFI:T:${encryption};S:${escapeWifi(ssid)};${passwordPart}H:${hidden};`;
     }
 
     default:
@@ -53,12 +57,14 @@ export function togglePassword() {
   const togglePasswordBtn = document.getElementById("toggle-password");
 
   if (togglePasswordBtn && passwordInput) {
+    const icon = togglePasswordBtn.querySelector("i");
     togglePasswordBtn.addEventListener("click", () => {
-      const type =
-        passwordInput.getAttribute("type") === "password" ? "text" : "password";
-      passwordInput.setAttribute("type", type);
-      togglePasswordBtn.classList.toggle("fa-eye");
-      togglePasswordBtn.classList.toggle("fa-eye-slash");
+      const show = passwordInput.type === "password";
+      passwordInput.type = show ? "text" : "password";
+      togglePasswordBtn.setAttribute("aria-pressed", String(show));
+      togglePasswordBtn.setAttribute("aria-label", show ? "Hide password" : "Show password");
+      icon?.classList.toggle("fa-eye", !show);
+      icon?.classList.toggle("fa-eye-slash", show);
     });
   }
 }

@@ -1,6 +1,15 @@
 // shortcut: bigger logos are rejected so the svg and png stay small, raise it if users hit it
 const MAX_LOGO_BYTES = 512 * 1024;
 
+// same formats as the picker's accept list, by extension for systems that report no type
+const LOGO_TYPES = { png: "image/png", jpg: "image/jpeg", jpeg: "image/jpeg", webp: "image/webp", svg: "image/svg+xml" };
+
+// the logo's image type, or "" when it is not an offered format
+export function logoType(file) {
+  if (file.type) return Object.values(LOGO_TYPES).includes(file.type) ? file.type : "";
+  return LOGO_TYPES[file.name.split(".").pop().toLowerCase()] ?? "";
+}
+
 let logo = null;
 
 // control id -> value; color texts take #RRGGBB and are read by the color picker on input
@@ -25,7 +34,13 @@ export function initQRStyle() {
   const input = document.getElementById("qr-logo");
   const clear = document.getElementById("qr-logo-clear");
   const level = document.getElementById("qr-error-correction");
+  const error = document.getElementById("qr-logo-error");
   let previousLevel;
+  // the file behind the current logo, set only once its read succeeds and put back when a
+  // later pick fails; kept as a File because a browser may reuse the input's own FileList
+  let accepted = null;
+  // numbers each read so a slow one cannot land after a newer pick, a failed pick or remove
+  let latestRead = 0;
   if (!input) return;
 
   document.querySelectorAll("[data-preset]").forEach((button) =>
@@ -53,19 +68,50 @@ export function initQRStyle() {
     level.disabled = false;
   };
 
+  const restorePicker = () => {
+    if (!accepted) {
+      input.value = "";
+      return;
+    }
+    const restored = new DataTransfer();
+    restored.items.add(accepted);
+    input.files = restored.files;
+  };
+
   const redraw = () => input.dispatchEvent(new Event("input", { bubbles: true }));
 
   input.addEventListener("change", () => {
     const file = input.files[0];
-    if (!file) return;
-    if (!file.type.startsWith("image/") || file.size > MAX_LOGO_BYTES) {
-      alert("Choose an image smaller than 512 KB.");
-      input.value = "";
+    const problem = !file ? ""
+      : !logoType(file) ? "Choose a PNG, JPEG, WebP or SVG image."
+      : file.size > MAX_LOGO_BYTES ? "Choose an image smaller than 512 KB."
+      : "";
+    const invalid = Boolean(problem);
+    if (error) {
+      error.textContent = problem;
+      error.hidden = !invalid;
+    }
+    if (!file || invalid) {
+      latestRead++;
+      restorePicker();
       return;
     }
+    const read = ++latestRead;
     const reader = new FileReader();
+    // an aborted read ends like a failed one: the picker goes back and the visitor is told
+    reader.onerror = reader.onabort = () => {
+      if (read !== latestRead) return;
+      restorePicker();
+      if (error) {
+        error.textContent = "Could not read that image. Try another file.";
+        error.hidden = false;
+      }
+    };
     reader.onload = () => {
-      logo = reader.result;
+      if (read !== latestRead) return;
+      accepted = file;
+      // a typeless file reads as octet-stream, which browsers will not draw as svg
+      logo = reader.result.replace(/^data:[^;,]*/, `data:${logoType(file)}`);
       lockLevel();
       if (clear) clear.hidden = false;
       redraw();
@@ -73,8 +119,16 @@ export function initQRStyle() {
     reader.readAsDataURL(file);
   });
 
+  // current browsers fire cancel, not change, when the dialog is dismissed; the picker is untouched then
+  input.addEventListener("cancel", () => {
+    if (error) error.hidden = true;
+  });
+
   clear?.addEventListener("click", () => {
     logo = null;
+    accepted = null;
+    latestRead++;
+    if (error) error.hidden = true;
     unlockLevel();
     input.value = "";
     clear.hidden = true;

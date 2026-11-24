@@ -23,7 +23,7 @@ body {
 #mainTitle {
   font-family: var(--heading-font);
   font-weight: 800;
-  font-size: 5.5rem;
+  font-size: clamp(3.6rem, 9vw, 5.5rem);
   padding-bottom: 3rem;
 }
 
@@ -35,7 +35,7 @@ body {
 #subTitle {
   font-family: var(--text-font);
   font-weight: 400;
-  font-size: 1.7rem;
+  font-size: clamp(1.5rem, 3vw, 1.7rem);
   max-width: 80rem;
   text-align: center;
   padding-bottom: 5rem;
@@ -51,8 +51,21 @@ body {
   color: var(--milk-white);
   border-radius: 1rem;
   font-size: 1.3rem;
+  text-decoration: none;
   cursor: pointer;
   transition: 0.3s ease-in-out;
+}
+
+/* keeps the section heading clear of the fixed nav after an anchor jump */
+#generationSection,
+#features-section {
+  scroll-margin-top: 8rem;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
 }
 
 /* -------- Generation Section Styling -------- */
@@ -113,14 +126,23 @@ body {
 
 .password-wrapper input {
   width: 100%;
-  padding-right: 3rem;
+  padding-right: 4.4rem;
 }
 
-.password-wrapper i {
+.password-wrapper button {
   position: absolute;
-  right: 1rem;
+  right: 0;
   top: 50%;
   transform: translateY(-50%);
+  width: 4.4rem;
+  height: 4.4rem;
+  border: none;
+  background: none;
   cursor: pointer;
-  color: var(--tertiary-text-color);
+  color: var(--secondary-text-color);
+}
+
+.password-wrapper button:focus-visible {
+  outline: 2px solid var(--primary-text-color);
+  outline-offset: -2px;
 }

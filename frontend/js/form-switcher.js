@@ -14,6 +14,9 @@ export function initFormSwitcher() {
       forms.forEach((form) => {
         form.classList.toggle("active", form.dataset.type === selectedType);
       });
+
+      // the generator redraws on change, so the preview follows the new type
+      button.dispatchEvent(new Event("change", { bubbles: true }));
     });
   });
 
