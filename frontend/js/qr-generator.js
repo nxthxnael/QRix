@@ -50,22 +50,24 @@ export function initQRGenerator() {
 
     clearTimeout(actionsTimer);
     const data = getQRData();
-    if (!data) {
-      qrInstance = null;
-      qrContainer.innerHTML = "<p>Enter content to generate code</p>";
-      qrActions.style.display = "none";
-      return;
-    }
+    if (!data) return showEmpty("Enter content to generate code");
 
     const { size } = getQRAppearance();
 
     // qrcodejs only encodes here; the preview and exports are drawn from its matrix as svg
-    qrInstance = new QRCode(document.createElement("div"), {
-      text: data,
-      width: size,
-      height: size,
-      correctLevel: QRCode.CorrectLevel[getQRStyle().logo ? "H" : errorCorrection?.value] ?? QRCode.CorrectLevel.H,
-    });
+    try {
+      qrInstance = new QRCode(document.createElement("div"), {
+        text: data,
+        width: size,
+        height: size,
+        correctLevel: QRCode.CorrectLevel[getQRStyle().logo ? "H" : errorCorrection?.value] ?? QRCode.CorrectLevel.H,
+      });
+    } catch {
+      // qrcodejs throws when the content does not fit; never leave the previous code exportable
+      return showEmpty(typeof QRCode === "undefined"
+        ? "The QR library did not load. Check your connection and reload."
+        : "Too long for a QR code. Shorten it or lower the error correction.");
+    }
 
     const svg = new DOMParser().parseFromString(svgMarkup({ size }), "image/svg+xml");
     qrContainer.replaceChildren(document.importNode(svg.documentElement, true));
@@ -75,6 +77,14 @@ export function initQRGenerator() {
       qrActions.style.display = "flex";
       setTimeout(() => qrActions.classList.add("visible"), 10);
     }, 100);
+  }
+
+  function showEmpty(message) {
+    qrInstance = null;
+    const text = document.createElement("p");
+    text.textContent = message;
+    qrContainer.replaceChildren(text);
+    qrActions.style.display = "none";
   }
 
   function svgMarkup({ size, transparent = false } = {}) {
