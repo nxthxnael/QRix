@@ -23,9 +23,12 @@ for (const [name, preset] of Object.entries(PRESETS)) {
   const clear = { hidden: true, addEventListener: (_, fn) => (handlers.clear = fn) };
   const controls = { "qr-logo": input, "qr-logo-clear": clear, "qr-error-correction": { value: "M", disabled: false }, "qr-logo-error": error };
   globalThis.document = { getElementById: (id) => controls[id], querySelectorAll: () => [] };
+  // reads finish only when the test calls finish(), newest last unless told otherwise
+  const pending = [];
   globalThis.FileReader = class {
-    readAsDataURL(file) { this.result = `data:${file.name}`; this.onload(); }
+    readAsDataURL(file) { this.result = `data:${file.name}`; pending.push(this); }
   };
+  const finish = (reader = pending.shift()) => reader.onload();
   initQRStyle();
   globalThis.DataTransfer = class {
     files = [];
@@ -37,6 +40,7 @@ for (const [name, preset] of Object.entries(PRESETS)) {
 
   const first = [{ name: "a.png", type: "image/png", size: 1000 }];
   pick(...first.slice());
+  finish();
   assert.equal(getQRStyle().logo, "data:a.png", "a valid image becomes the logo");
 
   pick({ name: "b.png", type: "image/png", size: 600 * 1024 });
@@ -55,6 +59,18 @@ for (const [name, preset] of Object.entries(PRESETS)) {
   handlers.clear();
   assert.equal(error.hidden, true, "removing the logo clears the message");
   assert.equal(getQRStyle().logo, null, "removing the logo clears it");
+
+  pick({ name: "slow.png", type: "image/png", size: 500 * 1024 });
+  pick({ name: "quick.png", type: "image/png", size: 2000 });
+  const [slow, quick] = pending.splice(0);
+  finish(quick);
+  finish(slow);
+  assert.equal(getQRStyle().logo, "data:quick.png", "a slow earlier read does not replace a newer pick");
+
+  pick({ name: "late.png", type: "image/png", size: 1000 });
+  handlers.clear();
+  finish();
+  assert.equal(getQRStyle().logo, null, "a read that finishes after remove does not bring the logo back");
 }
 
 console.log("qr-style: ok");

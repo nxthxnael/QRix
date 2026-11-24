@@ -30,6 +30,8 @@ export function initQRStyle() {
   // the file behind the current logo, put back when a new pick is cancelled or rejected;
   // kept as a File because a browser may reuse and overwrite the input's own FileList
   let accepted = null;
+  // numbers each read so a slow one cannot land after a newer pick or after remove
+  let latestRead = 0;
   if (!input) return;
 
   document.querySelectorAll("[data-preset]").forEach((button) =>
@@ -79,8 +81,10 @@ export function initQRStyle() {
       return;
     }
     accepted = file;
+    const read = ++latestRead;
     const reader = new FileReader();
     reader.onload = () => {
+      if (read !== latestRead) return;
       logo = reader.result;
       lockLevel();
       if (clear) clear.hidden = false;
@@ -92,6 +96,7 @@ export function initQRStyle() {
   clear?.addEventListener("click", () => {
     logo = null;
     accepted = null;
+    latestRead++;
     if (error) error.hidden = true;
     unlockLevel();
     input.value = "";
