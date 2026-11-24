@@ -9,6 +9,11 @@
   --label-inverse: #f5f5f7;
   --separator: #d2d2d7;
 
+  /* the one color for things you can act on; hover goes darker so it never looks disabled */
+  --accent: #0071e3;
+  --accent-hover: #0062c4;
+  --on-accent: #ffffff;
+
   --danger: #c0392b;
   --danger-fill: #fdecea;
   --danger-label: #7a1f16;

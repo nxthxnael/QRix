@@ -2,6 +2,8 @@ body {
   min-height: 100vh;
   background: var(--background);
   color: var(--label);
+  /* native checkboxes, radios and the size slider follow the accent */
+  accent-color: var(--accent);
 }
 
 /* -------- Hero section styling -------- */
@@ -43,13 +45,17 @@ body {
   justify-content: center;
   align-items: center;
   gap: 0.625rem;
-  background-color: var(--label);
-  color: var(--label-inverse);
+  background-color: var(--accent);
+  color: var(--on-accent);
   border-radius: var(--radius-pill);
   font-size: 0.8125rem;
   text-decoration: none;
   cursor: pointer;
-  transition: 0.3s ease-in-out;
+  transition: background-color 0.2s ease;
+}
+
+.call-to-action:hover {
+  background-color: var(--accent-hover);
 }
 
 /* keeps the section heading clear of the fixed nav after an anchor jump */

@@ -162,8 +162,8 @@
   align-items: center;
   gap: 0.3125rem;
   padding: 0.3125rem 0.625rem;
-  background-color: var(--label);
-  color: var(--label-inverse);
+  background-color: var(--accent);
+  color: var(--on-accent);
   border: none;
   border-radius: var(--radius-s);
   cursor: pointer;
@@ -175,8 +175,7 @@
 }
 
 .action-btn:hover {
-  background-color: var(--separator);
-  color: var(--label);
+  background-color: var(--accent-hover);
 }
 
 .action-btn:focus-visible,
