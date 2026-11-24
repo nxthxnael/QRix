@@ -11,7 +11,7 @@ export function getQRData() {
     }
 
     case "text": {
-      const value = activeForm.querySelector("textarea")?.value.trim();
+      const value = activeForm.querySelector("#qr-text")?.value.trim();
       return value || null;
     }
 

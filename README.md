@@ -84,6 +84,7 @@ Then open http://localhost:8000. No build tools or dependencies required.
 node tests/qr-svg.test.mjs
 node tests/color-picker.test.mjs
 node tests/qr-style.test.mjs
+node tests/utils.test.mjs
 ```
 
 ---
