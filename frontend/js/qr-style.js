@@ -36,10 +36,10 @@ export function initQRStyle() {
   const level = document.getElementById("qr-error-correction");
   const error = document.getElementById("qr-logo-error");
   let previousLevel;
-  // the file behind the current logo, put back when a new pick is cancelled or rejected;
-  // kept as a File because a browser may reuse and overwrite the input's own FileList
+  // the file behind the current logo, set only once its read succeeds and put back when a
+  // later pick fails; kept as a File because a browser may reuse the input's own FileList
   let accepted = null;
-  // numbers each read so a slow one cannot land after a newer pick or after remove
+  // numbers each read so a slow one cannot land after a newer pick, a failed pick or remove
   let latestRead = 0;
   if (!input) return;
 
@@ -68,6 +68,16 @@ export function initQRStyle() {
     level.disabled = false;
   };
 
+  const restorePicker = () => {
+    if (!accepted) {
+      input.value = "";
+      return;
+    }
+    const restored = new DataTransfer();
+    restored.items.add(accepted);
+    input.files = restored.files;
+  };
+
   const redraw = () => input.dispatchEvent(new Event("input", { bubbles: true }));
 
   input.addEventListener("change", () => {
@@ -82,18 +92,23 @@ export function initQRStyle() {
       error.hidden = !invalid;
     }
     if (!file || invalid) {
-      if (accepted) {
-        const restored = new DataTransfer();
-        restored.items.add(accepted);
-        input.files = restored.files;
-      } else input.value = "";
+      latestRead++;
+      restorePicker();
       return;
     }
-    accepted = file;
     const read = ++latestRead;
     const reader = new FileReader();
+    reader.onerror = () => {
+      if (read !== latestRead) return;
+      restorePicker();
+      if (error) {
+        error.textContent = "Could not read that image. Try another file.";
+        error.hidden = false;
+      }
+    };
     reader.onload = () => {
       if (read !== latestRead) return;
+      accepted = file;
       // a typeless file reads as octet-stream, which browsers will not draw as svg
       logo = reader.result.replace(/^data:[^;,]*/, `data:${logoType(file)}`);
       lockLevel();

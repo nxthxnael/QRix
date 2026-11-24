@@ -34,6 +34,7 @@ assert.equal(logoType({ name: "notes", type: "" }), "", "no type and no known ex
     readAsDataURL(file) { this.result = `data:${file.type || "application/octet-stream"};base64,${file.name}`; pending.push(this); }
   };
   const finish = (reader = pending.shift()) => reader.onload();
+  const fail = (reader = pending.shift()) => reader.onerror();
   initQRStyle();
   globalThis.DataTransfer = class {
     files = [];
@@ -71,6 +72,19 @@ assert.equal(logoType({ name: "notes", type: "" }), "", "no type and no known ex
   finish(quick);
   finish(slow);
   assert.equal(getQRStyle().logo, "data:image/png;base64,quick.png", "a slow earlier read does not replace a newer pick");
+
+  pick({ name: "pending.png", type: "image/png", size: 1000 });
+  pick({ name: "huge.png", type: "image/png", size: 600 * 1024 });
+  finish();
+  assert.equal(getQRStyle().logo, "data:image/png;base64,quick.png", "a rejected pick cancels a read still pending");
+  assert.deepEqual(input.files.map((f) => f.name), ["quick.png"], "and the picker shows the logo in use");
+
+  pick({ name: "broken.png", type: "image/png", size: 1000 });
+  fail();
+  assert.deepEqual(input.files.map((f) => f.name), ["quick.png"], "a failed read puts the picker back");
+  assert.equal(error.textContent, "Could not read that image. Try another file.", "a failed read is reported");
+  assert.equal(error.hidden, false, "and the report is visible");
+  assert.equal(getQRStyle().logo, "data:image/png;base64,quick.png", "a failed read keeps the logo");
 
   pick({ name: "drawing.svg", type: "", size: 900 });
   finish();
