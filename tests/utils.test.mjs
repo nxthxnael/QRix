@@ -1,6 +1,6 @@
 // run with: node tests/utils.test.mjs
 import assert from "node:assert/strict";
-import { getQRData } from "../frontend/js/utils.js";
+import { getQRData, escapeWifi } from "../frontend/js/utils.js";
 
 // minimal stand-in for the active form: selector -> element
 function useForm(type, controls) {
@@ -26,5 +26,10 @@ assert.equal(getQRData(), "WIFI:T:WPA;S:Home;P:secret;H:false;", "wi-fi type bui
 
 useForm("wi-fi", wifi("Cafe", "", "nopass"));
 assert.equal(getQRData(), "WIFI:T:nopass;S:Cafe;H:false;", "open network leaves the password out");
+
+assert.equal(escapeWifi('a\\b;c,d:e"f'), 'a\\\\b\\;c\\,d\\:e\\"f', "escapes every wifi syntax character");
+
+useForm("wi-fi", wifi("My;Net", "abc;123"));
+assert.equal(getQRData(), "WIFI:T:WPA;S:My\\;Net;P:abc\\;123;H:false;", "ssid and password keep their semicolons");
 
 console.log("utils: ok");

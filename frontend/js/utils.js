@@ -1,3 +1,6 @@
+// the wifi qr format treats \ ; , : " as syntax, so they need a backslash in the ssid and password
+export const escapeWifi = (value) => value.replace(/[\\;,:"]/g, "\\$&");
+
 export function getQRData() {
   const activeForm = document.querySelector(".form-type.active");
   if (!activeForm) return null;
@@ -38,9 +41,9 @@ export function getQRData() {
 
       if (!ssid) return null;
 
-      const passwordPart = encryption === "nopass" ? "" : `P:${password};`;
+      const passwordPart = encryption === "nopass" ? "" : `P:${escapeWifi(password)};`;
 
-      return `WIFI:T:${encryption};S:${ssid};${passwordPart}H:${hidden};`;
+      return `WIFI:T:${encryption};S:${escapeWifi(ssid)};${passwordPart}H:${hidden};`;
     }
 
     default:
