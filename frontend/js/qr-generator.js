@@ -43,6 +43,8 @@ export function initQRGenerator() {
   let actionsTimer;
 
   function generateQR(event) {
+    // any change, including a new export scale, makes an earlier png failure stale
+    if (exportError) exportError.hidden = true;
     // export options only change the downloaded file, not the preview
     if (event?.target.closest(".qr-actions")) return;
 
@@ -170,6 +172,7 @@ export function initQRGenerator() {
       await navigator.clipboard.write([
         new ClipboardItem({ "image/png": renderPngBlob() }),
       ]);
+      if (exportError) exportError.hidden = true;
       showCopyFeedback("fas fa-check", "Copied!", "#4CAF50");
     } catch (err) {
       console.error("Failed to copy QR code: ", err);
