@@ -27,6 +27,8 @@ export function initQRStyle() {
   const level = document.getElementById("qr-error-correction");
   const error = document.getElementById("qr-logo-error");
   let previousLevel;
+  // the files behind the current logo, put back when a new pick is cancelled or rejected
+  let accepted = null;
   if (!input) return;
 
   document.querySelectorAll("[data-preset]").forEach((button) =>
@@ -58,16 +60,17 @@ export function initQRStyle() {
 
   input.addEventListener("change", () => {
     const file = input.files[0];
-    if (!file) return;
-    const invalid = !file.type.startsWith("image/") || file.size > MAX_LOGO_BYTES;
+    const invalid = file && (!file.type.startsWith("image/") || file.size > MAX_LOGO_BYTES);
     if (error) {
       error.textContent = "Choose an image smaller than 512 KB.";
       error.hidden = !invalid;
     }
-    if (invalid) {
-      input.value = "";
+    if (!file || invalid) {
+      if (accepted) input.files = accepted;
+      else input.value = "";
       return;
     }
+    accepted = input.files;
     const reader = new FileReader();
     reader.onload = () => {
       logo = reader.result;
@@ -80,6 +83,7 @@ export function initQRStyle() {
 
   clear?.addEventListener("click", () => {
     logo = null;
+    accepted = null;
     unlockLevel();
     input.value = "";
     clear.hidden = true;
