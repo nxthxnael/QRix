@@ -51,8 +51,18 @@
   padding: 0.625rem;
 }
 
+/* the browser's 13px box is hard to hit; its label is clickable too, which widens the target.
+   .form-row in the selector beats the full-width input rule above */
+input[type="checkbox"],
 .form-row input[type="checkbox"] {
-  width: auto;
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+/* a 44px tall band around the slider track, all of it draggable */
+.form-row input[type="range"] {
+  min-height: 2.75rem;
+  padding: 0;
 }
 
 .field-hint {
