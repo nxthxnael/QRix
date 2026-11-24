@@ -29,10 +29,9 @@ export function getQRData() {
     }
 
     case "wi-fi": {
-      const ssid = activeForm.querySelector('input[type="text"]')?.value.trim();
-      const password = activeForm.querySelector(
-        'input[type="password"]'
-      )?.value;
+      // by id, because the eye button switches the password input's type
+      const ssid = activeForm.querySelector("#wifi-ssid")?.value.trim();
+      const password = activeForm.querySelector("#wifi-password")?.value ?? "";
       const encryption =
         activeForm.querySelector("#wifi-encryption")?.value || "WPA";
       const hidden = activeForm.querySelector("#hidden")?.checked
@@ -56,12 +55,14 @@ export function togglePassword() {
   const togglePasswordBtn = document.getElementById("toggle-password");
 
   if (togglePasswordBtn && passwordInput) {
+    const icon = togglePasswordBtn.querySelector("i");
     togglePasswordBtn.addEventListener("click", () => {
-      const type =
-        passwordInput.getAttribute("type") === "password" ? "text" : "password";
-      passwordInput.setAttribute("type", type);
-      togglePasswordBtn.classList.toggle("fa-eye");
-      togglePasswordBtn.classList.toggle("fa-eye-slash");
+      const show = passwordInput.type === "password";
+      passwordInput.type = show ? "text" : "password";
+      togglePasswordBtn.setAttribute("aria-pressed", String(show));
+      togglePasswordBtn.setAttribute("aria-label", show ? "Hide password" : "Show password");
+      icon?.classList.toggle("fa-eye", !show);
+      icon?.classList.toggle("fa-eye-slash", show);
     });
   }
 }

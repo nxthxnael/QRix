@@ -1,6 +1,6 @@
 // run with: node tests/utils.test.mjs
 import assert from "node:assert/strict";
-import { getQRData, escapeWifi } from "../frontend/js/utils.js";
+import { getQRData, escapeWifi, togglePassword } from "../frontend/js/utils.js";
 
 // minimal stand-in for the active form: selector -> element
 function useForm(type, controls) {
@@ -15,8 +15,8 @@ useForm("text", { "#qr-text": { value: "   " } });
 assert.equal(getQRData(), null, "blank text gives no payload");
 
 const wifi = (ssid, password, encryption = "WPA") => ({
-  'input[type="text"]': { value: ssid },
-  'input[type="password"]': { value: password },
+  "#wifi-ssid": { value: ssid },
+  "#wifi-password": { value: password },
   "#wifi-encryption": { value: encryption },
   "#hidden": { checked: false },
 });
@@ -31,5 +31,26 @@ assert.equal(escapeWifi('a\\b;c,d:e"f'), 'a\\\\b\\;c\\,d\\:e\\"f', "escapes ever
 
 useForm("wi-fi", wifi("My;Net", "abc;123"));
 assert.equal(getQRData(), "WIFI:T:WPA;S:My\\;Net;P:abc\\;123;H:false;", "ssid and password keep their semicolons");
+
+// the eye button flips the input type, its label and its icon together
+{
+  const input = { type: "password" };
+  const classes = new Set(["fa-eye"]);
+  const icon = { classList: { toggle: (name, on) => (on ? classes.add(name) : classes.delete(name)) } };
+  const attrs = {};
+  let onClick;
+  const button = {
+    querySelector: () => icon,
+    setAttribute: (name, value) => (attrs[name] = value),
+    addEventListener: (_, handler) => (onClick = handler),
+  };
+  globalThis.document = { getElementById: (id) => ({ "wifi-password": input, "toggle-password": button })[id] };
+  togglePassword();
+
+  onClick();
+  assert.deepEqual([input.type, attrs["aria-pressed"], attrs["aria-label"], [...classes]], ["text", "true", "Hide password", ["fa-eye-slash"]], "first click shows the password");
+  onClick();
+  assert.deepEqual([input.type, attrs["aria-pressed"], attrs["aria-label"], [...classes]], ["password", "false", "Show password", ["fa-eye"]], "second click hides it again");
+}
 
 console.log("utils: ok");

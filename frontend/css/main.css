@@ -125,14 +125,23 @@ body {
 
 .password-wrapper input {
   width: 100%;
-  padding-right: 3rem;
+  padding-right: 4.4rem;
 }
 
-.password-wrapper i {
+.password-wrapper button {
   position: absolute;
-  right: 1rem;
+  right: 0;
   top: 50%;
   transform: translateY(-50%);
+  width: 4.4rem;
+  height: 4.4rem;
+  border: none;
+  background: none;
   cursor: pointer;
-  color: var(--tertiary-text-color);
+  color: var(--secondary-text-color);
+}
+
+.password-wrapper button:focus-visible {
+  outline: 2px solid var(--primary-text-color);
+  outline-offset: -2px;
 }
