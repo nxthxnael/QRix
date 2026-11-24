@@ -25,7 +25,7 @@ export function getQRData() {
       return value ? `mailto:${value}` : null;
     }
 
-    case "wifi": {
+    case "wi-fi": {
       const ssid = activeForm.querySelector('input[type="text"]')?.value.trim();
       const password = activeForm.querySelector(
         'input[type="password"]'
