@@ -27,10 +27,16 @@ for (const [name, preset] of Object.entries(PRESETS)) {
     readAsDataURL(file) { this.result = `data:${file.name}`; this.onload(); }
   };
   initQRStyle();
-  const pick = (...files) => { input.files = files; handlers.change(); };
+  globalThis.DataTransfer = class {
+    files = [];
+    items = { add: (file) => this.files.push(file) };
+  };
+  // overwrites the same list in place, the worst case a browser may do on a new pick
+  input.files = [];
+  const pick = (...files) => { input.files.splice(0, Infinity, ...files); handlers.change(); };
 
   const first = [{ name: "a.png", type: "image/png", size: 1000 }];
-  pick(...first);
+  pick(...first.slice());
   assert.equal(getQRStyle().logo, "data:a.png", "a valid image becomes the logo");
 
   pick({ name: "b.png", type: "image/png", size: 600 * 1024 });

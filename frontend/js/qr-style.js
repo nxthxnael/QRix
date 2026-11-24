@@ -27,7 +27,8 @@ export function initQRStyle() {
   const level = document.getElementById("qr-error-correction");
   const error = document.getElementById("qr-logo-error");
   let previousLevel;
-  // the files behind the current logo, put back when a new pick is cancelled or rejected
+  // the file behind the current logo, put back when a new pick is cancelled or rejected;
+  // kept as a File because a browser may reuse and overwrite the input's own FileList
   let accepted = null;
   if (!input) return;
 
@@ -70,11 +71,14 @@ export function initQRStyle() {
       error.hidden = !invalid;
     }
     if (!file || invalid) {
-      if (accepted) input.files = accepted;
-      else input.value = "";
+      if (accepted) {
+        const restored = new DataTransfer();
+        restored.items.add(accepted);
+        input.files = restored.files;
+      } else input.value = "";
       return;
     }
-    accepted = input.files;
+    accepted = file;
     const reader = new FileReader();
     reader.onload = () => {
       logo = reader.result;
