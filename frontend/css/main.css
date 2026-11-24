@@ -51,8 +51,20 @@ body {
   color: var(--milk-white);
   border-radius: 1rem;
   font-size: 1.3rem;
+  text-decoration: none;
   cursor: pointer;
   transition: 0.3s ease-in-out;
+}
+
+/* keeps the section heading clear of the fixed nav after an anchor jump */
+#generationSection {
+  scroll-margin-top: 8rem;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
 }
 
 /* -------- Generation Section Styling -------- */
