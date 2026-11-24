@@ -1,6 +1,15 @@
 // shortcut: bigger logos are rejected so the svg and png stay small, raise it if users hit it
 const MAX_LOGO_BYTES = 512 * 1024;
 
+// same formats as the picker's accept list, by extension for systems that report no type
+const LOGO_TYPES = { png: "image/png", jpg: "image/jpeg", jpeg: "image/jpeg", webp: "image/webp", svg: "image/svg+xml" };
+
+// the logo's image type, or "" when it is not an offered format
+export function logoType(file) {
+  if (file.type) return Object.values(LOGO_TYPES).includes(file.type) ? file.type : "";
+  return LOGO_TYPES[file.name.split(".").pop().toLowerCase()] ?? "";
+}
+
 let logo = null;
 
 // control id -> value; color texts take #RRGGBB and are read by the color picker on input
@@ -64,7 +73,7 @@ export function initQRStyle() {
   input.addEventListener("change", () => {
     const file = input.files[0];
     const problem = !file ? ""
-      : !file.type.startsWith("image/") ? "Choose a PNG, JPEG, WebP or SVG image."
+      : !logoType(file) ? "Choose a PNG, JPEG, WebP or SVG image."
       : file.size > MAX_LOGO_BYTES ? "Choose an image smaller than 512 KB."
       : "";
     const invalid = Boolean(problem);
@@ -85,7 +94,8 @@ export function initQRStyle() {
     const reader = new FileReader();
     reader.onload = () => {
       if (read !== latestRead) return;
-      logo = reader.result;
+      // a typeless file reads as octet-stream, which browsers will not draw as svg
+      logo = reader.result.replace(/^data:[^;,]*/, `data:${logoType(file)}`);
       lockLevel();
       if (clear) clear.hidden = false;
       redraw();
