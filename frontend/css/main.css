@@ -57,7 +57,8 @@ body {
 }
 
 /* keeps the section heading clear of the fixed nav after an anchor jump */
-#generationSection {
+#generationSection,
+#features-section {
   scroll-margin-top: 8rem;
 }
 
