@@ -239,7 +239,9 @@
 }
 
 .footer-bottom a {
-  text-decoration: none;
+  /* an underline marks the link inside its sentence without relying on color */
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
   padding: 0.1875rem 0.3125rem;
   background-color: var(--footer-fill);
   border-radius: var(--radius-s);
