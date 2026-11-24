@@ -24,8 +24,8 @@
   </head>
 
   <body>
-    <!-- one stroke icon set, drawn in currentColor so icons follow the theme -->
-    <svg hidden xmlns="http://www.w3.org/2000/svg">
+    <!-- one stroke icon set, drawn in currentColor so icons follow the theme; zero-sized rather than hidden, which not every browser applies to svg -->
+    <svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" aria-hidden="true" style="position: absolute; overflow: hidden">
       <symbol id="i-arrow-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12l7 7 7-7"/></symbol>
       <symbol id="i-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
       <symbol id="i-eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/><path d="M3 3l18 18"/></symbol>
