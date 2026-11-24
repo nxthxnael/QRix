@@ -52,7 +52,8 @@ QRix/
 │       ├── qr-style.js     # Shapes, presets and logo
 │       ├── qr-svg.js       # SVG renderer used for preview and exports
 │       └── qr-generator.js # Preview, PNG/SVG download and copy
-├── tests/                  # Node tests for the renderer, colors and styles
+├── tests/                  # Node tests for the renderer, colors, styles and logo picker,
+│                           # qr payloads, the password toggle and the type switcher
 └── README.md
 
 ```
