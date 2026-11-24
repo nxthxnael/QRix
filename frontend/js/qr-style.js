@@ -60,9 +60,13 @@ export function initQRStyle() {
 
   input.addEventListener("change", () => {
     const file = input.files[0];
-    const invalid = file && (!file.type.startsWith("image/") || file.size > MAX_LOGO_BYTES);
+    const problem = !file ? ""
+      : !file.type.startsWith("image/") ? "Choose a PNG, JPEG, WebP or SVG image."
+      : file.size > MAX_LOGO_BYTES ? "Choose an image smaller than 512 KB."
+      : "";
+    const invalid = Boolean(problem);
     if (error) {
-      error.textContent = "Choose an image smaller than 512 KB.";
+      error.textContent = problem;
       error.hidden = !invalid;
     }
     if (!file || invalid) {
@@ -84,6 +88,7 @@ export function initQRStyle() {
   clear?.addEventListener("click", () => {
     logo = null;
     accepted = null;
+    if (error) error.hidden = true;
     unlockLevel();
     input.value = "";
     clear.hidden = true;

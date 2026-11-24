@@ -20,7 +20,8 @@ for (const [name, preset] of Object.entries(PRESETS)) {
   const handlers = {};
   const input = { files: [], value: "", addEventListener: (type, fn) => (handlers[type] = fn), dispatchEvent: () => {} };
   const error = { hidden: true, textContent: "" };
-  const controls = { "qr-logo": input, "qr-logo-clear": { hidden: true, addEventListener: () => {} }, "qr-error-correction": { value: "M", disabled: false }, "qr-logo-error": error };
+  const clear = { hidden: true, addEventListener: (_, fn) => (handlers.clear = fn) };
+  const controls = { "qr-logo": input, "qr-logo-clear": clear, "qr-error-correction": { value: "M", disabled: false }, "qr-logo-error": error };
   globalThis.document = { getElementById: (id) => controls[id], querySelectorAll: () => [] };
   globalThis.FileReader = class {
     readAsDataURL(file) { this.result = `data:${file.name}`; this.onload(); }
@@ -40,6 +41,14 @@ for (const [name, preset] of Object.entries(PRESETS)) {
   pick();
   assert.deepEqual(input.files, first, "a cancelled pick keeps the accepted file");
   assert.equal(getQRStyle().logo, "data:a.png", "a cancelled pick keeps the logo");
+  assert.equal(error.hidden, true, "a cancelled pick clears the message");
+
+  pick({ name: "notes.txt", type: "text/plain", size: 10 });
+  assert.equal(error.textContent, "Choose a PNG, JPEG, WebP or SVG image.", "a wrong file type gets its own message");
+
+  handlers.clear();
+  assert.equal(error.hidden, true, "removing the logo clears the message");
+  assert.equal(getQRStyle().logo, null, "removing the logo clears it");
 }
 
 console.log("qr-style: ok");
