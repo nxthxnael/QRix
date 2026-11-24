@@ -11,6 +11,12 @@ body {
   font-size: var(--text-body);
 }
 
+/* one focus ring for every control, shown for keyboard use only */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 /* browsers give form controls their own small font; use the page's */
 input,
 select,

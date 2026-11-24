@@ -70,11 +70,6 @@
   background-color: var(--separator);
 }
 
-.theme-toggle:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-}
-
 /* the icon shows the theme a click switches to */
 .theme-toggle[data-current="dark"] .icon-moon,
 .theme-toggle:not([data-current="dark"]) .icon-sun {
