@@ -14,6 +14,22 @@ assert.equal(getQRData(), "hello", "text type reads the text input");
 useForm("text", { "#qr-text": { value: "   " } });
 assert.equal(getQRData(), null, "blank text gives no payload");
 
+// phone, email and url read the form's only input
+useForm("phone", { input: { value: " +254 700 000000 " } });
+assert.equal(getQRData(), "tel:+254 700 000000", "phone becomes a trimmed tel: link");
+
+useForm("phone", { input: { value: "  " } });
+assert.equal(getQRData(), null, "blank phone gives no payload");
+
+useForm("email", { input: { value: " name@example.com " } });
+assert.equal(getQRData(), "mailto:name@example.com", "email becomes a trimmed mailto: link");
+
+useForm("email", { input: { value: "" } });
+assert.equal(getQRData(), null, "blank email gives no payload");
+
+useForm("url", { input: { value: " https://example.com " } });
+assert.equal(getQRData(), "https://example.com", "url is used as typed, trimmed");
+
 const wifi = (ssid, password, encryption = "WPA") => ({
   "#wifi-ssid": { value: ssid },
   "#wifi-password": { value: password },
