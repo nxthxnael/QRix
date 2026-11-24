@@ -47,7 +47,7 @@
   font-weight: 900;
 }
 
-.heading-container h2 {
+.tagline {
   font-size: var(--text-caption);
   font-weight: 600;
   letter-spacing: 0.04em;
@@ -199,7 +199,8 @@
   color: var(--footer-label);
 }
 
-.footer-logo h3 {
+.footer-logo-name {
+  display: block;
   font-size: var(--text-title);
   font-weight: 900;
   margin-bottom: 0.625rem;

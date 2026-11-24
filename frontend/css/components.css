@@ -244,8 +244,9 @@
   border-radius: 50%;
 }
 
-.feature-card h4 {
+.feature-card .step {
   margin: 0.625rem 0;
+  line-height: 1.5;
   font-size: var(--text-caption);
   font-weight: 400;
   color: var(--label-secondary);
@@ -253,7 +254,7 @@
   letter-spacing: 0.04em;
 }
 
-.feature-card h5 {
+.feature-card h3 {
   font-size: var(--text-body);
   font-weight: 700;
   margin-bottom: 0.625rem;
