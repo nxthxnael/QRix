@@ -13,6 +13,10 @@
   transition: background-color var(--duration) var(--ease);
 }
 
+.qr-type-btn[aria-checked="false"]:hover {
+  background-color: var(--fill-hover);
+}
+
 .qr-type-btn[aria-checked="true"] {
   background-color: var(--fill-selected);
   box-shadow: var(--shadow-rest);

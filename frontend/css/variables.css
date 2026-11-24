@@ -18,6 +18,7 @@
   --separator: #d2d2d7;
   --fill: #e8e8ed;
   --fill-selected: #ffffff;
+  --fill-hover: #dcdce2;
 
   /* the one color for things you can act on; hover goes darker so it never looks disabled */
   --accent: #0071e3;
@@ -66,6 +67,7 @@
     --separator: #3a3a3c;
     --fill: #2c2c2e;
     --fill-selected: #636366;
+    --fill-hover: #3a3a3c;
     --material: rgb(0 0 0 / 0.72);
     --danger: #ff6b5b;
     --danger-fill: #3b1512;
@@ -86,6 +88,7 @@
   --separator: #3a3a3c;
   --fill: #2c2c2e;
   --fill-selected: #636366;
+  --fill-hover: #3a3a3c;
   --material: rgb(0 0 0 / 0.72);
   --danger: #ff6b5b;
   --danger-fill: #3b1512;
