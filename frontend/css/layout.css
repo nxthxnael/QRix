@@ -19,13 +19,12 @@
   left: 0;
   width: 100%;
   z-index: 1000;
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--material);
 
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px); /* For Safari support */
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
 
-  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 0.5px 5px 0 rgba(31, 38, 135, 0.3);
+  border-bottom: 1px solid var(--separator);
 
   margin-top: 0;
   padding: 0.75rem clamp(1rem, 4vw, 1.875rem);
@@ -98,10 +97,10 @@
   min-height: 9.375rem;
   min-width: 9.375rem;
   aspect-ratio: 1 / 1;
-  border-radius: 0.3125rem;
+  border-radius: var(--radius-m);
   background-color: var(--surface);
   border: 2px solid var(--separator);
-  box-shadow: 0 2px 5px 0 rgba(31, 38, 135, 0.3);
+  box-shadow: var(--shadow-rest);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -208,7 +207,7 @@
   text-decoration: none;
   padding: 0.1875rem 0.3125rem;
   background-color: var(--label-secondary);
-  border-radius: 0.5rem;
+  border-radius: var(--radius-s);
   color: var(--label-inverse);
   transition: 0.3s ease;
 }

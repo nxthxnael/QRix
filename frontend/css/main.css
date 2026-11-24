@@ -9,7 +9,7 @@ body {
 .open-card {
   padding: 0.625rem 1.25rem;
   border: 1px solid var(--label-secondary);
-  border-radius: 1.25rem;
+  border-radius: var(--radius-pill);
   margin-bottom: 2.5rem;
   font-size: 0.75rem;
 }
@@ -45,7 +45,7 @@ body {
   gap: 0.625rem;
   background-color: var(--label);
   color: var(--label-inverse);
-  border-radius: 0.625rem;
+  border-radius: var(--radius-pill);
   font-size: 0.8125rem;
   text-decoration: none;
   cursor: pointer;
@@ -85,9 +85,9 @@ body {
 .generation-container {
   min-height: 31.25rem;
   width: 100%;
-  box-shadow: 0 5px 10px -5px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-rest);
   border: 1px solid var(--separator);
-  border-radius: 0.625rem;
+  border-radius: var(--radius-l);
 }
 
 /* -------- Features Section Styling -------- */

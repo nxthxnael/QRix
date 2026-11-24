@@ -12,4 +12,15 @@
   --danger: #c0392b;
   --danger-fill: #fdecea;
   --danger-label: #7a1f16;
+
+  /* glass for the fixed nav: the page background, mostly opaque so text under it stays out of the way */
+  --material: rgb(251 251 253 / 0.72);
+
+  --radius-s: 0.5rem;
+  --radius-m: 0.875rem;
+  --radius-l: 1.375rem;
+  --radius-pill: 999px;
+
+  --shadow-rest: 0 1px 2px rgb(0 0 0 / 0.06);
+  --shadow-raised: 0 8px 24px rgb(0 0 0 / 0.08);
 }
