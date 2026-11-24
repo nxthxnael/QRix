@@ -47,6 +47,14 @@
   margin-bottom: 2rem;
 }
 
+/* same look the h3 headings had, now on real labels */
+.form-row > label,
+.form-label {
+  display: block;
+  font-size: 1.17em;
+  font-weight: 700;
+}
+
 .form-row input,
 .form-row textarea,
 .form-row select {
