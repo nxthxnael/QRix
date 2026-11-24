@@ -47,6 +47,13 @@
   font-weight: 900;
 }
 
+.heading-container h2 {
+  font-size: var(--text-caption);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--label-secondary);
+}
+
 #navLogo a {
   text-decoration: none;
   color: var(--label);
@@ -160,13 +167,13 @@
 }
 
 .footer-header {
-  font-size: 1.125rem;
+  font-size: var(--text-body);
   margin-bottom: 1.25rem;
   color: var(--label-inverse);
 }
 
 .footer-logo h3 {
-  font-size: 2.1875rem;
+  font-size: var(--text-title);
   font-weight: 900;
   margin-bottom: 0.625rem;
 }
@@ -181,7 +188,7 @@
 
 .footer-column ul li {
   margin-bottom: 0.625rem;
-  font-size: 0.75rem;
+  font-size: var(--text-subhead);
 }
 
 .footer-column a {
@@ -199,7 +206,7 @@
   margin-top: 3.75rem;
   padding-top: 1.25rem;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
-  font-size: 0.75rem;
+  font-size: var(--text-caption);
   color: var(--separator);
 }
 

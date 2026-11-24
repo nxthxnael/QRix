@@ -13,7 +13,7 @@ body {
   border: 1px solid var(--label-secondary);
   border-radius: var(--radius-pill);
   margin-bottom: 2.5rem;
-  font-size: 0.75rem;
+  font-size: var(--text-subhead);
 }
 
 .title {
@@ -22,7 +22,8 @@ body {
 
 #mainTitle {
   font-weight: 800;
-  font-size: clamp(2.25rem, 9vw, 3.4375rem);
+  font-size: var(--text-display);
+  line-height: 1.1;
   padding-bottom: 1.875rem;
 }
 
@@ -33,7 +34,8 @@ body {
 
 #subTitle {
   font-weight: 400;
-  font-size: clamp(0.9375rem, 3vw, 1.0625rem);
+  font-size: clamp(1.0625rem, 2.2vw, 1.3125rem);
+  color: var(--label-secondary);
   max-width: 50rem;
   text-align: center;
   padding-bottom: 3.125rem;
@@ -48,7 +50,7 @@ body {
   background-color: var(--accent);
   color: var(--on-accent);
   border-radius: var(--radius-pill);
-  font-size: 0.8125rem;
+  font-size: var(--text-body);
   text-decoration: none;
   cursor: pointer;
   transition: background-color 0.2s ease;
@@ -79,13 +81,14 @@ body {
 
 .generation-header h2 {
   color: var(--label);
-  font-size: 2.1875rem;
+  font-size: var(--text-title);
   font-weight: 700;
   margin-bottom: 0.625rem;
 }
 
 .generation-header p {
-  font-size: 0.875rem;
+  font-size: var(--text-body);
+  color: var(--label-secondary);
 }
 
 .generation-container {
@@ -109,13 +112,14 @@ body {
 
 .features-header h2 {
   color: var(--label);
-  font-size: 2.1875rem;
+  font-size: var(--text-title);
   font-weight: 700;
   margin-bottom: 0.625rem;
 }
 
 .features-header p {
-  font-size: 0.875rem;
+  font-size: var(--text-body);
+  color: var(--label-secondary);
 }
 
 /* Password Toggle Styling */
