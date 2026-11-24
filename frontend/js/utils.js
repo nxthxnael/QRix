@@ -19,7 +19,8 @@ export function getQRData() {
     }
 
     case "phone": {
-      const value = activeForm.querySelector("input")?.value.trim();
+      // tel: links allow - . ( ) as separators but not spaces, which strict scanners stop at
+      const value = activeForm.querySelector("input")?.value.replace(/\s+/g, "");
       return value ? `tel:${value}` : null;
     }
 
