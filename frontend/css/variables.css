@@ -24,6 +24,10 @@
   --accent-hover: #0062c4;
   --on-accent: #ffffff;
 
+  /* fills behind white text for a moment of feedback; fixed so both themes keep 4.5:1 */
+  --success-fill: #1e7e34;
+  --error-fill: #c0392b;
+
   /* the footer stays dark in both themes, so it has its own fixed colors */
   --footer-background: #1d1d1f;
   --footer-label: #f5f5f7;

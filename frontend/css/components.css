@@ -167,6 +167,15 @@
   background-color: var(--accent-hover);
 }
 
+/* after :hover, so the feedback color still shows under the pointer that just clicked */
+.action-btn[data-feedback="success"] {
+  background-color: var(--success-fill);
+}
+
+.action-btn[data-feedback="error"] {
+  background-color: var(--error-fill);
+}
+
 .preset-buttons {
   display: flex;
   flex-wrap: wrap;
