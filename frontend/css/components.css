@@ -122,6 +122,10 @@
   flex-wrap: wrap;
 }
 
+.qr-actions .contrast-warning {
+  margin: 0;
+}
+
 .export-buttons {
   flex-wrap: nowrap;
   gap: 1rem;

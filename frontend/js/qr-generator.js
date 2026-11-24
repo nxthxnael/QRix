@@ -18,6 +18,7 @@ export function initQRGenerator() {
   const exportScale = document.getElementById("exportScale");
   const exportTransparent = document.getElementById("exportTransparent");
   const errorCorrection = document.getElementById("qr-error-correction");
+  const exportError = document.getElementById("exportError");
 
   if (
     !qrContainer ||
@@ -120,12 +121,16 @@ export function initQRGenerator() {
   async function downloadAsPng() {
     if (!qrInstance) return;
 
+    if (exportError) exportError.hidden = true;
     let blob;
     try {
       blob = await renderPngBlob();
     } catch (err) {
       console.error("Failed to export PNG: ", err);
-      alert("Could not create the PNG. Try a smaller scale.");
+      if (exportError) {
+        exportError.textContent = "Could not create the PNG. Try a smaller scale.";
+        exportError.hidden = false;
+      }
       return;
     }
 
