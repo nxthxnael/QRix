@@ -21,7 +21,6 @@ body {
 }
 
 #mainTitle {
-  font-family: var(--heading-font);
   font-weight: 800;
   font-size: clamp(2.25rem, 9vw, 3.4375rem);
   padding-bottom: 1.875rem;
@@ -33,7 +32,6 @@ body {
 }
 
 #subTitle {
-  font-family: var(--text-font);
   font-weight: 400;
   font-size: clamp(0.9375rem, 3vw, 1.0625rem);
   max-width: 50rem;
@@ -77,7 +75,6 @@ body {
 
 .generation-header h2 {
   color: var(--primary-text-color);
-  font-family: var(--heading-font);
   font-size: 2.1875rem;
   font-weight: 700;
   margin-bottom: 0.625rem;
@@ -107,7 +104,6 @@ body {
 }
 
 .features-header h2 {
-  font-family: var(--heading-font);
   color: var(--primary-text-color);
   font-size: 2.1875rem;
   font-weight: 700;
