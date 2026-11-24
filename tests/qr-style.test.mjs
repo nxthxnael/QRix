@@ -61,6 +61,11 @@ assert.equal(logoType({ name: "notes", type: "" }), "", "no type and no known ex
 
   pick({ name: "notes.txt", type: "text/plain", size: 10 });
   assert.equal(error.textContent, "Choose a PNG, JPEG, WebP or SVG image.", "a wrong file type gets its own message");
+  assert.equal(error.hidden, false, "and the message is visible");
+
+  handlers.cancel();
+  assert.equal(error.hidden, true, "dismissing the dialog (cancel event) clears the message");
+  pick({ name: "notes.txt", type: "text/plain", size: 10 });
 
   handlers.clear();
   assert.equal(error.hidden, true, "removing the logo clears the message");

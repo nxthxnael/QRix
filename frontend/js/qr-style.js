@@ -118,6 +118,11 @@ export function initQRStyle() {
     reader.readAsDataURL(file);
   });
 
+  // current browsers fire cancel, not change, when the dialog is dismissed; the picker is untouched then
+  input.addEventListener("cancel", () => {
+    if (error) error.hidden = true;
+  });
+
   clear?.addEventListener("click", () => {
     logo = null;
     accepted = null;
