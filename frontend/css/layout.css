@@ -50,7 +50,7 @@
 
 #navLogo a {
   text-decoration: none;
-  color: var(--primary-text-color);
+  color: var(--label);
 }
 
 /* -------- Hero section styling -------- */
@@ -99,8 +99,8 @@
   min-width: 9.375rem;
   aspect-ratio: 1 / 1;
   border-radius: 0.3125rem;
-  background-color: #ffffff;
-  border: 2px solid var(--tertiary-text-color);
+  background-color: var(--surface);
+  border: 2px solid var(--separator);
   box-shadow: 0 2px 5px 0 rgba(31, 38, 135, 0.3);
   display: flex;
   justify-content: center;
@@ -108,7 +108,7 @@
   padding: 0.625rem;
   cursor: pointer;
   text-align: center;
-  color: var(--secondary-text-color);
+  color: var(--label-secondary);
 }
 
 .form-column {
@@ -132,8 +132,8 @@
 
 .footer-section {
   width: 100%;
-  background-color: var(--primary-text-color);
-  color: var(--milk-white);
+  background-color: var(--label);
+  color: var(--label-inverse);
   padding: 2.5rem 10% 1.25rem;
   margin-top: 1.25rem;
 }
@@ -163,7 +163,7 @@
 .footer-header {
   font-size: 1.125rem;
   margin-bottom: 1.25rem;
-  color: var(--milk-white);
+  color: var(--label-inverse);
 }
 
 .footer-logo h3 {
@@ -186,13 +186,13 @@
 }
 
 .footer-column a {
-  color: var(--tertiary-text-color);
+  color: var(--separator);
   text-decoration: none;
   transition: color 0.3s ease;
 }
 
 .footer-column a:hover {
-  color: var(--milk-white);
+  color: var(--label-inverse);
 }
 
 .footer-bottom {
@@ -201,21 +201,21 @@
   padding-top: 1.25rem;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   font-size: 0.75rem;
-  color: var(--tertiary-text-color);
+  color: var(--separator);
 }
 
 .footer-bottom a {
   text-decoration: none;
   padding: 0.1875rem 0.3125rem;
-  background-color: var(--secondary-text-color);
+  background-color: var(--label-secondary);
   border-radius: 0.5rem;
-  color: var(--milk-white);
+  color: var(--label-inverse);
   transition: 0.3s ease;
 }
 
 .footer-bottom a:hover {
-  color: var(--primary-text-color);
-  background-color: var(--tertiary-text-color);
+  color: var(--label);
+  background-color: var(--separator);
 }
 
 /* ---------------------------------------------- */
