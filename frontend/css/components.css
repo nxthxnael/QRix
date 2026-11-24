@@ -210,6 +210,10 @@
   margin-top: 1rem;
 }
 
+.logo-selection .contrast-warning {
+  margin: 1rem 0 0;
+}
+
 .action-btn i {
   font-size: 0.9rem;
 }
