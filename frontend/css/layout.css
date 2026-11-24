@@ -138,8 +138,8 @@
 
 .footer-section {
   width: 100%;
-  background-color: var(--label);
-  color: var(--label-inverse);
+  background-color: var(--footer-background);
+  color: var(--footer-label);
   padding: 2.5rem 10% 1.25rem;
   margin-top: 1.25rem;
 }
@@ -169,7 +169,7 @@
 .footer-header {
   font-size: var(--text-body);
   margin-bottom: 1.25rem;
-  color: var(--label-inverse);
+  color: var(--footer-label);
 }
 
 .footer-logo h3 {
@@ -192,13 +192,13 @@
 }
 
 .footer-column a {
-  color: var(--separator);
+  color: var(--footer-link);
   text-decoration: none;
   transition: color 0.3s ease;
 }
 
 .footer-column a:hover {
-  color: var(--label-inverse);
+  color: var(--footer-label);
 }
 
 .footer-bottom {
@@ -207,21 +207,21 @@
   padding-top: 1.25rem;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   font-size: var(--text-caption);
-  color: var(--separator);
+  color: var(--footer-link);
 }
 
 .footer-bottom a {
   text-decoration: none;
   padding: 0.1875rem 0.3125rem;
-  background-color: var(--label-secondary);
+  background-color: var(--footer-fill);
   border-radius: var(--radius-s);
-  color: var(--label-inverse);
+  color: var(--footer-label);
   transition: 0.3s ease;
 }
 
 .footer-bottom a:hover {
-  color: var(--label);
-  background-color: var(--separator);
+  color: var(--footer-background);
+  background-color: var(--footer-link);
 }
 
 /* ---------------------------------------------- */
