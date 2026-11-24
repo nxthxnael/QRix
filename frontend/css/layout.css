@@ -54,28 +54,6 @@
   color: var(--primary-text-color);
 }
 
-.theme-icon-container {
-  width: 4rem;
-  height: 4rem;
-  padding: 1rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: 50%;
-  cursor: pointer;
-  transition: 0.3s ease-in-out;
-}
-
-.theme-icon-container:hover {
-  background-color: var(--tertiary-text-color);
-}
-
-.theme-icon-container i {
-  text-align: center;
-  color: #333333;
-  font-size: 1.5rem;
-}
-
 /* -------- Hero section styling -------- */
 
 .hero-section {
