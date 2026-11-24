@@ -109,7 +109,7 @@
   padding: 1rem;
   cursor: pointer;
   text-align: center;
-  color: var(--tertiary-text-color);
+  color: var(--secondary-text-color);
 }
 
 .form-column {
