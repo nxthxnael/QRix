@@ -87,6 +87,7 @@ node tests/color-picker.test.mjs
 node tests/qr-style.test.mjs
 node tests/utils.test.mjs
 node tests/form-switcher.test.mjs
+node tests/theme.test.mjs
 ```
 
 ---
