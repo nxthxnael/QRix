@@ -35,5 +35,14 @@ export function initThemeToggle() {
   system.addEventListener("change", () => {
     if (!stored()) render();
   });
+
+  // a choice made in another open tab applies here too, so this tab cannot overwrite it later
+  window.addEventListener("storage", (event) => {
+    if (event.key !== KEY) return;
+    const theme = stored();
+    if (theme) document.documentElement.dataset.theme = theme;
+    else delete document.documentElement.dataset.theme;
+    render();
+  });
   render();
 }
