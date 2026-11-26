@@ -283,7 +283,8 @@ input[type="checkbox"],
   background-color: var(--separator);
 }
 
-.logo-selection .action-btn {
+.logo-selection .action-btn,
+.share-style .action-btn {
   margin-top: 0.625rem;
 }
 

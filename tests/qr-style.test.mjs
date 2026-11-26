@@ -1,7 +1,13 @@
 // run with: node tests/qr-style.test.mjs
 import assert from "node:assert/strict";
-import { PRESETS, initQRStyle, getQRStyle, logoType, applyStyle, readStyle } from "../frontend/js/qr-style.js";
+import { PRESETS, initQRStyle, getQRStyle, logoType, applyStyle, readStyle, styleLink, styleFromHash } from "../frontend/js/qr-style.js";
 import { getContrastWarning } from "../frontend/js/color-picker.js";
+
+// no style link unless a test sets one
+globalThis.location = { hash: "", pathname: "/", search: "" };
+const windowListeners = {};
+globalThis.window = { addEventListener: (type, fn) => (windowListeners[type] = fn) };
+globalThis.history = { replaceState: (_, __, url) => Object.assign(location, { hash: "", replaced: url }) };
 
 for (const [name, preset] of Object.entries(PRESETS)) {
   const appearance = {
@@ -131,6 +137,16 @@ assert.equal(logoType({ name: "notes", type: "" }), "", "no type and no known ex
   assert.deepEqual(readStyle(), { "qr-color-text": "#1f2937", "qr-shape": "dots", "qr-size": "320", "qr-error-correction": "M" }, "bad colors, unknown options, out-of-range or off-step sizes, non-strings and unknown ids are ignored");
 }
 
+// a style link carries the style only, and reads back to the same style
+{
+  const style = { "qr-color-text": "#1F2937", "qr-gradient": "diagonal", "qr-size": "320", "qr-error-correction": "H" };
+  const link = styleLink(style, "https://qrix.example/?ref=x#old");
+  assert.equal(link, "https://qrix.example/?ref=x#color=1F2937&gradient=diagonal&size=320&ec=H", "the link is the page address plus a readable style hash");
+  assert.deepEqual(styleFromHash(new URL(link).hash), style, "the hash reads back to the same style");
+  assert.deepEqual(styleFromHash("#url=https://x&text=hi"), {}, "keys that are not style are ignored");
+  assert.deepEqual(styleFromHash(""), {}, "no hash is no style");
+}
+
 // the last style is restored on load and saved whenever a style control changes
 {
   const listeners = {};
@@ -156,6 +172,16 @@ assert.equal(logoType({ name: "notes", type: "" }), "", "no type and no known ex
   assert.equal(color.value, "#000000", "a broken entry is ignored");
   listeners.input({ target: { id: "qr-url" } });
   assert.equal(stored["qrix-style"], "not json", "content fields are never saved");
+
+  stored["qrix-style"] = JSON.stringify({ "qr-color-text": "#123456" });
+  Object.assign(location, { hash: "#color=abcdef", search: "?ref=x" });
+  initQRStyle();
+  assert.equal(color.value, "#abcdef", "a shared style link wins over the remembered style");
+  assert.equal(location.replaced, "/?ref=x", "the style leaves the address once applied");
+
+  location.hash = "#color=fedcba";
+  windowListeners.hashchange();
+  assert.equal(color.value, "#fedcba", "a style link opened in the same tab applies without a reload");
 }
 
 console.log("qr-style: ok");

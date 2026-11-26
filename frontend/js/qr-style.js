@@ -52,6 +52,27 @@ export function applyStyle(style) {
   }
 }
 
+// short, readable names for a style link; colors go without their #
+const LINK_KEYS = { "qr-color-text": "color", "qr-background-text": "bg", "qr-gradient": "gradient", "qr-color2-text": "color2", "qr-shape": "shape", "qr-corner": "corner", "qr-size": "size", "qr-error-correction": "ec" };
+
+// the page address with the style in its hash, e.g. #color=1f2937&shape=rounded; content is never included
+export function styleLink(style, address) {
+  const params = new URLSearchParams();
+  for (const [id, key] of Object.entries(LINK_KEYS)) if (style[id] !== undefined) params.set(key, style[id].replace(/^#/, ""));
+  return `${address.split("#")[0]}#${params}`;
+}
+
+// the style a link carries, unchecked: applyStyle decides what may be used
+export function styleFromHash(hash) {
+  const params = new URLSearchParams(hash.replace(/^#/, ""));
+  const style = {};
+  for (const [id, key] of Object.entries(LINK_KEYS)) {
+    const value = params.get(key);
+    if (value !== null) style[id] = id.endsWith("-text") ? `#${value}` : value;
+  }
+  return style;
+}
+
 // a tiny code in each preset's own style, so the buttons show the look instead of naming it
 function drawPresetThumbnails() {
   if (typeof QRCode === "undefined") return;
@@ -125,6 +146,30 @@ export function initQRStyle() {
   };
   document.addEventListener("input", remember);
   document.addEventListener("change", remember);
+
+  // a shared style link wins over the remembered style, then leaves the address so a reload keeps later changes;
+  // also on hashchange, for a link opened in a tab already showing the page
+  const applySharedStyle = () => {
+    const shared = styleFromHash(location.hash);
+    if (!Object.keys(shared).length) return;
+    applyStyle(shared);
+    history.replaceState(null, "", location.pathname + location.search);
+  };
+  applySharedStyle();
+  window.addEventListener("hashchange", applySharedStyle);
+
+  const linkButton = document.getElementById("copyStyleLink");
+  let linkTimer;
+  linkButton?.addEventListener("click", async () => {
+    clearTimeout(linkTimer);
+    try {
+      await navigator.clipboard.writeText(styleLink(readStyle(), location.href));
+      linkButton.textContent = "Link copied";
+    } catch {
+      linkButton.textContent = "Copy failed";
+    }
+    linkTimer = setTimeout(() => (linkButton.textContent = "Copy style link"), 2000);
+  });
 
   document.querySelectorAll("[data-preset]").forEach((button) =>
     button.addEventListener("click", () => applyStyle(PRESETS[button.dataset.preset]))
