@@ -232,11 +232,14 @@ export function initQRGenerator() {
     if (!exportNote) return;
     clearTimeout(noteTimer);
     exportNote.replaceChildren("Downloaded. Scan it with your phone camera before you print it.");
-    let asked = true;
+    // asked unless the mark is both unread and saved now, so a failed save can never repeat the link
+    let asked;
     try {
       asked = localStorage.getItem("qrix-star-asked") === "1";
       localStorage.setItem("qrix-star-asked", "1");
-    } catch {}
+    } catch {
+      asked = true;
+    }
     if (!asked) {
       const link = document.createElement("a");
       link.href = "https://github.com/nxthxnael/QRix";
