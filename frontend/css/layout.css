@@ -122,11 +122,17 @@
   padding-bottom: 1.875rem;
 }
 
-/* the preview and its export controls stay together and in view while the form scrolls */
 .preview-column {
   flex: 1 1 300px;
-  position: sticky;
-  top: 6rem;
+}
+
+/* the preview and its export controls stay in view while the form scrolls, but only when the
+   window is tall enough to show all of them; on short screens sticking would hide the buttons */
+@media (min-height: 42rem) {
+  .preview-column {
+    position: sticky;
+    top: 6rem;
+  }
 }
 
 .qr-code-container {
