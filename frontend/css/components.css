@@ -258,6 +258,15 @@ input[type="checkbox"],
   transition: background-color var(--duration) var(--ease);
 }
 
+/* a pressed control sinks slightly, like a physical key */
+.action-btn:active,
+.preset-btn:active,
+.brand-remove:active,
+.qr-type-btn:active,
+.theme-toggle:active {
+  transform: scale(0.97);
+}
+
 .action-btn[hidden] {
   display: none;
 }

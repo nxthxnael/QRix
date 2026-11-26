@@ -115,6 +115,10 @@ export function initQRGenerator() {
     }
 
     const svg = new DOMParser().parseFromString(svgMarkup({ size }), "image/svg+xml");
+    // a settled change (a preset, select, type or released slider) fades the new code in; typing and
+    // dragging fire input, not change, and stay instant so the preview never flickers; content fields
+    // also fire change when left, which redraws the same code and must not fade it
+    qrContainer.toggleAttribute("data-fade", event?.type === "change" && !event.target.matches?.(".form-type input"));
     qrContainer.replaceChildren(document.importNode(svg.documentElement, true));
 
     qrData = data;

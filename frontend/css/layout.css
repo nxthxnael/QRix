@@ -178,6 +178,17 @@
 }
 
 /* the example code is faded and captioned so it never reads as the visitor's own */
+/* a new style fades in rather than jumping; reduced motion shortens it to nothing */
+.qr-code-container[data-fade] svg {
+  animation: qr-fade-in var(--duration) var(--ease);
+}
+
+@keyframes qr-fade-in {
+  from {
+    opacity: 0.4;
+  }
+}
+
 .qr-code-container[data-example] {
   flex-direction: column;
   gap: 0.5rem;
