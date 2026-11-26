@@ -26,7 +26,8 @@ body {
 
 /* keeps the section heading clear of the fixed nav after an anchor jump */
 #generationSection,
-#features-section {
+#features-section,
+#faq {
   scroll-margin-top: 5rem;
 }
 
@@ -96,4 +97,37 @@ body {
 /* the eye sits inside its field, so its ring is drawn inside too */
 .password-wrapper button:focus-visible {
   outline-offset: -2px;
+}
+
+/* -------- Questions -------- */
+
+.faq-section {
+  max-width: 45rem;
+  margin: 4rem auto 3rem;
+}
+
+.faq-section h2 {
+  font-size: var(--text-title);
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.faq-item {
+  border-top: 1px solid var(--separator);
+}
+
+.faq-item:last-child {
+  border-bottom: 1px solid var(--separator);
+}
+
+.faq-item summary {
+  min-height: 2.75rem;
+  padding: 0.875rem 0;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.faq-item p {
+  padding-bottom: 1rem;
+  color: var(--label-secondary);
 }
