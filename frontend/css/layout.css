@@ -146,6 +146,20 @@
   color: var(--label-secondary);
 }
 
+/* the example code is faded and captioned so it never reads as the visitor's own */
+.qr-code-container[data-example] {
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.qr-code-container[data-example] svg {
+  opacity: 0.35;
+}
+
+.qr-code-container[data-example] p {
+  font-size: var(--text-caption);
+}
+
 .form-column {
   flex: 2 1 400px;
   height: auto;

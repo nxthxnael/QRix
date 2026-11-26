@@ -5,6 +5,9 @@ import { getQRStyle } from "./qr-style.js";
 
 let qrInstance = null;
 
+// shown faded until the visitor types, so the preview and style choices are never an empty box
+const EXAMPLE = "https://github.com/nxthxnael/QRix";
+
 // shortcut: fixed delay, not a download-complete signal, enough for the browser to start reading the blob
 const REVOKE_DELAY_MS = 10000;
 
@@ -50,14 +53,13 @@ export function initQRGenerator() {
 
     clearTimeout(actionsTimer);
     const data = getQRData();
-    if (!data) return showEmpty("Enter content to generate code");
 
     const { size } = getQRAppearance();
 
     // qrcodejs only encodes here; the preview and exports are drawn from its matrix as svg
     try {
       qrInstance = new QRCode(document.createElement("div"), {
-        text: data,
+        text: data ?? EXAMPLE,
         width: size,
         height: size,
         correctLevel: QRCode.CorrectLevel[getQRStyle().logo ? "H" : errorCorrection?.value] ?? QRCode.CorrectLevel.H,
@@ -72,6 +74,17 @@ export function initQRGenerator() {
     const svg = new DOMParser().parseFromString(svgMarkup({ size }), "image/svg+xml");
     qrContainer.replaceChildren(document.importNode(svg.documentElement, true));
 
+    // the example is a preview only: nothing to export until the visitor's own content is in
+    qrContainer.toggleAttribute("data-example", !data);
+    if (!data) {
+      qrInstance = null;
+      qrActions.hidden = true;
+      const caption = document.createElement("p");
+      caption.textContent = "Example. Type above to make yours.";
+      qrContainer.append(caption);
+      return;
+    }
+
     // Show actions after a short delay for QR code to render
     actionsTimer = setTimeout(() => {
       qrActions.hidden = false;
@@ -81,6 +94,7 @@ export function initQRGenerator() {
 
   function showEmpty(message) {
     qrInstance = null;
+    qrContainer.removeAttribute("data-example");
     const text = document.createElement("p");
     text.textContent = message;
     qrContainer.replaceChildren(text);
@@ -220,4 +234,7 @@ export function initQRGenerator() {
       delete copyQrBtn.dataset.feedback;
     }, 2000);
   }
+
+  // draw the faded example right away, so the preview is never an empty box
+  generateQR();
 }
