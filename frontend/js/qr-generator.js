@@ -88,7 +88,9 @@ export function initQRGenerator() {
       qrInstance = null;
       qrActions.hidden = true;
       const caption = document.createElement("p");
-      caption.textContent = "Example. Enter your content to make yours.";
+      // something typed but not enough for a code, such as a wi-fi name without its password
+      const started = [...document.querySelectorAll(".form-type.active input")].some((input) => input.type !== "checkbox" && input.value.trim());
+      caption.textContent = started ? "Example. Finish the form to make your code." : "Example. Enter your content to make yours.";
       qrContainer.append(caption);
       return;
     }
