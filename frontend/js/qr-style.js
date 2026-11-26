@@ -25,14 +25,24 @@ export const PRESETS = {
 // every control a style is made of, keyed by id; gradient comes before its end color
 export const STYLE_IDS = ["qr-color-text", "qr-background-text", "qr-gradient", "qr-color2-text", "qr-shape", "qr-corner", "qr-size", "qr-error-correction"];
 
-// the current style as id -> value, the same shape as a preset; a disabled control is left out, since
-// its value is forced (a logo locks error correction on high) rather than the visitor's choice
+// each color text box and the native picker beside it; the picker always holds the last valid color,
+// while the text box may hold a half-typed hex
+const PICKERS = { "qr-color-text": "qr-color", "qr-background-text": "qr-background", "qr-color2-text": "qr-color2" };
+
+// the error correction the visitor chose before a logo locked it on high; styles keep this, not the forced level
+let chosenLevel;
+
+// the current style as id -> value, the same shape as a preset
 export function readStyle() {
-  return Object.fromEntries(
-    STYLE_IDS.map((id) => [id, document.getElementById(id)])
-      .filter(([, control]) => control && !control.disabled)
-      .map(([id, control]) => [id, control.value])
-  );
+  const style = {};
+  for (const id of STYLE_IDS) {
+    const control = document.getElementById(id);
+    if (!control) continue;
+    const locked = id === "qr-error-correction" && control.disabled;
+    const value = locked ? chosenLevel : (document.getElementById(PICKERS[id])?.value.toUpperCase() ?? control.value);
+    if (value !== undefined) style[id] = value;
+  }
+  return style;
 }
 
 // a value the control can really hold; styles also come from links and storage, so nothing else gets in
@@ -58,8 +68,11 @@ export function cleanStyle(style) {
 export function applyStyle(style) {
   for (const [id, value] of Object.entries(cleanStyle(style))) {
     const control = document.getElementById(id);
-    // a logo keeps the error correction locked on high
-    if (control.disabled) continue;
+    // a logo keeps the error correction locked on high; the level applies once the logo goes
+    if (control.disabled) {
+      chosenLevel = value;
+      continue;
+    }
     control.value = value;
     control.dispatchEvent(new Event(control.tagName === "SELECT" ? "change" : "input", { bubbles: true }));
   }
@@ -132,7 +145,6 @@ export function initQRStyle() {
   const clear = document.getElementById("qr-logo-clear");
   const level = document.getElementById("qr-error-correction");
   const error = document.getElementById("qr-logo-error");
-  let previousLevel;
   // the file behind the current logo, set only once its read succeeds and put back when a
   // later pick fails; kept as a File because a browser may reuse the input's own FileList
   let accepted = null;
@@ -158,7 +170,8 @@ export function initQRStyle() {
     applyStyle(JSON.parse(localStorage.getItem("qrix-style")));
   } catch {}
   const remember = (event) => {
-    if (!STYLE_IDS.includes(event.target.id)) return;
+    // the native pickers count too: their change updates the text box without an event of its own
+    if (!STYLE_IDS.includes(event.target.id) && !Object.values(PICKERS).includes(event.target.id)) return;
     try {
       localStorage.setItem("qrix-style", JSON.stringify(readStyle()));
     } catch {}
@@ -197,13 +210,13 @@ export function initQRStyle() {
   // a logo needs high error correction, so show that and lock the select until the logo goes
   const lockLevel = () => {
     if (!level || level.disabled) return;
-    previousLevel = level.value;
+    chosenLevel = level.value;
     level.value = "H";
     level.disabled = true;
   };
   const unlockLevel = () => {
     if (!level) return;
-    level.value = previousLevel ?? level.value;
+    level.value = chosenLevel ?? level.value;
     level.disabled = false;
   };
 

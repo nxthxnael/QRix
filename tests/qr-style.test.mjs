@@ -127,15 +127,20 @@ assert.equal(logoType({ name: "notes", type: "" }), "", "no type and no known ex
   globalThis.document = { getElementById: (id) => controls[id] };
 
   applyStyle({ "qr-color-text": "#1f2937", "qr-shape": "dots", "qr-size": "320", "qr-error-correction": "L" });
-  assert.deepEqual(readStyle(), { "qr-color-text": "#1f2937", "qr-shape": "dots", "qr-size": "320" }, "valid values apply; a disabled control keeps its value and is not read as a choice");
-  assert.equal(controls["qr-error-correction"].value, "M");
+  assert.deepEqual(readStyle(), { "qr-color-text": "#1f2937", "qr-shape": "dots", "qr-size": "320", "qr-error-correction": "L" }, "valid values apply; a locked level is kept as the choice for when the lock goes");
+  assert.equal(controls["qr-error-correction"].value, "M", "the locked control itself is not changed");
   assert.equal(controls["qr-shape"].sent, true, "an applied select tells the page it changed");
 
-  applyStyle({ "qr-color-text": "red;background:url(x)", "qr-shape": "star", "qr-size": "999", "qr-error-correction": "H", "qr-logo": "x" });
+  applyStyle({ "qr-color-text": "red;background:url(x)", "qr-shape": "star", "qr-size": "999", "qr-error-correction": "X", "qr-logo": "x" });
   applyStyle({ "qr-size": "321" });
   applyStyle({ "qr-color-text": 5 });
   applyStyle(null);
-  assert.deepEqual(readStyle(), { "qr-color-text": "#1f2937", "qr-shape": "dots", "qr-size": "320" }, "bad colors, unknown options, out-of-range or off-step sizes, non-strings and unknown ids are ignored");
+  assert.deepEqual(readStyle(), { "qr-color-text": "#1f2937", "qr-shape": "dots", "qr-size": "320", "qr-error-correction": "L" }, "bad colors, unknown options, out-of-range or off-step sizes, non-strings and unknown ids are ignored");
+
+  // the native picker holds the last valid color while the text box may be half typed
+  controls["qr-color"] = { value: "#abcdef" };
+  controls["qr-color-text"].value = "#ab";
+  assert.equal(readStyle()["qr-color-text"], "#ABCDEF", "a half-typed hex is never read; the picker's last valid color is");
 }
 
 // a style link carries the style only, and reads back to the same style
@@ -173,6 +178,8 @@ assert.equal(logoType({ name: "notes", type: "" }), "", "no type and no known ex
   assert.equal(color.value, "#000000", "a broken entry is ignored");
   listeners.input({ target: { id: "qr-url" } });
   assert.equal(stored["qrix-style"], "not json", "content fields are never saved");
+  listeners.input({ target: { id: "qr-color" } });
+  assert.notEqual(stored["qrix-style"], "not json", "a change from the native color picker is remembered");
 
   stored["qrix-style"] = JSON.stringify({ "qr-color-text": "#123456" });
   Object.assign(location, { hash: "#color=abcdef", search: "?ref=x" });
