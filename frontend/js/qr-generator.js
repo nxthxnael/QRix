@@ -49,11 +49,12 @@ export function initQRGenerator() {
   let actionsTimer;
 
   function generateQR(event) {
-    // any change, including a new export scale, makes an earlier png failure or download note stale
+    // any change, including a new export scale, makes an earlier png failure stale
     if (exportError) exportError.hidden = true;
-    if (exportNote) exportNote.hidden = true;
     // export options only change the downloaded file, not the preview
     if (event?.target.closest(".qr-actions")) return;
+    // a new code makes the download note stale; export options leave it, so its one-time link is not lost
+    if (exportNote) exportNote.hidden = true;
 
     clearTimeout(actionsTimer);
     const data = getQRData();
