@@ -16,7 +16,10 @@ assert.equal(getQRData(), null, "blank text gives no payload");
 
 // phone, email and url read the form's only input
 useForm("phone", { input: { value: " +254 700 000000 " } });
-assert.equal(getQRData(), "tel:+254 700 000000", "phone becomes a trimmed tel: link");
+assert.equal(getQRData(), "tel:+254700000000", "phone becomes a tel: link without spaces");
+
+useForm("phone", { input: { value: "+1 (555) 010-0199" } });
+assert.equal(getQRData(), "tel:+1(555)010-0199", "allowed separators stay, spaces go");
 
 useForm("phone", { input: { value: "  " } });
 assert.equal(getQRData(), null, "blank phone gives no payload");
