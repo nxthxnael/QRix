@@ -11,7 +11,9 @@ function fingerprint(text) {
 }
 
 export function exportName(data) {
-  const ssid = /^WIFI:.*?S:((?:\\.|[^;])*)/.exec(data)?.[1];
+  // any wi-fi code is named by its network only; S: counts only where a field starts, so an S:
+  // inside another field, like a password, is never read, and a code without one is just "wifi"
+  const ssid = data.startsWith("WIFI:") ? (/^WIFI:(?:(?:\\.|[^;\\])*;)*?S:((?:\\.|[^;\\])*)/.exec(data)?.[1] ?? "") : undefined;
   // tel: and mailto: go first, then an optional scheme and an optional www., with or without the scheme
   const text = ssid !== undefined
     ? `wifi ${ssid.replace(/\\(.)/g, "$1")}`

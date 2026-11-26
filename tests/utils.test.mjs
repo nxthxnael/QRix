@@ -84,6 +84,16 @@ assert.equal(exportName("tel:+254700000000"), "qrix-254700000000", "phone number
 assert.equal(exportName("mailto:Name@Example.com"), "qrix-name-example-com", "emails drop mailto: and lowercase");
 assert.equal(exportName("WIFI:T:WPA;S:My\\;Home;P:secret123;H:false;"), "qrix-wifi-my-home", "wi-fi uses the unescaped network name");
 assert.ok(!exportName("WIFI:T:WPA;S:Home;P:secret123;H:false;").includes("secret"), "the wi-fi password never reaches the file name");
+assert.equal(exportName(`WIFI:T:WPA;S:${escapeWifi("a\\b:c;d")};P:x;H:false;`), "qrix-wifi-a-b-c-d", "escaped backslash, colon and semicolon stay inside the network name");
+assert.equal(exportName("WIFI:P:secret;S:Home;;"), "qrix-wifi-home", "the network name is found after a password field");
+assert.equal(exportName("WIFI:T:WPA;P:xS:leak;S:Home;;"), "qrix-wifi-home", "an S: inside the password is not read as the network name");
+assert.equal(exportName("WIFI:T:WPA;P:secret;;"), "qrix-wifi", "no network name gives a plain wi-fi name, not the password");
+{
+  // a backslash can only start an escape, so a long run of them is read in one pass, not retried
+  const start = Date.now();
+  exportName(`WIFI:${"\\".repeat(3000)}x`);
+  assert.ok(Date.now() - start < 100, "a long run of backslashes is named quickly");
+}
 assert.equal(exportName("!!!"), "qrix-code", "no usable ascii characters falls back to code");
 assert.equal(exportName("www.example.com"), "qrix-example-com", "www. goes even without a scheme");
 assert.match(exportName("こんにちは 世界"), /^qrix-code-[0-9a-f]{8}$/, "non-latin text gets an ascii-safe name");
