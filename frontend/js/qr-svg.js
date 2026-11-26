@@ -52,6 +52,8 @@ export function buildSvg({
   shape = "square",
   corner = "square",
   logo = null,
+  // several codes can share a page (preview and preset thumbnails); each gradient needs its own id
+  gradientId = "qr-gradient-fill",
 }) {
   const count = model.getModuleCount();
   const total = count + QUIET_ZONE * 2;
@@ -74,9 +76,9 @@ export function buildSvg({
   const dimensions = size ? ` width="${size}" height="${size}" style="max-width:100%;height:auto"` : "";
   const vector = GRADIENTS[gradient];
   const defs = vector
-    ? `<defs><linearGradient id="qr-gradient-fill" x1="${vector[0]}" y1="${vector[1]}" x2="${vector[2]}" y2="${vector[3]}"><stop offset="0" stop-color="${colorDark}"/><stop offset="1" stop-color="${colorDark2}"/></linearGradient></defs>`
+    ? `<defs><linearGradient id="${gradientId}" x1="${vector[0]}" y1="${vector[1]}" x2="${vector[2]}" y2="${vector[3]}"><stop offset="0" stop-color="${colorDark}"/><stop offset="1" stop-color="${colorDark2}"/></linearGradient></defs>`
     : "";
-  const fill = vector ? "url(#qr-gradient-fill)" : colorDark;
+  const fill = vector ? `url(#${gradientId})` : colorDark;
   const rendering = shape === "square" && corner === "square" ? "crispEdges" : "geometricPrecision";
   return (
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${total} ${total}"${dimensions} shape-rendering="${rendering}">` +

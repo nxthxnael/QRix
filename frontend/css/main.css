@@ -8,62 +8,26 @@ body {
 
 /* -------- Hero section styling -------- */
 
-.open-card {
-  padding: 0.625rem 1.25rem;
-  border: 1px solid var(--label-secondary);
-  border-radius: var(--radius-pill);
-  margin-bottom: 2.5rem;
-  font-size: var(--text-subhead);
-}
-
-.title {
-  text-align: center;
-}
-
 #mainTitle {
   font-weight: 800;
-  font-size: var(--text-display);
-  line-height: 1.1;
-  padding-bottom: 1.875rem;
-}
-
-#mainTitle > span {
-  display: block;
-  color: var(--label-secondary);
+  font-size: var(--text-title);
+  line-height: 1.15;
+  padding-bottom: 0.5rem;
 }
 
 #subTitle {
   font-weight: 400;
   font-size: var(--text-lead);
   color: var(--label-secondary);
-  max-width: 50rem;
-  text-align: center;
-  padding-bottom: 3.125rem;
-}
-
-.call-to-action {
-  min-height: 2.75rem;
-  padding: 0.625rem 1.875rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 0.625rem;
-  background-color: var(--accent);
-  color: var(--on-accent);
-  border-radius: var(--radius-pill);
-  font-size: var(--text-body);
-  text-decoration: none;
-  cursor: pointer;
-  transition: background-color var(--duration) var(--ease);
-}
-
-.call-to-action:hover {
-  background-color: var(--accent-hover);
+  max-width: 40rem;
+  margin: 0 auto;
+  padding-bottom: 1.5rem;
 }
 
 /* keeps the section heading clear of the fixed nav after an anchor jump */
 #generationSection,
-#features-section {
+#features-section,
+#faq {
   scroll-margin-top: 5rem;
 }
 
@@ -74,23 +38,6 @@ body {
 }
 
 /* -------- Generation Section Styling -------- */
-
-.generation-header {
-  text-align: center;
-  padding: 1.25rem 0;
-}
-
-.generation-header h2 {
-  color: var(--label);
-  font-size: var(--text-title);
-  font-weight: 700;
-  margin-bottom: 0.625rem;
-}
-
-.generation-header p {
-  font-size: var(--text-body);
-  color: var(--label-secondary);
-}
 
 .generation-container {
   min-height: 31.25rem;
@@ -150,4 +97,37 @@ body {
 /* the eye sits inside its field, so its ring is drawn inside too */
 .password-wrapper button:focus-visible {
   outline-offset: -2px;
+}
+
+/* -------- Questions -------- */
+
+.faq-section {
+  max-width: 45rem;
+  margin: 4rem auto 3rem;
+}
+
+.faq-section h2 {
+  font-size: var(--text-title);
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.faq-item {
+  border-top: 1px solid var(--separator);
+}
+
+.faq-item:last-child {
+  border-bottom: 1px solid var(--separator);
+}
+
+.faq-item summary {
+  min-height: 2.75rem;
+  padding: 0.875rem 0;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.faq-item p {
+  padding-bottom: 1rem;
+  color: var(--label-secondary);
 }

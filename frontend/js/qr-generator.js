@@ -1,9 +1,14 @@
-import { getQRData } from "./utils.js";
+import { getQRData, exportName } from "./utils.js";
 import { getQRAppearance } from "./color-picker.js";
 import { buildSvg, QUIET_ZONE } from "./qr-svg.js";
 import { getQRStyle } from "./qr-style.js";
 
 let qrInstance = null;
+// the content behind qrInstance, used to name downloads
+let qrData = null;
+
+// shown faded until the visitor types, so the preview and style choices are never an empty box
+const EXAMPLE = "https://github.com/nxthxnael/QRix";
 
 // shortcut: fixed delay, not a download-complete signal, enough for the browser to start reading the blob
 const REVOKE_DELAY_MS = 10000;
@@ -19,6 +24,7 @@ export function initQRGenerator() {
   const exportTransparent = document.getElementById("exportTransparent");
   const errorCorrection = document.getElementById("qr-error-correction");
   const exportError = document.getElementById("exportError");
+  const exportNote = document.getElementById("exportNote");
 
   if (
     !qrContainer ||
@@ -47,44 +53,69 @@ export function initQRGenerator() {
     if (exportError) exportError.hidden = true;
     // export options only change the downloaded file, not the preview
     if (event?.target.closest(".qr-actions")) return;
+    // a new code makes the download note stale; export options leave it, so its one-time link is not lost
+    if (exportNote) exportNote.replaceChildren();
 
     clearTimeout(actionsTimer);
     const data = getQRData();
-    if (!data) return showEmpty("Enter content to generate code");
 
     const { size } = getQRAppearance();
 
     // qrcodejs only encodes here; the preview and exports are drawn from its matrix as svg
     try {
       qrInstance = new QRCode(document.createElement("div"), {
-        text: data,
+        text: data ?? EXAMPLE,
         width: size,
         height: size,
         correctLevel: QRCode.CorrectLevel[getQRStyle().logo ? "H" : errorCorrection?.value] ?? QRCode.CorrectLevel.H,
       });
     } catch {
       // qrcodejs throws when the content does not fit; never leave the previous code exportable
-      return showEmpty(typeof QRCode === "undefined"
-        ? "The QR library did not load. Check your connection and reload."
-        : "Too long for a QR code. Shorten it or lower the error correction.");
+      if (typeof QRCode === "undefined") return showEmpty("The QR library did not load. Check your connection and reload.");
+      // error correction lives in the customize panel, so open it where the message points
+      const customize = document.getElementById("customize");
+      if (customize) customize.open = true;
+      return showEmpty("Too long for a QR code. Shorten it, or lower the error correction under Customize.");
     }
 
     const svg = new DOMParser().parseFromString(svgMarkup({ size }), "image/svg+xml");
     qrContainer.replaceChildren(document.importNode(svg.documentElement, true));
 
+    qrData = data;
+    // the example is a preview only: nothing to export until the visitor's own content is in
+    qrContainer.toggleAttribute("data-example", !data);
+    if (!data) {
+      qrInstance = null;
+      hideActions();
+      const caption = document.createElement("p");
+      // something typed but not enough for a code, such as a wi-fi name without its password
+      const started = [...document.querySelectorAll(".form-type.active input")].some((input) => input.type !== "checkbox" && input.value.trim());
+      caption.textContent = started ? "Example. Finish the form to make your code." : "Example. Enter your content to make yours.";
+      qrContainer.append(caption);
+      return;
+    }
+
     // Show actions after a short delay for QR code to render
     actionsTimer = setTimeout(() => {
-      qrActions.style.display = "flex";
-      setTimeout(() => qrActions.classList.add("visible"), 10);
+      qrActions.hidden = false;
+      // kept in actionsTimer too, so a code cleared in these 10ms cannot leave .visible behind
+      actionsTimer = setTimeout(() => qrActions.classList.add("visible"), 10);
     }, 100);
   }
 
   function showEmpty(message) {
     qrInstance = null;
+    qrContainer.removeAttribute("data-example");
     const text = document.createElement("p");
     text.textContent = message;
     qrContainer.replaceChildren(text);
-    qrActions.style.display = "none";
+    hideActions();
+  }
+
+  // drops .visible too, so the actions fade in again the next time a code is ready
+  function hideActions() {
+    qrActions.hidden = true;
+    qrActions.classList.remove("visible");
   }
 
   function svgMarkup({ size, transparent = false } = {}) {
@@ -153,12 +184,13 @@ export function initQRGenerator() {
 
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
-    link.download = "qrcode.png";
+    link.download = `${exportName(qrData)}.png`;
     link.href = url;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     setTimeout(() => URL.revokeObjectURL(url), REVOKE_DELAY_MS);
+    showDownloadNote();
   }
 
   function downloadAsSvg() {
@@ -171,12 +203,13 @@ export function initQRGenerator() {
     const svgUrl = URL.createObjectURL(svgBlob);
 
     const link = document.createElement("a");
-    link.download = "qrcode.svg";
+    link.download = `${exportName(qrData)}.svg`;
     link.href = svgUrl;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     setTimeout(() => URL.revokeObjectURL(svgUrl), REVOKE_DELAY_MS);
+    showDownloadNote();
   }
 
   async function copyToClipboard() {
@@ -192,11 +225,44 @@ export function initQRGenerator() {
       if (copying !== qrInstance) return;
       if (exportError) exportError.hidden = true;
       showCopyFeedback("check", "Copied!", "success");
+      // a copied code is usually pasted into something printed, so it gets the same reminder
+      showDownloadNote("Copied");
     } catch (err) {
       console.error("Failed to copy QR code: ", err);
       if (copying !== qrInstance) return;
       showCopyFeedback("x", "Copy failed", "error");
     }
+  }
+
+  let noteTimer;
+
+  // after a download or copy: a reminder to test-scan, and once per visitor a quiet link to the repository
+  function showDownloadNote(done = "Downloaded") {
+    if (!exportNote) return;
+    clearTimeout(noteTimer);
+    exportNote.replaceChildren(`${done}. Scan it with your phone camera before you print it.`);
+    // asked unless the mark is both unread and saved now, so a failed save can never repeat the link
+    let asked;
+    try {
+      asked = localStorage.getItem("qrix-star-asked") === "1";
+      localStorage.setItem("qrix-star-asked", "1");
+    } catch {
+      asked = true;
+    }
+    if (!asked) {
+      const link = document.createElement("a");
+      link.href = "https://github.com/nxthxnael/QRix";
+      link.target = "_blank";
+      link.rel = "noopener";
+      link.textContent = "star it on GitHub";
+      exportNote.append(" QRix is free and open source: ", link, ".");
+    }
+    // never hide it under someone who has tabbed to its link; check again a little later
+    const hide = () => {
+      if (exportNote.contains(document.activeElement)) noteTimer = setTimeout(hide, 2000);
+      else exportNote.replaceChildren();
+    };
+    noteTimer = setTimeout(hide, asked ? 6000 : 12000);
   }
 
   const copyLabel = [...copyQrBtn.childNodes].map((node) => node.cloneNode(true));
@@ -220,4 +286,7 @@ export function initQRGenerator() {
       delete copyQrBtn.dataset.feedback;
     }, 2000);
   }
+
+  // draw the faded example right away, so the preview is never an empty box
+  generateQR();
 }

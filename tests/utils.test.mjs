@@ -1,6 +1,6 @@
 // run with: node tests/utils.test.mjs
 import assert from "node:assert/strict";
-import { getQRData, escapeWifi, togglePassword } from "../frontend/js/utils.js";
+import { getQRData, escapeWifi, togglePassword, exportName } from "../frontend/js/utils.js";
 
 // minimal stand-in for the active form: selector -> element
 function useForm(type, controls) {
@@ -78,5 +78,30 @@ assert.equal(getQRData(), null, "a wpa network with no password gives no code");
 
 useForm("wi-fi", wifi("Home", "", "WEP"));
 assert.equal(getQRData(), null, "a wep network with no password gives no code");
+
+assert.equal(exportName("https://www.example.com/path?q=1"), "qrix-example-com-path-q-1", "urls drop the scheme and www");
+assert.equal(exportName("tel:+254700000000"), "qrix-254700000000", "phone numbers drop tel:");
+assert.equal(exportName("mailto:Name@Example.com"), "qrix-name-example-com", "emails drop mailto: and lowercase");
+assert.equal(exportName("WIFI:T:WPA;S:My\\;Home;P:secret123;H:false;"), "qrix-wifi-my-home", "wi-fi uses the unescaped network name");
+assert.ok(!exportName("WIFI:T:WPA;S:Home;P:secret123;H:false;").includes("secret"), "the wi-fi password never reaches the file name");
+assert.equal(exportName(`WIFI:T:WPA;S:${escapeWifi("a\\b:c;d")};P:x;H:false;`), "qrix-wifi-a-b-c-d", "escaped backslash, colon and semicolon stay inside the network name");
+assert.equal(exportName("WIFI:P:secret;S:Home;;"), "qrix-wifi-home", "the network name is found after a password field");
+assert.equal(exportName("WIFI:T:WPA;P:xS:leak;S:Home;;"), "qrix-wifi-home", "an S: inside the password is not read as the network name");
+assert.equal(exportName("WIFI:T:WPA;P:secret;;"), "qrix-wifi", "no network name gives a plain wi-fi name, not the password");
+{
+  // a backslash can only start an escape, so a long run of them is read in one pass, not retried
+  const start = Date.now();
+  exportName(`WIFI:${"\\".repeat(3000)}x`);
+  assert.ok(Date.now() - start < 100, "a long run of backslashes is named quickly");
+}
+assert.equal(exportName("!!!"), "qrix-code", "no usable ascii characters falls back to code");
+assert.equal(exportName("www.example.com"), "qrix-example-com", "www. goes even without a scheme");
+assert.match(exportName("こんにちは 世界"), /^qrix-code-[0-9a-f]{8}$/, "non-latin text gets an ascii-safe name");
+assert.notEqual(exportName("日本"), exportName("中国"), "different non-latin content gets different names");
+assert.equal(exportName("日本"), exportName("日本"), "the same content always gets the same name");
+assert.match(exportName("WIFI:T:WPA;S:مقهى;P:x;H:false;"), /^qrix-wifi-[0-9a-f]{8}$/, "a non-latin network name gets a fingerprint");
+assert.equal(exportName("WIFI:T:WPA;S:مقهى;P:one;H:false;"), exportName("WIFI:T:WPA;S:مقهى;P:two;H:false;"), "the wi-fi fingerprint ignores the password");
+assert.match(exportName("café menu"), /^qrix-caf-menu-[0-9a-f]{8}$/, "partly latin text keeps its ascii part and adds a fingerprint");
+assert.equal(exportName("a".repeat(80)).length, "qrix-".length + 40, "long content is cut to 40 characters");
 
 console.log("utils: ok");

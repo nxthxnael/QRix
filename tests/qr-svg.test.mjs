@@ -42,4 +42,9 @@ assert.ok(withLogo.includes(`M${QUIET_ZONE} ${QUIET_ZONE}h7v7h-7z`), "finders ar
 assert.ok(!buildSvg({ ...base, model: grid(21), logo: logoUrl }).includes("<image"), "tiny codes get no logo");
 assert.ok(!buildSvg({ ...base, model: grid(29) }).includes("<image"), "no logo by default");
 
+const shared = buildSvg({ ...base, colorDark2: "#2563eb", gradient: "diagonal" });
+assert.ok(shared.includes('id="qr-gradient-fill"') && shared.includes("url(#qr-gradient-fill)"), "the default gradient id stays the same for exports");
+const own = buildSvg({ ...base, colorDark2: "#2563eb", gradient: "diagonal", gradientId: "thumb-ocean" });
+assert.ok(own.includes('id="thumb-ocean"') && own.includes("url(#thumb-ocean)") && !own.includes("qr-gradient-fill"), "a custom gradient id replaces both the definition and the fill");
+
 console.log("qr-svg: ok");

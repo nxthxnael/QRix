@@ -1,3 +1,5 @@
+import { buildSvg } from "./qr-svg.js";
+
 // shortcut: bigger logos are rejected so the svg and png stay small, raise it if users hit it
 const MAX_LOGO_BYTES = 512 * 1024;
 
@@ -19,6 +21,31 @@ export const PRESETS = {
   dots: { "qr-shape": "dots", "qr-corner": "circle", "qr-gradient": "none", "qr-color-text": "#111827", "qr-background-text": "#FFFFFF", "qr-error-correction": "H" },
   ocean: { "qr-shape": "rounded", "qr-corner": "rounded", "qr-gradient": "diagonal", "qr-color-text": "#0F172A", "qr-color2-text": "#2563EB", "qr-background-text": "#FFFFFF" },
 };
+
+// a tiny code in each preset's own style, so the buttons show the look instead of naming it
+function drawPresetThumbnails() {
+  if (typeof QRCode === "undefined") return;
+  // qrcodejs only encodes; its private matrix is what the svg renderer draws, as in the generator
+  const model = new QRCode(document.createElement("div"), { text: "QRix", correctLevel: QRCode.CorrectLevel.L })._oQRCode;
+  document.querySelectorAll("[data-preset]").forEach((button) => {
+    const preset = PRESETS[button.dataset.preset];
+    if (!preset) return;
+    const markup = buildSvg({
+      model,
+      colorDark: preset["qr-color-text"],
+      colorLight: preset["qr-background-text"],
+      colorDark2: preset["qr-color2-text"],
+      gradient: preset["qr-gradient"],
+      shape: preset["qr-shape"],
+      corner: preset["qr-corner"],
+      size: 28,
+      gradientId: `preset-gradient-${button.dataset.preset}`,
+    });
+    const svg = new DOMParser().parseFromString(markup, "image/svg+xml").documentElement;
+    svg.setAttribute("aria-hidden", "true");
+    button.prepend(document.importNode(svg, true));
+  });
+}
 
 // reads the style controls at render time, like the export options do
 export function getQRStyle() {
@@ -42,6 +69,19 @@ export function initQRStyle() {
   // numbers each read so a slow one cannot land after a newer pick, a failed pick or remove
   let latestRead = 0;
   if (!input) return;
+
+  // the customize panel reopens the way the visitor left it; storage may be blocked, which only loses that
+  const panel = document.getElementById("customize");
+  try {
+    if (panel && localStorage.getItem("qrix-customize") === "open") panel.open = true;
+  } catch {}
+  panel?.addEventListener("toggle", () => {
+    try {
+      localStorage.setItem("qrix-customize", panel.open ? "open" : "closed");
+    } catch {}
+  });
+
+  drawPresetThumbnails();
 
   document.querySelectorAll("[data-preset]").forEach((button) =>
     button.addEventListener("click", () => {

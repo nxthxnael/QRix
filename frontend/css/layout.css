@@ -83,12 +83,10 @@
 
 /* -------- Hero section styling -------- */
 
+/* a short headline above the tool, so the generator sits on the first screen */
 .hero-section {
-  padding-top: 5.625rem;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  padding: 6rem 0 0.5rem;
+  text-align: center;
 }
 
 /* -------- QR Generation Section -------- */
@@ -124,10 +122,20 @@
   padding-bottom: 1.875rem;
 }
 
-.qr-code-container {
+.preview-column {
   flex: 1 1 300px;
-  position: sticky;
-  top: 7.5rem;
+}
+
+/* the preview and its export controls stay in view while the form scrolls, but only when the
+   window is tall enough to show all of them; on short screens sticking would hide the buttons */
+@media (min-height: 42rem) {
+  .preview-column {
+    position: sticky;
+    top: 6rem;
+  }
+}
+
+.qr-code-container {
   min-height: 9.375rem;
   min-width: 9.375rem;
   aspect-ratio: 1 / 1;
@@ -142,6 +150,35 @@
   cursor: pointer;
   text-align: center;
   color: var(--label-secondary);
+}
+
+/* when the columns stack (below about 792px), the code comes first and stays compact, so the
+   content field still makes the first screen; it stops sticking, which would cover the form */
+@media (max-width: 49.5rem) {
+  .preview-column {
+    order: -1;
+    position: static;
+    width: 100%;
+  }
+
+  .preview-column .qr-code-container {
+    max-width: 14rem;
+    margin: 0 auto;
+  }
+}
+
+/* the example code is faded and captioned so it never reads as the visitor's own */
+.qr-code-container[data-example] {
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.qr-code-container[data-example] svg {
+  opacity: 0.35;
+}
+
+.qr-code-container[data-example] p {
+  font-size: var(--text-caption);
 }
 
 .form-column {
