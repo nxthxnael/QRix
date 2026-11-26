@@ -59,6 +59,16 @@ input[type="checkbox"],
   height: 1.25rem;
 }
 
+/* a checkbox inside its label: the whole 44px row is the target, whatever surrounds it */
+.form-row > .check-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  margin-bottom: 0;
+  cursor: pointer;
+}
+
 /* a 44px tall band around the slider track, all of it draggable */
 .form-row input[type="range"] {
   min-height: 2.75rem;
@@ -144,6 +154,7 @@ input[type="checkbox"],
 
 .export-option {
   display: inline-flex;
+  min-height: 2.75rem;
   align-items: center;
   gap: 0.3125rem;
   font-size: var(--text-subhead);
