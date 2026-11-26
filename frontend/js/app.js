@@ -15,3 +15,6 @@ document.addEventListener("DOMContentLoaded", () => {
   togglePassword();
   initThemeToggle();
 });
+
+// offline support; a browser without it, or a failed registration, simply works online only
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js").catch(() => {});
