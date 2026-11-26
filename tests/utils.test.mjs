@@ -1,6 +1,6 @@
 // run with: node tests/utils.test.mjs
 import assert from "node:assert/strict";
-import { getQRData, escapeWifi, togglePassword, exportName } from "../frontend/js/utils.js";
+import { getQRData, escapeWifi, togglePassword, exportName, parseWifi, detectPaste } from "../frontend/js/utils.js";
 
 // minimal stand-in for the active form: selector -> element
 function useForm(type, controls) {
@@ -103,5 +103,28 @@ assert.match(exportName("WIFI:T:WPA;S:مقهى;P:x;H:false;"), /^qrix-wifi-[0-9a
 assert.equal(exportName("WIFI:T:WPA;S:مقهى;P:one;H:false;"), exportName("WIFI:T:WPA;S:مقهى;P:two;H:false;"), "the wi-fi fingerprint ignores the password");
 assert.match(exportName("café menu"), /^qrix-caf-menu-[0-9a-f]{8}$/, "partly latin text keeps its ascii part and adds a fingerprint");
 assert.equal(exportName("a".repeat(80)).length, "qrix-".length + 40, "long content is cut to 40 characters");
+
+// pasted wi-fi strings read back to the fields they were made from
+assert.deepEqual(parseWifi(`WIFI:T:WPA;S:${escapeWifi("My;Home")};P:${escapeWifi('p:w\\"')};H:true;;`), { T: "WPA", S: "My;Home", P: 'p:w\\"', H: "true" }, "escaped characters are unescaped");
+assert.equal(parseWifi("https://x"), null, "only wi-fi strings are parsed");
+
+const wifiPaste = (text, type = "url") => detectPaste(text, type)?.values;
+assert.deepEqual(wifiPaste("WIFI:S:Cafe;T:WPA2;P:pw;;"), { "#wifi-ssid": "Cafe", "#wifi-password": "pw", "#wifi-encryption": "WPA", "#hidden": false }, "wpa2 and other wpa names map to the wpa option");
+assert.equal(wifiPaste("WIFI:T:WEP;S:A;P:x;;")["#wifi-encryption"], "WEP");
+assert.equal(wifiPaste("WIFI:S:Open;;")["#wifi-encryption"], "nopass", "no type and no password is an open network");
+assert.equal(wifiPaste("WIFI:S:A;T:nopass;H:true;;")["#hidden"], true);
+assert.equal(detectPaste("WIFI:S:A;;", "wi-fi")?.type, "wi-fi", "a wi-fi string pasted into the wi-fi form still fills every field");
+
+assert.equal(detectPaste("https://example.com/a?b=1", "text")?.type, "url", "a link switches from text");
+assert.equal(detectPaste("https://example.com", "url"), null, "a link into the url field is an ordinary paste");
+assert.deepEqual(detectPaste("mailto:Ann@Example.com?subject=hi", "url")?.values, { "#qr-email": "Ann@Example.com" }, "mailto keeps the address only");
+assert.equal(detectPaste("ann@example.com", "text")?.type, "email", "an email address switches from text");
+assert.equal(detectPaste("https://user@example.com", "url"), null, "a link with a user name is still a link");
+assert.deepEqual(detectPaste("tel:+254700000000", "text")?.values, { "#qr-phone": "+254700000000" }, "tel: switches and drops the scheme");
+assert.equal(detectPaste("+1 (555) 010-0199", "url")?.type, "phone", "a bare phone number switches from the url field");
+assert.equal(detectPaste("+1 (555) 010-0199", "text"), null, "but not from text, where a number may be meant as text");
+assert.equal(detectPaste("12345", "url"), null, "too few digits is not a phone number");
+assert.equal(detectPaste("hello world", "url"), null, "plain text pastes as usual");
+assert.equal(detectPaste("example.com", "text"), null, "a bare domain in text stays text");
 
 console.log("utils: ok");

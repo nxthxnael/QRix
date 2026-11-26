@@ -1,9 +1,15 @@
+import { detectPaste } from "./utils.js";
+
 export function initFormSwitcher() {
   const typeButtons = document.querySelectorAll(".qr-type-btn");
   const forms = document.querySelectorAll(".form-type");
 
+  const pasteNote = document.getElementById("pasteNote");
+
   function select(button) {
     const selectedType = button.dataset.type;
+    // any type change ends what a paste note said; a paste sets its own note after this
+    if (pasteNote) pasteNote.textContent = "";
 
     // a radio group: one checked segment, and only it takes tab focus
     typeButtons.forEach((btn) => {
@@ -36,6 +42,29 @@ export function initFormSwitcher() {
       select(typeButtons[target]);
       typeButtons[target].focus();
     });
+  });
+
+  // a paste that is clearly another type switches to it and fills its fields, and says so
+  const section = document.querySelector(".generation-section");
+  section?.addEventListener("paste", (event) => {
+    const field = event.target;
+    const form = field.closest?.(".form-type");
+    // a password is pasted as it is, whatever it looks like
+    if (!form || field.tagName !== "INPUT" || field.id === "wifi-password") return;
+    const found = detectPaste((event.clipboardData?.getData("text") ?? "").trim(), form.dataset.type);
+    const button = [...typeButtons].find((btn) => btn.dataset.type === found?.type);
+    if (!button) return;
+    event.preventDefault();
+    if (found.type !== form.dataset.type) select(button);
+    for (const [selector, value] of Object.entries(found.values)) {
+      const control = document.querySelector(`.form-type[data-type="${found.type}"] ${selector}`);
+      if (!control) continue;
+      if (control.type === "checkbox") control.checked = value;
+      else control.value = value;
+      control.dispatchEvent(new Event(control.tagName === "SELECT" || control.type === "checkbox" ? "change" : "input", { bubbles: true }));
+    }
+    document.querySelector(`.form-type[data-type="${found.type}"] input`)?.focus();
+    if (pasteNote) pasteNote.textContent = `Pasted as ${button.textContent.trim()}.`;
   });
 
   // Password row visibility

@@ -96,6 +96,17 @@
 }
 
 /* a segmented control: a track with the selected segment raised */
+/* says what a paste switched to, right under the type it switched */
+.paste-note {
+  margin: -1.25rem 0 1.25rem;
+  text-align: center;
+}
+
+/* kept in the page so screen readers hear it when it fills, but takes no room while empty */
+.paste-note:empty {
+  position: absolute;
+}
+
 .generation-selection {
   display: flex;
   /* on the narrowest phones the five segments wrap to a second row instead of scrolling sideways */

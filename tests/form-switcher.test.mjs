@@ -20,6 +20,7 @@ const forms = types.map((type, i) => {
 globalThis.document = {
   querySelectorAll: (selector) => (selector === ".qr-type-btn" ? buttons : forms),
   getElementById: () => null,
+  querySelector: () => null,
 };
 const checked = () => types.filter((_, i) => buttons[i].attrs["aria-checked"] === "true");
 const key = (i, k) => buttons[i].handlers.keydown({ key: k, preventDefault() {} });

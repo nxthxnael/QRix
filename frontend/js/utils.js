@@ -25,6 +25,34 @@ export function exportName(data) {
   return `qrix-${slug || "code"}${suffix}`;
 }
 
+// the fields of a WIFI: string, unescaped, e.g. { T: "WPA", S: "Home", P: "secret" }; null for anything else
+export function parseWifi(text) {
+  if (!text.startsWith("WIFI:")) return null;
+  const fields = {};
+  for (const [, key, value] of text.slice(5).matchAll(/([A-Za-z]+):((?:\\.|[^;\\])*);?/g)) {
+    fields[key.toUpperCase()] ??= value.replace(/\\(.)/g, "$1");
+  }
+  return fields;
+}
+
+// what a pasted text is, as the type to switch to and the field values to fill, or null to paste as usual;
+// clear signals (a scheme, a wi-fi string, an email address) switch from any field, a bare phone number
+// only from the url field, where it cannot be meant as a link
+export function detectPaste(text, currentType) {
+  const wifi = parseWifi(text);
+  if (wifi) {
+    const encryption = /^WEP$/i.test(wifi.T) ? "WEP" : /^nopass$/i.test(wifi.T) || (!wifi.T && !wifi.P) ? "nopass" : "WPA";
+    return { type: "wi-fi", values: { "#wifi-ssid": wifi.S ?? "", "#wifi-password": wifi.P ?? "", "#wifi-encryption": encryption, "#hidden": wifi.H === "true" } };
+  }
+  let found = null;
+  if (/^https?:\/\/\S+$/i.test(text)) found = { type: "url", values: { "#qr-url": text } };
+  else if (/^mailto:/i.test(text) || /^[^\s@:/]+@[^\s@]+\.[^\s@]+$/.test(text)) found = { type: "email", values: { "#qr-email": text.replace(/^mailto:/i, "").split("?")[0] } };
+  else if (/^tel:/i.test(text)) found = { type: "phone", values: { "#qr-phone": text.slice(4) } };
+  else if (currentType === "url" && /^\+?[\d\s().-]+$/.test(text) && /^(\D*\d){7,15}\D*$/.test(text)) found = { type: "phone", values: { "#qr-phone": text } };
+  // pasting the same kind of content into its own field is an ordinary paste
+  return found && found.type !== currentType ? found : null;
+}
+
 export function getQRData() {
   const activeForm = document.querySelector(".form-type.active");
   if (!activeForm) return null;
