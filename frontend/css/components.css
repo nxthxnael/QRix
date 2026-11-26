@@ -97,6 +97,30 @@ input[type="checkbox"],
   color: var(--label-secondary);
 }
 
+/* one line under the preview on whether the code should scan */
+.scan-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  margin-top: 0.75rem;
+  font-size: var(--text-caption);
+  color: var(--label-secondary);
+  text-align: center;
+}
+
+.scan-badge[hidden] {
+  display: none;
+}
+
+.scan-badge[data-ok="false"] {
+  color: var(--danger-label);
+}
+
+.scan-badge[data-ok="false"] .icon {
+  color: var(--danger);
+}
+
 .contrast-warning {
   margin: -0.625rem 0 1.25rem;
   padding: 0.4688rem 0.625rem;

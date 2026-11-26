@@ -1,5 +1,5 @@
 import { getQRData, exportName } from "./utils.js";
-import { getQRAppearance } from "./color-picker.js";
+import { getQRAppearance, getScanAdvice } from "./color-picker.js";
 import { buildSvg, QUIET_ZONE } from "./qr-svg.js";
 import { getQRStyle } from "./qr-style.js";
 
@@ -25,6 +25,7 @@ export function initQRGenerator() {
   const errorCorrection = document.getElementById("qr-error-correction");
   const exportError = document.getElementById("exportError");
   const exportNote = document.getElementById("exportNote");
+  const scanBadge = document.getElementById("scanBadge");
 
   if (
     !qrContainer ||
@@ -51,8 +52,9 @@ export function initQRGenerator() {
   function generateQR(event) {
     // any change, including a new export scale, makes an earlier png failure stale
     if (exportError) exportError.hidden = true;
-    // export options only change the downloaded file, and naming a saved style changes nothing yet
-    if (event?.target.closest(".qr-actions, .save-brand")) return;
+    // export options only change the downloaded file, and naming a saved style changes nothing yet;
+    // the png scale still changes how many pixels each module gets
+    if (event?.target.closest(".qr-actions, .save-brand")) return updateBadge();
     // a new code makes the download note stale; export options leave it, so its one-time link is not lost
     if (exportNote) exportNote.replaceChildren();
 
@@ -95,6 +97,8 @@ export function initQRGenerator() {
       return;
     }
 
+    updateBadge();
+
     // Show actions after a short delay for QR code to render
     actionsTimer = setTimeout(() => {
       qrActions.hidden = false;
@@ -116,6 +120,19 @@ export function initQRGenerator() {
   function hideActions() {
     qrActions.hidden = true;
     qrActions.classList.remove("visible");
+    updateBadge();
+  }
+
+  // whether the code on screen should scan; shown only for a code that can be exported
+  function updateBadge() {
+    if (!scanBadge) return;
+    scanBadge.hidden = !qrInstance;
+    if (!qrInstance) return;
+    const advice = getScanAdvice(getQRAppearance(), qrInstance._oQRCode.getModuleCount(), parseInt(exportScale?.value ?? "1", 10));
+    scanBadge.dataset.ok = advice.ok;
+    scanBadge.querySelector("use")?.setAttribute("href", advice.ok ? "#i-check" : "#i-alert");
+    const text = scanBadge.querySelector("span");
+    if (text) text.textContent = advice.text;
   }
 
   function svgMarkup({ size, transparent = false } = {}) {

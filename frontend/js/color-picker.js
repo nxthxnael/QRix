@@ -1,3 +1,5 @@
+import { QUIET_ZONE } from "./qr-svg.js";
+
 let qrAppearance = {
   size: 256,
   colorDark: "#000000",
@@ -18,23 +20,44 @@ function luminance(hex) {
 // shortcut: 3:1 is a rule of thumb for phone scanners, not a guarantee; tune it after real scan tests
 const MIN_CONTRAST = 3;
 
-function pairWarning(colorDark, colorLight) {
+// the full warning by the color controls, and the short form on the badge under the preview
+const CONTRAST = {
+  inverted: { warning: "The code is lighter than its background. Many scanners cannot read inverted codes.", badge: "Inverted colors. Many scanners cannot read it." },
+  low: { warning: "Low contrast between the code and its background. It may not scan reliably.", badge: "Low contrast. It may not scan." },
+};
+
+function pairProblem(colorDark, colorLight) {
   const dark = luminance(colorDark);
   const light = luminance(colorLight);
-  if (dark > light) {
-    return "The code is lighter than its background. Many scanners cannot read inverted codes.";
-  }
-  if ((light + 0.05) / (dark + 0.05) < MIN_CONTRAST) {
-    return "Low contrast between the code and its background. It may not scan reliably.";
-  }
+  if (dark > light) return "inverted";
+  if ((light + 0.05) / (dark + 0.05) < MIN_CONTRAST) return "low";
   return "";
 }
 
 // a gradient has to pass at both of its colors; sRGB luminance is convex, so no blend is
 // lighter than its lightest stop and the stops are the worst case for dark-on-light contrast
-export function getContrastWarning({ colorDark, colorLight, colorDark2, gradient = "none" }) {
+function contrastProblem({ colorDark, colorLight, colorDark2, gradient = "none" }) {
   const stops = gradient === "none" ? [colorDark] : [colorDark, colorDark2];
-  return stops.map((stop) => pairWarning(stop, colorLight)).find(Boolean) ?? "";
+  return stops.map((stop) => pairProblem(stop, colorLight)).find(Boolean) ?? "";
+}
+
+export function getContrastWarning(appearance) {
+  return CONTRAST[contrastProblem(appearance)]?.warning ?? "";
+}
+
+// shortcut: 3 png pixels per module is a rule of thumb for a crisp image, not a scan guarantee; tune after print tests
+const MIN_MODULE_PX = 3;
+
+// one line on whether the code should scan: contrast first, then how many png pixels each module gets
+export function getScanAdvice(appearance, moduleCount, scale = 1) {
+  const problem = contrastProblem(appearance);
+  if (problem) return { ok: false, text: CONTRAST[problem].badge };
+  // the png export gives every module the same whole number of pixels, rounded up
+  const total = moduleCount + QUIET_ZONE * 2;
+  if (Math.ceil((appearance.size * scale) / total) < MIN_MODULE_PX) {
+    return { ok: false, text: "Too dense for this size. Raise the size or PNG scale." };
+  }
+  return { ok: true, text: "Should scan well" };
 }
 
 export function initColorPicker(onChange) {
