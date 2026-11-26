@@ -1,7 +1,7 @@
 .content-wrapper {
-  max-width: 110rem;
+  max-width: 68.75rem;
   margin: 0 auto;
-  padding: 0 1.6rem;
+  padding: 0 1rem;
 }
 
 /* -------- Nav Bar styling -------- */
@@ -19,16 +19,15 @@
   left: 0;
   width: 100%;
   z-index: 1000;
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--material);
 
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px); /* For Safari support */
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
 
-  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 0.5px 5px 0 rgba(31, 38, 135, 0.3);
+  border-bottom: 1px solid var(--separator);
 
   margin-top: 0;
-  padding: 1.2rem clamp(1.6rem, 4vw, 3rem);
+  padding: 0.75rem clamp(1rem, 4vw, 1.875rem);
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -40,24 +39,52 @@
   flex-direction: row;
   align-items: baseline;
   cursor: pointer;
-  gap: 0.5rem;
+  gap: 0.3125rem;
 }
 
 #navLogo {
-  font-family: "Plus Jakarta Sans", sans-serif;
-  font-size: 2.5rem;
+  font-size: 1.5625rem;
   font-weight: 900;
+}
+
+.tagline {
+  font-size: var(--text-caption);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--label-secondary);
+}
+
+.theme-toggle {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: none;
+  color: var(--label);
+  cursor: pointer;
+}
+
+.theme-toggle:hover {
+  background-color: var(--separator);
+}
+
+/* the icon shows the theme a click switches to */
+.theme-toggle[data-current="dark"] .icon-moon,
+.theme-toggle:not([data-current="dark"]) .icon-sun {
+  display: none;
 }
 
 #navLogo a {
   text-decoration: none;
-  color: var(--primary-text-color);
+  color: var(--label);
 }
 
 /* -------- Hero section styling -------- */
 
 .hero-section {
-  padding-top: 9rem;
+  padding-top: 5.625rem;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -67,16 +94,21 @@
 /* -------- QR Generation Section -------- */
 
 .generation-section {
-  margin-bottom: 10rem;
+  margin-bottom: 6.25rem;
 }
 
+/* a segmented control: a track with the selected segment raised */
 .generation-selection {
   display: flex;
-  flex-direction: row;
-  justify-content: center;
-  gap: 1rem;
-  padding: 4rem;
+  /* on the narrowest phones the five segments wrap to a second row instead of scrolling sideways */
   flex-wrap: wrap;
+  width: fit-content;
+  max-width: calc(100% - 1rem);
+  margin: 2rem auto;
+  padding: 0.25rem;
+  gap: 0.25rem;
+  background-color: var(--fill);
+  border-radius: var(--radius-m);
 }
 
 .qr-code-generation {
@@ -84,38 +116,38 @@
   flex-direction: row;
   align-items: flex-start;
   justify-content: space-between;
-  padding: 0 2rem;
+  padding: 0 1.25rem;
   height: auto;
-  min-height: 35rem;
+  min-height: 21.875rem;
   flex-wrap: wrap;
-  gap: 2rem;
-  padding-bottom: 3rem;
+  gap: 1.25rem;
+  padding-bottom: 1.875rem;
 }
 
 .qr-code-container {
   flex: 1 1 300px;
   position: sticky;
-  top: 12rem;
-  min-height: 15rem;
-  min-width: 15rem;
+  top: 7.5rem;
+  min-height: 9.375rem;
+  min-width: 9.375rem;
   aspect-ratio: 1 / 1;
-  border-radius: 0.5rem;
-  background-color: #ffffff;
-  border: 2px solid var(--tertiary-text-color);
-  box-shadow: 0 2px 5px 0 rgba(31, 38, 135, 0.3);
+  border-radius: var(--radius-m);
+  background-color: var(--surface);
+  border: 2px solid var(--separator);
+  box-shadow: var(--shadow-rest);
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 1rem;
+  padding: 0.625rem;
   cursor: pointer;
   text-align: center;
-  color: var(--secondary-text-color);
+  color: var(--label-secondary);
 }
 
 .form-column {
   flex: 2 1 400px;
   height: auto;
-  padding: 2rem;
+  padding: 1.25rem;
 }
 
 /* -------- How it works Section -------- */
@@ -124,7 +156,7 @@
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  gap: 2rem;
+  gap: 1.25rem;
   justify-content: center;
   width: 100%;
 }
@@ -133,10 +165,10 @@
 
 .footer-section {
   width: 100%;
-  background-color: var(--primary-text-color);
-  color: var(--milk-white);
-  padding: 4rem 10% 2rem;
-  margin-top: 2rem;
+  background-color: var(--footer-background);
+  color: var(--footer-label);
+  padding: 2.5rem 10% 1.25rem;
+  margin-top: 1.25rem;
 }
 
 .footer-container {
@@ -158,24 +190,24 @@
   flex-wrap: wrap;
   justify-content: space-evenly;
   align-items: center;
-  gap: 4rem;
+  gap: 2.5rem;
 }
 
 .footer-header {
-  font-family: var(--heading-font);
-  font-size: 1.8rem;
-  margin-bottom: 2rem;
-  color: var(--milk-white);
+  font-size: var(--text-body);
+  margin-bottom: 1.25rem;
+  color: var(--footer-label);
 }
 
-.footer-logo h3 {
-  font-size: 3.5rem;
+.footer-logo-name {
+  display: block;
+  font-size: var(--text-title);
   font-weight: 900;
-  margin-bottom: 1rem;
+  margin-bottom: 0.625rem;
 }
 
 .footer-column {
-  padding: 1rem;
+  padding: 0.625rem;
 }
 
 .footer-column ul {
@@ -183,41 +215,43 @@
 }
 
 .footer-column ul li {
-  margin-bottom: 1rem;
-  font-size: 1.2rem;
+  margin-bottom: 0.625rem;
+  font-size: var(--text-subhead);
 }
 
 .footer-column a {
-  color: var(--tertiary-text-color);
+  color: var(--footer-link);
   text-decoration: none;
-  transition: color 0.3s ease;
+  transition: color var(--duration) var(--ease);
 }
 
 .footer-column a:hover {
-  color: var(--milk-white);
+  color: var(--footer-label);
 }
 
 .footer-bottom {
   text-align: center;
-  margin-top: 6rem;
-  padding-top: 2rem;
+  margin-top: 3.75rem;
+  padding-top: 1.25rem;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
-  font-size: 1.2rem;
-  color: var(--tertiary-text-color);
+  font-size: var(--text-caption);
+  color: var(--footer-link);
 }
 
 .footer-bottom a {
-  text-decoration: none;
-  padding: 0.3rem 0.5rem;
-  background-color: var(--secondary-text-color);
-  border-radius: 0.8rem;
-  color: var(--milk-white);
-  transition: 0.3s ease;
+  /* an underline marks the link inside its sentence without relying on color */
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+  padding: 0.1875rem 0.3125rem;
+  background-color: var(--footer-fill);
+  border-radius: var(--radius-s);
+  color: var(--footer-label);
+  transition: background-color var(--duration) var(--ease), color var(--duration) var(--ease);
 }
 
 .footer-bottom a:hover {
-  color: var(--primary-text-color);
-  background-color: var(--tertiary-text-color);
+  color: var(--footer-background);
+  background-color: var(--footer-link);
 }
 
 /* ---------------------------------------------- */

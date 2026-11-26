@@ -1,10 +1,96 @@
 :root {
-  --milk-white: #f5f5f5;
-  --primary-text-color: #2b2b2b;
-  --secondary-text-color: #636363;
-  --tertiary-text-color: #c7cfd7;
-  --heading-font: "Plus Jakarta Sans", sans-serif;
-  --text-font: "Inter", sans-serif;
-  --white: #fff;
-  --black: #000;
+  color-scheme: light;
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  /* apple's text sizes: 17px body; titles scale with the window */
+  --text-caption: 0.8125rem;
+  --text-subhead: 0.9375rem;
+  --text-body: 1.0625rem;
+  --text-lead: clamp(1.0625rem, 2.2vw, 1.3125rem);
+  --text-title: clamp(1.75rem, 4vw, 2.5rem);
+  --text-display: clamp(2.5rem, 7vw, 4rem);
+
+  /* neutral palette after apple's system colors; every text pair passes 4.5:1 */
+  --background: #fbfbfd;
+  --surface: #ffffff;
+  --label: #1d1d1f;
+  --label-secondary: #6e6e73;
+  --separator: #d2d2d7;
+  --fill: #e8e8ed;
+  --fill-selected: #ffffff;
+  --fill-hover: #dcdce2;
+
+  /* the one color for things you can act on; hover goes darker so it never looks disabled */
+  --accent: #0071e3;
+  --accent-hover: #0062c4;
+  --on-accent: #ffffff;
+
+  /* fills behind white text for a moment of feedback; fixed so both themes keep 4.5:1 */
+  --success-fill: #1e7e34;
+  --error-fill: #c0392b;
+
+  /* the footer stays dark in both themes, so it has its own fixed colors */
+  --footer-background: #1d1d1f;
+  --footer-label: #f5f5f7;
+  --footer-link: #d2d2d7;
+  --footer-fill: #3a3a3c;
+
+  --danger: #c0392b;
+  --danger-fill: #fdecea;
+  --danger-label: #7a1f16;
+
+  /* glass for the fixed nav: the page background, mostly opaque so text under it stays out of the way */
+  --material: rgb(251 251 253 / 0.72);
+
+  --radius-s: 0.5rem;
+  --radius-m: 0.875rem;
+  --radius-l: 1.375rem;
+  --radius-pill: 999px;
+
+  /* short, decelerating motion: quick to start, soft to land */
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --duration: 0.2s;
+
+  --shadow-rest: 0 1px 2px rgb(0 0 0 / 0.06);
+  --shadow-raised: 0 8px 24px rgb(0 0 0 / 0.08);
+}
+
+/* dark palette: follows the system unless the visitor picked a theme; every text pair passes 4.5:1 */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --background: #000000;
+    --surface: #1c1c1e;
+    --label: #f5f5f7;
+    --label-secondary: #a1a1a6;
+    --separator: #3a3a3c;
+    --fill: #2c2c2e;
+    --fill-selected: #636366;
+    --fill-hover: #3a3a3c;
+    --material: rgb(0 0 0 / 0.72);
+    --danger: #ff6b5b;
+    --danger-fill: #3b1512;
+    --danger-label: #ffb4a8;
+    --shadow-rest: 0 1px 2px rgb(0 0 0 / 0.6);
+    --shadow-raised: 0 8px 24px rgb(0 0 0 / 0.6);
+  }
+}
+
+/* the same palette when the visitor picks dark on a light system */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --background: #000000;
+  --surface: #1c1c1e;
+  --label: #f5f5f7;
+  --label-secondary: #a1a1a6;
+  --separator: #3a3a3c;
+  --fill: #2c2c2e;
+  --fill-selected: #636366;
+  --fill-hover: #3a3a3c;
+  --material: rgb(0 0 0 / 0.72);
+  --danger: #ff6b5b;
+  --danger-fill: #3b1512;
+  --danger-label: #ffb4a8;
+  --shadow-rest: 0 1px 2px rgb(0 0 0 / 0.6);
+  --shadow-raised: 0 8px 24px rgb(0 0 0 / 0.6);
 }

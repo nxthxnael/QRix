@@ -23,7 +23,8 @@ It allows users to generate, customize, and download QR codes instantly without 
 - Download QR codes as **PNG** and **SVG**
 - Copy QR code to clipboard
 - Responsive layout down to phone width
-- Clean and modern UI
+- Light and dark theme that follows your system, with a toggle that remembers your choice
+- Keyboard and screen reader friendly controls
 
 ---
 
@@ -47,13 +48,14 @@ QRix/
 │   └── js/
 │       ├── app.js          # Entry point, wires the modules together
 │       ├── utils.js        # Builds the QR payload for each type
-│       ├── form-switcher.js
+│       ├── form-switcher.js # QR type segmented control
+│       ├── theme.js        # Light and dark theme toggle
 │       ├── color-picker.js # Colors, gradient and contrast check
 │       ├── qr-style.js     # Shapes, presets and logo
 │       ├── qr-svg.js       # SVG renderer used for preview and exports
 │       └── qr-generator.js # Preview, PNG/SVG download and copy
 ├── tests/                  # Node tests for the renderer, colors, styles and logo picker,
-│                           # qr payloads, the password toggle and the type switcher
+│                           # qr payloads, the password toggle, the type switcher and the theme
 └── README.md
 
 ```
@@ -87,6 +89,8 @@ node tests/color-picker.test.mjs
 node tests/qr-style.test.mjs
 node tests/utils.test.mjs
 node tests/form-switcher.test.mjs
+node tests/theme.test.mjs
+node tests/variables.test.mjs
 ```
 
 ---
@@ -102,7 +106,6 @@ node tests/form-switcher.test.mjs
 
 ## Future Improvements
 
-- Dark mode support
 - QR code history using `localStorage`
 - Bulk QR generation
 - Progressive Web App (PWA) support

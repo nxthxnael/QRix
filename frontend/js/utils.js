@@ -58,14 +58,13 @@ export function togglePassword() {
   const togglePasswordBtn = document.getElementById("toggle-password");
 
   if (togglePasswordBtn && passwordInput) {
-    const icon = togglePasswordBtn.querySelector("i");
+    const icon = togglePasswordBtn.querySelector("use");
     togglePasswordBtn.addEventListener("click", () => {
       const show = passwordInput.type === "password";
       passwordInput.type = show ? "text" : "password";
       togglePasswordBtn.setAttribute("aria-pressed", String(show));
       togglePasswordBtn.setAttribute("aria-label", show ? "Hide password" : "Show password");
-      icon?.classList.toggle("fa-eye", !show);
-      icon?.classList.toggle("fa-eye-slash", show);
+      icon?.setAttribute("href", show ? "#i-eye-off" : "#i-eye");
     });
   }
 }
