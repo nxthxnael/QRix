@@ -26,7 +26,8 @@ const note = {
 const input = { value: "" };
 const form = { dataset: { type: "url" }, querySelector: () => input };
 const container = element({ replaceChildren() {}, append() {}, toggleAttribute() {}, removeAttribute() {} });
-const actions = element({ hidden: true, classList: { add() {}, remove() {} } });
+const classes = new Set();
+const actions = element({ hidden: true, classList: { add: (name) => classes.add(name), remove: (name) => classes.delete(name) } });
 const section = element();
 const ids = {
   downloadPngBtn: element(),
@@ -86,6 +87,13 @@ assert.equal(note.text, "Copied. Scan it with your phone camera before you print
 
 type("https://example.org");
 assert.equal(note.text, "", "a new code clears the reminder for the old one");
+
+// the actions fade in once a code is ready, and lose the fade state when the example comes back
+while (timers.length) timers.shift()();
+assert.ok(!actions.hidden && classes.has("visible"), "a ready code shows the actions");
+type("");
+assert.ok(actions.hidden && !classes.has("visible"), "back to the example, the actions are hidden and will fade in again");
+type("https://example.org");
 
 // a browser that refuses to save the mark never shows the link, rather than showing it every time
 delete stored["qrix-star-asked"];

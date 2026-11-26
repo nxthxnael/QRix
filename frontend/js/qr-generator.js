@@ -86,7 +86,7 @@ export function initQRGenerator() {
     qrContainer.toggleAttribute("data-example", !data);
     if (!data) {
       qrInstance = null;
-      qrActions.hidden = true;
+      hideActions();
       const caption = document.createElement("p");
       // something typed but not enough for a code, such as a wi-fi name without its password
       const started = [...document.querySelectorAll(".form-type.active input")].some((input) => input.type !== "checkbox" && input.value.trim());
@@ -98,7 +98,8 @@ export function initQRGenerator() {
     // Show actions after a short delay for QR code to render
     actionsTimer = setTimeout(() => {
       qrActions.hidden = false;
-      setTimeout(() => qrActions.classList.add("visible"), 10);
+      // kept in actionsTimer too, so a code cleared in these 10ms cannot leave .visible behind
+      actionsTimer = setTimeout(() => qrActions.classList.add("visible"), 10);
     }, 100);
   }
 
@@ -108,7 +109,13 @@ export function initQRGenerator() {
     const text = document.createElement("p");
     text.textContent = message;
     qrContainer.replaceChildren(text);
+    hideActions();
+  }
+
+  // drops .visible too, so the actions fade in again the next time a code is ready
+  function hideActions() {
     qrActions.hidden = true;
+    qrActions.classList.remove("visible");
   }
 
   function svgMarkup({ size, transparent = false } = {}) {
