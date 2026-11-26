@@ -24,6 +24,7 @@ export function initQRGenerator() {
   const exportTransparent = document.getElementById("exportTransparent");
   const errorCorrection = document.getElementById("qr-error-correction");
   const exportError = document.getElementById("exportError");
+  const exportNote = document.getElementById("exportNote");
 
   if (
     !qrContainer ||
@@ -48,8 +49,9 @@ export function initQRGenerator() {
   let actionsTimer;
 
   function generateQR(event) {
-    // any change, including a new export scale, makes an earlier png failure stale
+    // any change, including a new export scale, makes an earlier png failure or download note stale
     if (exportError) exportError.hidden = true;
+    if (exportNote) exportNote.hidden = true;
     // export options only change the downloaded file, not the preview
     if (event?.target.closest(".qr-actions")) return;
 
@@ -176,6 +178,7 @@ export function initQRGenerator() {
     link.click();
     document.body.removeChild(link);
     setTimeout(() => URL.revokeObjectURL(url), REVOKE_DELAY_MS);
+    showDownloadNote();
   }
 
   function downloadAsSvg() {
@@ -194,6 +197,7 @@ export function initQRGenerator() {
     link.click();
     document.body.removeChild(link);
     setTimeout(() => URL.revokeObjectURL(svgUrl), REVOKE_DELAY_MS);
+    showDownloadNote();
   }
 
   async function copyToClipboard() {
@@ -214,6 +218,35 @@ export function initQRGenerator() {
       if (copying !== qrInstance) return;
       showCopyFeedback("x", "Copy failed", "error");
     }
+  }
+
+  let noteTimer;
+
+  // after a download: a reminder to test-scan, and once per visitor a quiet link to the repository
+  function showDownloadNote() {
+    if (!exportNote) return;
+    clearTimeout(noteTimer);
+    exportNote.replaceChildren("Downloaded. Scan it with your phone camera before you print it.");
+    let asked = true;
+    try {
+      asked = localStorage.getItem("qrix-star-asked") === "1";
+      localStorage.setItem("qrix-star-asked", "1");
+    } catch {}
+    if (!asked) {
+      const link = document.createElement("a");
+      link.href = "https://github.com/nxthxnael/QRix";
+      link.target = "_blank";
+      link.rel = "noopener";
+      link.textContent = "star it on GitHub";
+      exportNote.append(" QRix is free and open source: ", link, ".");
+    }
+    exportNote.hidden = false;
+    // never hide it under someone who has tabbed to its link; check again a little later
+    const hide = () => {
+      if (exportNote.contains(document.activeElement)) noteTimer = setTimeout(hide, 2000);
+      else exportNote.hidden = true;
+    };
+    noteTimer = setTimeout(hide, asked ? 6000 : 12000);
   }
 
   const copyLabel = [...copyQrBtn.childNodes].map((node) => node.cloneNode(true));

@@ -156,6 +156,18 @@ input[type="checkbox"],
   flex-wrap: wrap;
 }
 
+.export-note {
+  font-size: var(--text-caption);
+  color: var(--label-secondary);
+  text-align: center;
+}
+
+.export-note a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
 .qr-actions .contrast-warning {
   margin: 0;
 }
