@@ -218,6 +218,8 @@ export function initQRGenerator() {
       if (copying !== qrInstance) return;
       if (exportError) exportError.hidden = true;
       showCopyFeedback("check", "Copied!", "success");
+      // a copied code is usually pasted into something printed, so it gets the same reminder
+      showDownloadNote("Copied");
     } catch (err) {
       console.error("Failed to copy QR code: ", err);
       if (copying !== qrInstance) return;
@@ -227,11 +229,11 @@ export function initQRGenerator() {
 
   let noteTimer;
 
-  // after a download: a reminder to test-scan, and once per visitor a quiet link to the repository
-  function showDownloadNote() {
+  // after a download or copy: a reminder to test-scan, and once per visitor a quiet link to the repository
+  function showDownloadNote(done = "Downloaded") {
     if (!exportNote) return;
     clearTimeout(noteTimer);
-    exportNote.replaceChildren("Downloaded. Scan it with your phone camera before you print it.");
+    exportNote.replaceChildren(`${done}. Scan it with your phone camera before you print it.`);
     // asked unless the mark is both unread and saved now, so a failed save can never repeat the link
     let asked;
     try {
