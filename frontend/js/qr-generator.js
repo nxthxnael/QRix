@@ -70,9 +70,11 @@ export function initQRGenerator() {
       });
     } catch {
       // qrcodejs throws when the content does not fit; never leave the previous code exportable
-      return showEmpty(typeof QRCode === "undefined"
-        ? "The QR library did not load. Check your connection and reload."
-        : "Too long for a QR code. Shorten it or lower the error correction.");
+      if (typeof QRCode === "undefined") return showEmpty("The QR library did not load. Check your connection and reload.");
+      // error correction lives in the customize panel, so open it where the message points
+      const customize = document.getElementById("customize");
+      if (customize) customize.open = true;
+      return showEmpty("Too long for a QR code. Shorten it, or lower the error correction under Customize.");
     }
 
     const svg = new DOMParser().parseFromString(svgMarkup({ size }), "image/svg+xml");
