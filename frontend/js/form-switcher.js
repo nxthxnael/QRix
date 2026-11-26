@@ -55,7 +55,8 @@ export function initFormSwitcher() {
     const button = [...typeButtons].find((btn) => btn.dataset.type === found?.type);
     if (!button) return;
     event.preventDefault();
-    if (found.type !== form.dataset.type) select(button);
+    const switched = found.type !== form.dataset.type;
+    if (switched) select(button);
     for (const [selector, value] of Object.entries(found.values)) {
       const control = document.querySelector(`.form-type[data-type="${found.type}"] ${selector}`);
       if (!control) continue;
@@ -64,7 +65,8 @@ export function initFormSwitcher() {
       control.dispatchEvent(new Event(control.tagName === "SELECT" || control.type === "checkbox" ? "change" : "input", { bubbles: true }));
     }
     document.querySelector(`.form-type[data-type="${found.type}"] input`)?.focus();
-    if (pasteNote) pasteNote.textContent = `Pasted as ${button.textContent.trim()}.`;
+    // the note explains a type change; a paste that only cleaned its own field needs none
+    if (pasteNote && switched) pasteNote.textContent = `Pasted as ${button.textContent.trim()}.`;
   });
 
   // Password row visibility

@@ -27,6 +27,12 @@ assert.equal(getQRData(), null, "blank phone gives no payload");
 useForm("email", { input: { value: " name@example.com " } });
 assert.equal(getQRData(), "mailto:name@example.com", "email becomes a trimmed mailto: link");
 
+useForm("phone", { input: { value: "TEL:+254 700" } });
+assert.equal(getQRData(), "tel:+254700", "a typed tel: link is not doubled");
+
+useForm("email", { input: { value: " mailto:a@b.co " } });
+assert.equal(getQRData(), "mailto:a@b.co", "a typed mailto: link is not doubled");
+
 useForm("email", { input: { value: "" } });
 assert.equal(getQRData(), null, "blank email gives no payload");
 
@@ -107,6 +113,8 @@ assert.equal(exportName("a".repeat(80)).length, "qrix-".length + 40, "long conte
 // pasted wi-fi strings read back to the fields they were made from
 assert.deepEqual(parseWifi(`WIFI:T:WPA;S:${escapeWifi("My;Home")};P:${escapeWifi('p:w\\"')};H:true;;`), { T: "WPA", S: "My;Home", P: 'p:w\\"', H: "true" }, "escaped characters are unescaped");
 assert.equal(parseWifi("https://x"), null, "only wi-fi strings are parsed");
+assert.equal(parseWifi("WIFI:"), null, "a wi-fi string with no network name is no network");
+assert.equal(detectPaste("WIFI: is down again", "text"), null, "text that only starts like a wi-fi string pastes as usual");
 
 const wifiPaste = (text, type = "url") => detectPaste(text, type)?.values;
 assert.deepEqual(wifiPaste("WIFI:S:Cafe;T:WPA2;P:pw;;"), { "#wifi-ssid": "Cafe", "#wifi-password": "pw", "#wifi-encryption": "WPA", "#hidden": false }, "wpa2 and other wpa names map to the wpa option");
@@ -122,6 +130,9 @@ assert.equal(detectPaste("ann@example.com", "text")?.type, "email", "an email ad
 assert.equal(detectPaste("https://user@example.com", "url"), null, "a link with a user name is still a link");
 assert.deepEqual(detectPaste("tel:+254700000000", "text")?.values, { "#qr-phone": "+254700000000" }, "tel: switches and drops the scheme");
 assert.equal(detectPaste("+1 (555) 010-0199", "url")?.type, "phone", "a bare phone number switches from the url field");
+assert.deepEqual(detectPaste("tel:+254700000000", "phone")?.values, { "#qr-phone": "+254700000000" }, "a tel: link into the phone form drops its scheme, so it is not added twice");
+assert.deepEqual(detectPaste("MAILTO:ann@example.com", "email")?.values, { "#qr-email": "ann@example.com" }, "a mailto: link into the email form drops its scheme");
+assert.equal(detectPaste("ann@example.com", "email"), null, "a plain address into the email form pastes as usual");
 assert.equal(detectPaste("+1 (555) 010-0199", "text"), null, "but not from text, where a number may be meant as text");
 assert.equal(detectPaste("12345", "url"), null, "too few digits is not a phone number");
 assert.equal(detectPaste("hello world", "url"), null, "plain text pastes as usual");

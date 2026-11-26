@@ -25,14 +25,15 @@ export function exportName(data) {
   return `qrix-${slug || "code"}${suffix}`;
 }
 
-// the fields of a WIFI: string, unescaped, e.g. { T: "WPA", S: "Home", P: "secret" }; null for anything else
+// the fields of a WIFI: string, unescaped, e.g. { T: "WPA", S: "Home", P: "secret" }; null for anything
+// else, including a WIFI: text with no network name, which is no usable network
 export function parseWifi(text) {
   if (!text.startsWith("WIFI:")) return null;
   const fields = {};
   for (const [, key, value] of text.slice(5).matchAll(/([A-Za-z]+):((?:\\.|[^;\\])*);?/g)) {
     fields[key.toUpperCase()] ??= value.replace(/\\(.)/g, "$1");
   }
-  return fields;
+  return fields.S ? fields : null;
 }
 
 // what a pasted text is, as the type to switch to and the field values to fill, or null to paste as usual;
@@ -49,8 +50,9 @@ export function detectPaste(text, currentType) {
   else if (/^mailto:/i.test(text) || /^[^\s@:/]+@[^\s@]+\.[^\s@]+$/.test(text)) found = { type: "email", values: { "#qr-email": text.replace(/^mailto:/i, "").split("?")[0] } };
   else if (/^tel:/i.test(text)) found = { type: "phone", values: { "#qr-phone": text.slice(4) } };
   else if (currentType === "url" && /^\+?[\d\s().-]+$/.test(text) && /^(\D*\d){7,15}\D*$/.test(text)) found = { type: "phone", values: { "#qr-phone": text } };
-  // pasting the same kind of content into its own field is an ordinary paste
-  return found && found.type !== currentType ? found : null;
+  // pasting the same kind of content into its own field is an ordinary paste, except a tel: or mailto:
+  // link, whose scheme the form adds itself and must not be pasted twice
+  return found && (found.type !== currentType || /^(tel|mailto):/i.test(text)) ? found : null;
 }
 
 export function getQRData() {
@@ -72,12 +74,13 @@ export function getQRData() {
 
     case "phone": {
       // tel: links allow - . ( ) as separators but not spaces, which strict scanners stop at
-      const value = activeForm.querySelector("input")?.value.replace(/\s+/g, "");
+      // a typed tel: link is taken as the number, so the scheme is never doubled
+      const value = activeForm.querySelector("input")?.value.replace(/\s+/g, "").replace(/^tel:/i, "");
       return value ? `tel:${value}` : null;
     }
 
     case "email": {
-      const value = activeForm.querySelector("input")?.value.trim();
+      const value = activeForm.querySelector("input")?.value.trim().replace(/^mailto:/i, "");
       return value ? `mailto:${value}` : null;
     }
 
