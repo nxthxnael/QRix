@@ -113,6 +113,19 @@ export function initQRStyle() {
 
   drawPresetThumbnails();
 
+  // the last style comes back on the next visit; blocked storage or a bad entry only loses that
+  try {
+    applyStyle(JSON.parse(localStorage.getItem("qrix-style")));
+  } catch {}
+  const remember = (event) => {
+    if (!STYLE_IDS.includes(event.target.id)) return;
+    try {
+      localStorage.setItem("qrix-style", JSON.stringify(readStyle()));
+    } catch {}
+  };
+  document.addEventListener("input", remember);
+  document.addEventListener("change", remember);
+
   document.querySelectorAll("[data-preset]").forEach((button) =>
     button.addEventListener("click", () => applyStyle(PRESETS[button.dataset.preset]))
   );

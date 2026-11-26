@@ -27,7 +27,7 @@ assert.equal(logoType({ name: "notes", type: "" }), "", "no type and no known ex
   const error = { hidden: true, textContent: "" };
   const clear = { hidden: true, addEventListener: (_, fn) => (handlers.clear = fn) };
   const controls = { "qr-logo": input, "qr-logo-clear": clear, "qr-error-correction": { value: "M", disabled: false }, "qr-logo-error": error };
-  globalThis.document = { getElementById: (id) => controls[id], querySelectorAll: () => [] };
+  globalThis.document = { getElementById: (id) => controls[id], querySelectorAll: () => [], addEventListener() {} };
   // reads finish only when the test calls finish(), newest last unless told otherwise
   const pending = [];
   globalThis.FileReader = class {
@@ -129,6 +129,33 @@ assert.equal(logoType({ name: "notes", type: "" }), "", "no type and no known ex
   applyStyle({ "qr-color-text": 5 });
   applyStyle(null);
   assert.deepEqual(readStyle(), { "qr-color-text": "#1f2937", "qr-shape": "dots", "qr-size": "320", "qr-error-correction": "M" }, "bad colors, unknown options, out-of-range or off-step sizes, non-strings and unknown ids are ignored");
+}
+
+// the last style is restored on load and saved whenever a style control changes
+{
+  const listeners = {};
+  const color = { id: "qr-color-text", tagName: "INPUT", type: "text", value: "#000000", dispatchEvent() {} };
+  const controls = { "qr-logo": { addEventListener() {} }, "qr-color-text": color };
+  globalThis.document = {
+    getElementById: (id) => controls[id],
+    querySelectorAll: () => [],
+    addEventListener: (type, fn) => (listeners[type] = fn),
+  };
+  const stored = { "qrix-style": JSON.stringify({ "qr-color-text": "#123456" }) };
+  globalThis.localStorage = { getItem: (key) => stored[key] ?? null, setItem: (key, value) => (stored[key] = value) };
+  initQRStyle();
+  assert.equal(color.value, "#123456", "the remembered style is applied on load");
+
+  color.value = "#654321";
+  listeners.input({ target: color });
+  assert.deepEqual(JSON.parse(stored["qrix-style"]), { "qr-color-text": "#654321" }, "a style change is remembered");
+
+  stored["qrix-style"] = "not json";
+  color.value = "#000000";
+  initQRStyle();
+  assert.equal(color.value, "#000000", "a broken entry is ignored");
+  listeners.input({ target: { id: "qr-url" } });
+  assert.equal(stored["qrix-style"], "not json", "content fields are never saved");
 }
 
 console.log("qr-style: ok");
