@@ -146,6 +146,21 @@
   color: var(--label-secondary);
 }
 
+/* when the columns stack (below about 792px), the code comes first and stays compact, so the
+   content field still makes the first screen; it stops sticking, which would cover the form */
+@media (max-width: 49.5rem) {
+  .preview-column {
+    order: -1;
+    position: static;
+    width: 100%;
+  }
+
+  .preview-column .qr-code-container {
+    max-width: 14rem;
+    margin: 0 auto;
+  }
+}
+
 /* the example code is faded and captioned so it never reads as the visitor's own */
 .qr-code-container[data-example] {
   flex-direction: column;

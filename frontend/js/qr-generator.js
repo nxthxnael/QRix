@@ -85,7 +85,7 @@ export function initQRGenerator() {
       qrInstance = null;
       qrActions.hidden = true;
       const caption = document.createElement("p");
-      caption.textContent = "Example. Type above to make yours.";
+      caption.textContent = "Example. Enter your content to make yours.";
       qrContainer.append(caption);
       return;
     }
