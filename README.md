@@ -51,11 +51,12 @@ QRix/
 │       ├── form-switcher.js # QR type segmented control
 │       ├── theme.js        # Light and dark theme toggle
 │       ├── color-picker.js # Colors, gradient and contrast check
-│       ├── qr-style.js     # Shapes, presets and logo
+│       ├── qr-style.js     # Shapes, presets, logo, remembered and linked styles
+│       ├── brands.js       # Up to three saved styles, kept on this device
 │       ├── qr-svg.js       # SVG renderer used for preview and exports
 │       └── qr-generator.js # Preview, PNG/SVG download and copy
 ├── tests/                  # Node tests for the renderer, colors, styles and logo picker,
-│                           # qr payloads, the download and copy notes, the password toggle, the type switcher and the theme
+│                           # qr payloads, saved styles, the download and copy notes, the password toggle, the type switcher and the theme
 └── README.md
 
 ```
@@ -89,6 +90,7 @@ node tests/color-picker.test.mjs
 node tests/qr-style.test.mjs
 node tests/utils.test.mjs
 node tests/qr-generator.test.mjs
+node tests/brands.test.mjs
 node tests/form-switcher.test.mjs
 node tests/theme.test.mjs
 node tests/variables.test.mjs

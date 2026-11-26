@@ -51,8 +51,8 @@ export function initQRGenerator() {
   function generateQR(event) {
     // any change, including a new export scale, makes an earlier png failure stale
     if (exportError) exportError.hidden = true;
-    // export options only change the downloaded file, not the preview
-    if (event?.target.closest(".qr-actions")) return;
+    // export options only change the downloaded file, and naming a saved style changes nothing yet
+    if (event?.target.closest(".qr-actions, .save-brand")) return;
     // a new code makes the download note stale; export options leave it, so its one-time link is not lost
     if (exportNote) exportNote.replaceChildren();
 

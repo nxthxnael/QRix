@@ -164,6 +164,13 @@
                     <button type="button" class="preset-btn" data-preset="dots">Dots</button>
                     <button type="button" class="preset-btn" data-preset="ocean">Ocean</button>
                   </div>
+                  <!-- the visitor's own styles, kept on this device -->
+                  <div class="preset-buttons brand-buttons" id="brandButtons" role="group" aria-label="Your saved styles" hidden></div>
+                  <form class="save-brand" id="saveBrand">
+                    <input type="text" id="brand-name" maxlength="30" placeholder="Name this style" aria-label="Name for your saved style" aria-describedby="brand-hint" autocomplete="off" />
+                    <button type="submit" class="action-btn secondary">Save style</button>
+                  </form>
+                  <p class="field-hint" id="brand-hint" role="status"></p>
                 </div>
               </div>
 

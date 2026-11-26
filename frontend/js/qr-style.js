@@ -41,13 +41,21 @@ function accepts(control, value) {
   return /^#[0-9a-f]{6}$/i.test(value);
 }
 
+// only the known ids with values their controls can hold; anything drawn or applied from outside goes through this
+export function cleanStyle(style) {
+  return Object.fromEntries(STYLE_IDS.filter((id) => {
+    const control = document.getElementById(id);
+    return control && accepts(control, style?.[id]);
+  }).map((id) => [id, style[id]]));
+}
+
 // sets each known control the style names and tells the page, like the visitor changing it
 export function applyStyle(style) {
-  for (const id of STYLE_IDS) {
+  for (const [id, value] of Object.entries(cleanStyle(style))) {
     const control = document.getElementById(id);
     // a logo keeps the error correction locked on high
-    if (!control || control.disabled || !accepts(control, style?.[id])) continue;
-    control.value = style[id];
+    if (control.disabled) continue;
+    control.value = value;
     control.dispatchEvent(new Event(control.tagName === "SELECT" ? "change" : "input", { bubbles: true }));
   }
 }
@@ -73,28 +81,34 @@ export function styleFromHash(hash) {
   return style;
 }
 
-// a tiny code in each preset's own style, so the buttons show the look instead of naming it
-function drawPresetThumbnails() {
+let thumbnailModel;
+
+// a tiny code in a style's own look, so a button shows the look instead of naming it;
+// the style must be a preset or cleaned, since its values are written into svg markup
+export function drawThumbnail(button, style, gradientId) {
   if (typeof QRCode === "undefined") return;
   // qrcodejs only encodes; its private matrix is what the svg renderer draws, as in the generator
-  const model = new QRCode(document.createElement("div"), { text: "QRix", correctLevel: QRCode.CorrectLevel.L })._oQRCode;
+  thumbnailModel ??= new QRCode(document.createElement("div"), { text: "QRix", correctLevel: QRCode.CorrectLevel.L })._oQRCode;
+  const markup = buildSvg({
+    model: thumbnailModel,
+    colorDark: style["qr-color-text"] ?? "#000000",
+    colorLight: style["qr-background-text"] ?? "#FFFFFF",
+    colorDark2: style["qr-color2-text"] ?? "#2563EB",
+    gradient: style["qr-gradient"] ?? "none",
+    shape: style["qr-shape"] ?? "square",
+    corner: style["qr-corner"] ?? "square",
+    size: 28,
+    gradientId,
+  });
+  const svg = new DOMParser().parseFromString(markup, "image/svg+xml").documentElement;
+  svg.setAttribute("aria-hidden", "true");
+  button.prepend(document.importNode(svg, true));
+}
+
+function drawPresetThumbnails() {
   document.querySelectorAll("[data-preset]").forEach((button) => {
     const preset = PRESETS[button.dataset.preset];
-    if (!preset) return;
-    const markup = buildSvg({
-      model,
-      colorDark: preset["qr-color-text"],
-      colorLight: preset["qr-background-text"],
-      colorDark2: preset["qr-color2-text"],
-      gradient: preset["qr-gradient"],
-      shape: preset["qr-shape"],
-      corner: preset["qr-corner"],
-      size: 28,
-      gradientId: `preset-gradient-${button.dataset.preset}`,
-    });
-    const svg = new DOMParser().parseFromString(markup, "image/svg+xml").documentElement;
-    svg.setAttribute("aria-hidden", "true");
-    button.prepend(document.importNode(svg, true));
+    if (preset) drawThumbnail(button, preset, `preset-gradient-${button.dataset.preset}`);
   });
 }
 

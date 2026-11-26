@@ -283,6 +283,65 @@ input[type="checkbox"],
   background-color: var(--separator);
 }
 
+.brand-buttons {
+  margin-top: 0.625rem;
+}
+
+/* a saved style and its remove button read as one chip */
+.brand-item {
+  display: inline-flex;
+  align-items: stretch;
+  max-width: 100%;
+}
+
+/* a long name wraps inside its chip instead of widening the page */
+.brand-item .preset-btn {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  text-align: start;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.brand-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  min-height: 2.75rem;
+  border: 1px solid var(--separator);
+  border-left: none;
+  border-radius: 0 var(--radius-s) var(--radius-s) 0;
+  background-color: var(--surface);
+  color: var(--label-secondary);
+  cursor: pointer;
+  transition: background-color var(--duration) var(--ease);
+}
+
+.brand-remove:hover {
+  background-color: var(--separator);
+}
+
+/* the status repeats the style's name, which may be one long word */
+.preset-selection .field-hint {
+  overflow-wrap: anywhere;
+}
+
+.save-brand {
+  display: flex;
+  gap: 0.625rem;
+  margin-top: 0.625rem;
+}
+
+.save-brand input {
+  flex: 1;
+  min-width: 0;
+}
+
+.save-brand .action-btn {
+  flex: none;
+}
+
 .logo-selection .action-btn,
 .share-style .action-btn {
   margin-top: 0.625rem;
