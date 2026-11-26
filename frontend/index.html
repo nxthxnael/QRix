@@ -323,7 +323,8 @@
               </details>
             </div>
             <div class="preview-column">
-            <div class="qr-code-container">
+            <!-- focusable so the copy shortcut has a place to act -->
+            <div class="qr-code-container" tabindex="0" role="group" aria-label="QR code preview">
               <p>Enter content to generate code</p>
             </div>
             <p class="scan-badge" id="scanBadge" hidden>

@@ -48,6 +48,26 @@ export function initQRGenerator() {
   downloadSvgBtn.addEventListener("click", downloadAsSvg);
   copyQrBtn.addEventListener("click", copyToClipboard);
 
+  // cmd/ctrl+s downloads the png while a code is ready; cmd/ctrl+c copies it from the focused preview,
+  // unless text is selected there; otherwise the browser keeps its own save and copy
+  const mac = /Mac|iPhone|iPad/.test(navigator.platform ?? "");
+  downloadPngBtn.title = `Download PNG (${mac ? "⌘S" : "Ctrl+S"})`;
+  copyQrBtn.title = `Copy (${mac ? "⌘C" : "Ctrl+C"} on the preview)`;
+  downloadPngBtn.setAttribute("aria-keyshortcuts", mac ? "Meta+S" : "Control+S");
+  qrContainer.setAttribute("aria-keyshortcuts", mac ? "Meta+C" : "Control+C");
+  document.addEventListener("keydown", (event) => {
+    // a held key repeats; one press is one download
+    if (!(mac ? event.metaKey : event.ctrlKey) || event.altKey || event.shiftKey || event.repeat || !qrInstance) return;
+    const key = event.key.toLowerCase();
+    if (key === "s") {
+      event.preventDefault();
+      downloadAsPng();
+    } else if (key === "c" && qrContainer.contains(document.activeElement) && !String(getSelection?.() ?? "")) {
+      event.preventDefault();
+      copyToClipboard();
+    }
+  });
+
   // the system share sheet, offered only where it can take an image file (mostly phones)
   const canShareFiles = () => {
     try {

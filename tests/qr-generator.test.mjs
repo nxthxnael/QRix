@@ -10,6 +10,7 @@ globalThis.clearTimeout = () => {};
 const element = (extra = {}) => ({
   handlers: {},
   addEventListener(type, fn) { this.handlers[type] = fn; },
+  setAttribute() {},
   ...extra,
 });
 
@@ -25,7 +26,7 @@ const note = {
 };
 const input = { value: "" };
 const form = { dataset: { type: "url" }, querySelector: () => input };
-const container = element({ replaceChildren() {}, append() {}, toggleAttribute() {}, removeAttribute() {} });
+const container = element({ replaceChildren() {}, append() {}, toggleAttribute() {}, removeAttribute() {}, contains: (node) => node === container });
 const classes = new Set();
 const actions = element({ hidden: true, classList: { add: (name) => classes.add(name), remove: (name) => classes.delete(name) } });
 const section = element();
@@ -47,7 +48,10 @@ globalThis.document = {
   importNode: (node) => node,
   body: { appendChild() {}, removeChild() {} },
   activeElement: null,
+  handlers: {},
+  addEventListener(type, fn) { this.handlers[type] = fn; },
 };
+globalThis.getSelection = () => "";
 globalThis.DOMParser = class { parseFromString() { return { documentElement: {} }; } };
 globalThis.QRCode = class {
   static CorrectLevel = { L: 1, M: 0, Q: 3, H: 2 };
@@ -57,7 +61,7 @@ const stored = {};
 globalThis.localStorage = { getItem: (key) => stored[key] ?? null, setItem: (key, value) => (stored[key] = value) };
 // the png render is not drawn here; its rejected promise is caught like a browser's clipboard would
 globalThis.ClipboardItem = class { constructor(items) { Object.values(items).forEach((blob) => blob.catch(() => {})); } };
-Object.defineProperty(globalThis, "navigator", { value: { clipboard: { write: async () => {} } }, configurable: true });
+Object.defineProperty(globalThis, "navigator", { value: { platform: "Win32", clipboard: { write: async () => {} } }, configurable: true });
 
 const { initQRGenerator } = await import("../frontend/js/qr-generator.js");
 initQRGenerator();
@@ -94,6 +98,38 @@ assert.ok(!actions.hidden && classes.has("visible"), "a ready code shows the act
 type("");
 assert.ok(actions.hidden && !classes.has("visible"), "back to the example, the actions are hidden and will fade in again");
 type("https://example.org");
+
+// shortcuts act only while a code is ready, and copy only from the focused preview
+{
+  // the png render fails here by design and logs it; keep the test output readable
+  const logError = console.error;
+  console.error = () => {};
+  const press = (key, extra = {}) => {
+    const event = { key, ctrlKey: true, metaKey: false, altKey: false, shiftKey: false, prevented: false, preventDefault() { this.prevented = true; }, ...extra };
+    document.handlers.keydown(event);
+    return event.prevented;
+  };
+  type("");
+  assert.equal(press("s"), false, "ctrl+s on the example leaves the browser's save alone");
+  type("https://example.net");
+  assert.equal(press("s", { metaKey: true, ctrlKey: false }), false, "cmd+s is the mac shortcut, not the windows one");
+  assert.equal(press("S"), true, "ctrl+s downloads the ready code");
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.equal(ids.exportError.textContent, "Could not create the PNG. Try a smaller scale.", "and goes through the png download");
+  assert.equal(press("c"), false, "ctrl+c elsewhere is the browser's copy");
+  document.activeElement = container;
+  globalThis.getSelection = () => "selected words";
+  assert.equal(press("c"), false, "ctrl+c with text selected copies the text");
+  globalThis.getSelection = () => "";
+  assert.equal(press("c"), true, "ctrl+c on the focused preview copies the code");
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.match(note.text, /^Copied\./, "through the same copy as the button");
+  assert.equal(press("s", { shiftKey: true }), false, "ctrl+shift+s is left alone");
+  assert.equal(press("s", { repeat: true }), false, "a held ctrl+s does not download again");
+  document.activeElement = null;
+  type("https://example.org");
+  console.error = logError;
+}
 
 // a browser that refuses to save the mark never shows the link, rather than showing it every time
 delete stored["qrix-star-asked"];
