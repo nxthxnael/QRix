@@ -1,6 +1,6 @@
 // run with: node tests/utils.test.mjs
 import assert from "node:assert/strict";
-import { getQRData, escapeWifi, togglePassword } from "../frontend/js/utils.js";
+import { getQRData, escapeWifi, togglePassword, exportName } from "../frontend/js/utils.js";
 
 // minimal stand-in for the active form: selector -> element
 function useForm(type, controls) {
@@ -78,5 +78,13 @@ assert.equal(getQRData(), null, "a wpa network with no password gives no code");
 
 useForm("wi-fi", wifi("Home", "", "WEP"));
 assert.equal(getQRData(), null, "a wep network with no password gives no code");
+
+assert.equal(exportName("https://www.example.com/path?q=1"), "qrix-example-com-path-q-1", "urls drop the scheme and www");
+assert.equal(exportName("tel:+254700000000"), "qrix-254700000000", "phone numbers drop tel:");
+assert.equal(exportName("mailto:Name@Example.com"), "qrix-name-example-com", "emails drop mailto: and lowercase");
+assert.equal(exportName("WIFI:T:WPA;S:My\\;Home;P:secret123;H:false;"), "qrix-wifi-my-home", "wi-fi uses the unescaped network name");
+assert.ok(!exportName("WIFI:T:WPA;S:Home;P:secret123;H:false;").includes("secret"), "the wi-fi password never reaches the file name");
+assert.equal(exportName("!!!"), "qrix-code", "no usable characters falls back to code");
+assert.equal(exportName("a".repeat(80)).length, "qrix-".length + 40, "long content is cut to 40 characters");
 
 console.log("utils: ok");

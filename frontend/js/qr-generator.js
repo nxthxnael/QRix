@@ -1,9 +1,11 @@
-import { getQRData } from "./utils.js";
+import { getQRData, exportName } from "./utils.js";
 import { getQRAppearance } from "./color-picker.js";
 import { buildSvg, QUIET_ZONE } from "./qr-svg.js";
 import { getQRStyle } from "./qr-style.js";
 
 let qrInstance = null;
+// the content behind qrInstance, used to name downloads
+let qrData = null;
 
 // shown faded until the visitor types, so the preview and style choices are never an empty box
 const EXAMPLE = "https://github.com/nxthxnael/QRix";
@@ -74,6 +76,7 @@ export function initQRGenerator() {
     const svg = new DOMParser().parseFromString(svgMarkup({ size }), "image/svg+xml");
     qrContainer.replaceChildren(document.importNode(svg.documentElement, true));
 
+    qrData = data;
     // the example is a preview only: nothing to export until the visitor's own content is in
     qrContainer.toggleAttribute("data-example", !data);
     if (!data) {
@@ -167,7 +170,7 @@ export function initQRGenerator() {
 
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
-    link.download = "qrcode.png";
+    link.download = `${exportName(qrData)}.png`;
     link.href = url;
     document.body.appendChild(link);
     link.click();
@@ -185,7 +188,7 @@ export function initQRGenerator() {
     const svgUrl = URL.createObjectURL(svgBlob);
 
     const link = document.createElement("a");
-    link.download = "qrcode.svg";
+    link.download = `${exportName(qrData)}.svg`;
     link.href = svgUrl;
     document.body.appendChild(link);
     link.click();

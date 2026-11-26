@@ -1,6 +1,15 @@
 // the wifi qr format treats \ ; , : " as syntax, so they need a backslash in the ssid and password
 export const escapeWifi = (value) => value.replace(/[\\;,:"]/g, "\\$&");
 
+// a readable download name from the code's content, e.g. qrix-example-com;
+// wi-fi codes use only the network name, never the password
+export function exportName(data) {
+  const ssid = /^WIFI:.*?S:((?:\\.|[^;])*)/.exec(data)?.[1];
+  const text = ssid !== undefined ? `wifi ${ssid.replace(/\\(.)/g, "$1")}` : data.replace(/^(https?:\/\/(www\.)?|tel:|mailto:)/i, "");
+  const slug = text.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40).replace(/-+$/, "");
+  return `qrix-${slug || "code"}`;
+}
+
 export function getQRData() {
   const activeForm = document.querySelector(".form-type.active");
   if (!activeForm) return null;
