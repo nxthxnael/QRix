@@ -41,15 +41,20 @@ export function initBrands() {
   if (!list || !form || !nameInput || !submit || !hint) return;
 
   let brands = loadBrands();
+  // false once a write fails (blocked or full storage): this tab's list then holds styles storage does not
+  let inStorage = true;
+  // what storage holds now, or this tab's own list once storage stopped taking writes
+  const latest = () => (inStorage ? loadBrands() : brands);
 
   // storage may be blocked: the styles then last for this visit, and the visitor is told
   const store = () => {
     try {
       localStorage.setItem(KEY, JSON.stringify(brands));
-      return true;
+      inStorage = true;
     } catch {
-      return false;
+      inStorage = false;
     }
+    return inStorage;
   };
 
   function render(message) {
@@ -71,7 +76,8 @@ export function initBrands() {
         remove.setAttribute("aria-label", `Remove ${brand.name}`);
         remove.innerHTML = '<svg class="icon" aria-hidden="true"><use href="#i-x" /></svg>';
         remove.addEventListener("click", () => {
-          brands = brands.filter((other) => other !== brand);
+          // from the latest stored list, so a style another tab saved meanwhile is kept
+          brands = latest().filter((other) => other.name !== brand.name);
           render(store() ? `Removed ${brand.name}.` : "Removed for this visit. This browser blocks saving.");
           // the removed button is gone, so focus goes back to where a new style is named
           nameInput.focus();
@@ -89,12 +95,21 @@ export function initBrands() {
 
   form.addEventListener("submit", (event) => {
     event.preventDefault();
+    // from the latest stored list, so a style another tab saved or removed meanwhile is not undone
+    brands = latest();
     const name = nameInput.value.trim().slice(0, MAX_NAME) || defaultName(brands);
     const next = addBrand(brands, name, readStyle());
-    if (!next) return;
+    if (!next) return render();
     brands = next;
     nameInput.value = "";
     render(store() ? `Saved ${name}.` : `Saved ${name} for this visit. This browser blocks saving.`);
+  });
+
+  // another tab saved or removed a style: show the same list here
+  window.addEventListener("storage", (event) => {
+    if (event.key !== KEY) return;
+    brands = loadBrands();
+    render();
   });
 
   render();
