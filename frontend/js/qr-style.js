@@ -22,6 +22,36 @@ export const PRESETS = {
   ocean: { "qr-shape": "rounded", "qr-corner": "rounded", "qr-gradient": "diagonal", "qr-color-text": "#0F172A", "qr-color2-text": "#2563EB", "qr-background-text": "#FFFFFF" },
 };
 
+// every control a style is made of, keyed by id; gradient comes before its end color
+export const STYLE_IDS = ["qr-color-text", "qr-background-text", "qr-gradient", "qr-color2-text", "qr-shape", "qr-corner", "qr-size", "qr-error-correction"];
+
+// the current style as id -> value, the same shape as a preset
+export function readStyle() {
+  return Object.fromEntries(STYLE_IDS.map((id) => [id, document.getElementById(id)?.value]).filter(([, value]) => value !== undefined));
+}
+
+// a value the control can really hold; styles also come from links and storage, so nothing else gets in
+function accepts(control, value) {
+  if (typeof value !== "string") return false;
+  if (control.tagName === "SELECT") return [...control.options].some((option) => option.value === value);
+  if (control.type === "range") {
+    const n = Number(value);
+    return Number.isInteger(n) && n >= Number(control.min) && n <= Number(control.max) && (n - Number(control.min)) % Number(control.step) === 0;
+  }
+  return /^#[0-9a-f]{6}$/i.test(value);
+}
+
+// sets each known control the style names and tells the page, like the visitor changing it
+export function applyStyle(style) {
+  for (const id of STYLE_IDS) {
+    const control = document.getElementById(id);
+    // a logo keeps the error correction locked on high
+    if (!control || control.disabled || !accepts(control, style?.[id])) continue;
+    control.value = style[id];
+    control.dispatchEvent(new Event(control.tagName === "SELECT" ? "change" : "input", { bubbles: true }));
+  }
+}
+
 // a tiny code in each preset's own style, so the buttons show the look instead of naming it
 function drawPresetThumbnails() {
   if (typeof QRCode === "undefined") return;
@@ -84,15 +114,7 @@ export function initQRStyle() {
   drawPresetThumbnails();
 
   document.querySelectorAll("[data-preset]").forEach((button) =>
-    button.addEventListener("click", () => {
-      for (const [id, value] of Object.entries(PRESETS[button.dataset.preset] ?? {})) {
-        const control = document.getElementById(id);
-        // a logo keeps the error correction locked on high
-        if (!control || control.disabled) continue;
-        control.value = value;
-        control.dispatchEvent(new Event(control.tagName === "SELECT" ? "change" : "input", { bubbles: true }));
-      }
-    })
+    button.addEventListener("click", () => applyStyle(PRESETS[button.dataset.preset]))
   );
 
   // a logo needs high error correction, so show that and lock the select until the logo goes

@@ -1,6 +1,6 @@
 // run with: node tests/qr-style.test.mjs
 import assert from "node:assert/strict";
-import { PRESETS, initQRStyle, getQRStyle, logoType } from "../frontend/js/qr-style.js";
+import { PRESETS, initQRStyle, getQRStyle, logoType, applyStyle, readStyle } from "../frontend/js/qr-style.js";
 import { getContrastWarning } from "../frontend/js/color-picker.js";
 
 for (const [name, preset] of Object.entries(PRESETS)) {
@@ -107,6 +107,28 @@ assert.equal(logoType({ name: "notes", type: "" }), "", "no type and no known ex
   handlers.clear();
   finish();
   assert.equal(getQRStyle().logo, null, "a read that finishes after remove does not bring the logo back");
+}
+
+// styles arrive from links and storage, so only values a control can hold are applied
+{
+  const select = (value, ...options) => ({ tagName: "SELECT", value, options: options.map((v) => ({ value: v })), dispatchEvent() { this.sent = true; } });
+  const controls = {
+    "qr-color-text": { tagName: "INPUT", type: "text", value: "#000000", dispatchEvent() {} },
+    "qr-shape": select("square", "square", "rounded", "dots"),
+    "qr-size": { tagName: "INPUT", type: "range", min: "128", max: "512", step: "8", value: "256", dispatchEvent() {} },
+    "qr-error-correction": { ...select("M", "L", "M", "Q", "H"), disabled: true },
+  };
+  globalThis.document = { getElementById: (id) => controls[id] };
+
+  applyStyle({ "qr-color-text": "#1f2937", "qr-shape": "dots", "qr-size": "320", "qr-error-correction": "L" });
+  assert.deepEqual(readStyle(), { "qr-color-text": "#1f2937", "qr-shape": "dots", "qr-size": "320", "qr-error-correction": "M" }, "valid values apply; a disabled control keeps its value");
+  assert.equal(controls["qr-shape"].sent, true, "an applied select tells the page it changed");
+
+  applyStyle({ "qr-color-text": "red;background:url(x)", "qr-shape": "star", "qr-size": "999", "qr-error-correction": "H", "qr-logo": "x" });
+  applyStyle({ "qr-size": "321" });
+  applyStyle({ "qr-color-text": 5 });
+  applyStyle(null);
+  assert.deepEqual(readStyle(), { "qr-color-text": "#1f2937", "qr-shape": "dots", "qr-size": "320", "qr-error-correction": "M" }, "bad colors, unknown options, out-of-range or off-step sizes, non-strings and unknown ids are ignored");
 }
 
 console.log("qr-style: ok");
