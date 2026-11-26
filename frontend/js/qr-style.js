@@ -43,6 +43,17 @@ export function initQRStyle() {
   let latestRead = 0;
   if (!input) return;
 
+  // the customize panel reopens the way the visitor left it; storage may be blocked, which only loses that
+  const panel = document.getElementById("customize");
+  try {
+    if (panel && localStorage.getItem("qrix-customize") === "open") panel.open = true;
+  } catch {}
+  panel?.addEventListener("toggle", () => {
+    try {
+      localStorage.setItem("qrix-customize", panel.open ? "open" : "closed");
+    } catch {}
+  });
+
   document.querySelectorAll("[data-preset]").forEach((button) =>
     button.addEventListener("click", () => {
       for (const [id, value] of Object.entries(PRESETS[button.dataset.preset] ?? {})) {
