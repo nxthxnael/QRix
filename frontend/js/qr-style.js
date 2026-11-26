@@ -25,9 +25,14 @@ export const PRESETS = {
 // every control a style is made of, keyed by id; gradient comes before its end color
 export const STYLE_IDS = ["qr-color-text", "qr-background-text", "qr-gradient", "qr-color2-text", "qr-shape", "qr-corner", "qr-size", "qr-error-correction"];
 
-// the current style as id -> value, the same shape as a preset
+// the current style as id -> value, the same shape as a preset; a disabled control is left out, since
+// its value is forced (a logo locks error correction on high) rather than the visitor's choice
 export function readStyle() {
-  return Object.fromEntries(STYLE_IDS.map((id) => [id, document.getElementById(id)?.value]).filter(([, value]) => value !== undefined));
+  return Object.fromEntries(
+    STYLE_IDS.map((id) => [id, document.getElementById(id)])
+      .filter(([, control]) => control && !control.disabled)
+      .map(([id, control]) => [id, control.value])
+  );
 }
 
 // a value the control can really hold; styles also come from links and storage, so nothing else gets in

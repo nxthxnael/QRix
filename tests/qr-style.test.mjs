@@ -127,14 +127,15 @@ assert.equal(logoType({ name: "notes", type: "" }), "", "no type and no known ex
   globalThis.document = { getElementById: (id) => controls[id] };
 
   applyStyle({ "qr-color-text": "#1f2937", "qr-shape": "dots", "qr-size": "320", "qr-error-correction": "L" });
-  assert.deepEqual(readStyle(), { "qr-color-text": "#1f2937", "qr-shape": "dots", "qr-size": "320", "qr-error-correction": "M" }, "valid values apply; a disabled control keeps its value");
+  assert.deepEqual(readStyle(), { "qr-color-text": "#1f2937", "qr-shape": "dots", "qr-size": "320" }, "valid values apply; a disabled control keeps its value and is not read as a choice");
+  assert.equal(controls["qr-error-correction"].value, "M");
   assert.equal(controls["qr-shape"].sent, true, "an applied select tells the page it changed");
 
   applyStyle({ "qr-color-text": "red;background:url(x)", "qr-shape": "star", "qr-size": "999", "qr-error-correction": "H", "qr-logo": "x" });
   applyStyle({ "qr-size": "321" });
   applyStyle({ "qr-color-text": 5 });
   applyStyle(null);
-  assert.deepEqual(readStyle(), { "qr-color-text": "#1f2937", "qr-shape": "dots", "qr-size": "320", "qr-error-correction": "M" }, "bad colors, unknown options, out-of-range or off-step sizes, non-strings and unknown ids are ignored");
+  assert.deepEqual(readStyle(), { "qr-color-text": "#1f2937", "qr-shape": "dots", "qr-size": "320" }, "bad colors, unknown options, out-of-range or off-step sizes, non-strings and unknown ids are ignored");
 }
 
 // a style link carries the style only, and reads back to the same style
