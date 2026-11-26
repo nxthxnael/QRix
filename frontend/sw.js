@@ -35,28 +35,46 @@ self.addEventListener("install", (event) => {
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys()
-      .then((keys) => Promise.all(keys.filter((key) => key !== CACHE).map((key) => caches.delete(key))))
+      // only qrix's own older caches; another app on the same origin keeps its own
+      .then((keys) => Promise.all(keys.filter((key) => key.startsWith("qrix-") && key !== CACHE).map((key) => caches.delete(key))))
       .then(() => self.clients.claim())
   );
 });
+
+// the app's own page under any query (/, /index.html, /?utm=...), kept once as "./" so the cache cannot grow with them
+const SCOPE = new URL("./", self.location).pathname;
+const isAppPage = (url) => url.origin === self.location.origin && (url.pathname === SCOPE || url.pathname === `${SCOPE}index.html`);
+
+// shortcut: guesses at a stalled connection, tune them once real offline use is measured; files wait less
+// than the page because modules load one import level at a time, and each level would wait again
+const PAGE_WAIT_MS = 3000;
+const FILE_WAIT_MS = 1000;
 
 self.addEventListener("fetch", (event) => {
   const { request } = event;
   const url = new URL(request.url);
   // only the page's own files and the qr library; nothing else is ever stored
   if (request.method !== "GET" || (url.origin !== self.location.origin && request.url !== LIBRARY)) return;
-  event.respondWith(
-    fetch(request)
-      .then((response) => {
-        if (response.ok) {
-          const copy = response.clone();
-          // every page address (/, /index.html, ?utm=...) is the same page, kept once, so the cache cannot grow with them
-          const key = request.mode === "navigate" ? "./" : request;
-          event.waitUntil(caches.open(CACHE).then((cache) => cache.put(key, copy)));
-        }
-        return response;
-      })
-      // the page itself may be asked for as /, /index.html or with a query; any of them is the shell
-      .catch(() => caches.match(request, { ignoreSearch: true }).then((hit) => hit ?? (request.mode === "navigate" ? caches.match("./") : Response.error())))
-  );
+
+  const key = isAppPage(url) ? "./" : request;
+  const fromCache = () => caches.match(key, { ignoreSearch: true });
+
+  let stored = Promise.resolve();
+  const network = fetch(request).then((response) => {
+    // another page opened on this origin is never stored, so it can never stand in for the app
+    if (response.ok && (request.mode !== "navigate" || isAppPage(url))) {
+      const copy = response.clone();
+      stored = caches.open(CACHE).then((cache) => cache.put(key, copy));
+    }
+    return response;
+  });
+  // the network keeps refreshing the cache even after a stalled request was answered from it
+  event.waitUntil(network.then(() => stored, () => {}));
+
+  // a network that has not answered in time gives way to the cached copy, when there is one
+  const stalled = new Promise((resolve) => setTimeout(resolve, request.mode === "navigate" ? PAGE_WAIT_MS : FILE_WAIT_MS))
+    .then(fromCache)
+    .then((hit) => hit ?? network);
+
+  event.respondWith(Promise.race([network, stalled]).catch(() => fromCache().then((hit) => hit ?? Response.error())));
 });
