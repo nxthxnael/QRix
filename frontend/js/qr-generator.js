@@ -54,7 +54,7 @@ export function initQRGenerator() {
     // export options only change the downloaded file, not the preview
     if (event?.target.closest(".qr-actions")) return;
     // a new code makes the download note stale; export options leave it, so its one-time link is not lost
-    if (exportNote) exportNote.hidden = true;
+    if (exportNote) exportNote.replaceChildren();
 
     clearTimeout(actionsTimer);
     const data = getQRData();
@@ -243,11 +243,10 @@ export function initQRGenerator() {
       link.textContent = "star it on GitHub";
       exportNote.append(" QRix is free and open source: ", link, ".");
     }
-    exportNote.hidden = false;
     // never hide it under someone who has tabbed to its link; check again a little later
     const hide = () => {
       if (exportNote.contains(document.activeElement)) noteTimer = setTimeout(hide, 2000);
-      else exportNote.hidden = true;
+      else exportNote.replaceChildren();
     };
     noteTimer = setTimeout(hide, asked ? 6000 : 12000);
   }

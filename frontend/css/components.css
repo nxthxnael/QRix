@@ -162,6 +162,11 @@ input[type="checkbox"],
   text-align: center;
 }
 
+/* always present so screen readers are already watching it; when empty it takes no room */
+.export-note:empty {
+  position: absolute;
+}
+
 .export-note a {
   color: inherit;
   text-decoration: underline;
