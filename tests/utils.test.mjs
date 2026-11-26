@@ -84,7 +84,14 @@ assert.equal(exportName("tel:+254700000000"), "qrix-254700000000", "phone number
 assert.equal(exportName("mailto:Name@Example.com"), "qrix-name-example-com", "emails drop mailto: and lowercase");
 assert.equal(exportName("WIFI:T:WPA;S:My\\;Home;P:secret123;H:false;"), "qrix-wifi-my-home", "wi-fi uses the unescaped network name");
 assert.ok(!exportName("WIFI:T:WPA;S:Home;P:secret123;H:false;").includes("secret"), "the wi-fi password never reaches the file name");
-assert.equal(exportName("!!!"), "qrix-code", "no usable characters falls back to code");
+assert.equal(exportName("!!!"), "qrix-code", "no usable ascii characters falls back to code");
+assert.equal(exportName("www.example.com"), "qrix-example-com", "www. goes even without a scheme");
+assert.match(exportName("こんにちは 世界"), /^qrix-code-[0-9a-f]{8}$/, "non-latin text gets an ascii-safe name");
+assert.notEqual(exportName("日本"), exportName("中国"), "different non-latin content gets different names");
+assert.equal(exportName("日本"), exportName("日本"), "the same content always gets the same name");
+assert.match(exportName("WIFI:T:WPA;S:مقهى;P:x;H:false;"), /^qrix-wifi-[0-9a-f]{8}$/, "a non-latin network name gets a fingerprint");
+assert.equal(exportName("WIFI:T:WPA;S:مقهى;P:one;H:false;"), exportName("WIFI:T:WPA;S:مقهى;P:two;H:false;"), "the wi-fi fingerprint ignores the password");
+assert.match(exportName("café menu"), /^qrix-caf-menu-[0-9a-f]{8}$/, "partly latin text keeps its ascii part and adds a fingerprint");
 assert.equal(exportName("a".repeat(80)).length, "qrix-".length + 40, "long content is cut to 40 characters");
 
 console.log("utils: ok");
