@@ -20,6 +20,7 @@ export function initQRGenerator() {
   const downloadPngBtn = document.getElementById("downloadPngBtn");
   const downloadSvgBtn = document.getElementById("downloadSvgBtn");
   const copyQrBtn = document.getElementById("copyQrBtn");
+  const shareQrBtn = document.getElementById("shareQrBtn");
   const exportScale = document.getElementById("exportScale");
   const exportTransparent = document.getElementById("exportTransparent");
   const errorCorrection = document.getElementById("qr-error-correction");
@@ -46,6 +47,19 @@ export function initQRGenerator() {
   downloadPngBtn.addEventListener("click", downloadAsPng);
   downloadSvgBtn.addEventListener("click", downloadAsSvg);
   copyQrBtn.addEventListener("click", copyToClipboard);
+
+  // the system share sheet, offered only where it can take an image file (mostly phones)
+  const canShareFiles = () => {
+    try {
+      return Boolean(navigator.canShare?.({ files: [new File([""], "qrix.png", { type: "image/png" })] }));
+    } catch {
+      return false;
+    }
+  };
+  if (shareQrBtn && canShareFiles()) {
+    shareQrBtn.hidden = false;
+    shareQrBtn.addEventListener("click", shareCode);
+  }
 
   let actionsTimer;
 
@@ -248,6 +262,26 @@ export function initQRGenerator() {
       console.error("Failed to copy QR code: ", err);
       if (copying !== qrInstance) return;
       showCopyFeedback("x", "Copy failed", "error");
+    }
+  }
+
+  async function shareCode() {
+    if (!qrInstance) return;
+    if (exportError) exportError.hidden = true;
+    const sharing = qrInstance;
+    try {
+      const blob = await renderPngBlob();
+      if (sharing !== qrInstance) return;
+      await navigator.share({ files: [new File([blob], `${exportName(qrData)}.png`, { type: "image/png" })] });
+      if (sharing === qrInstance) showDownloadNote("Shared");
+    } catch (err) {
+      // closing the share sheet is not a failure
+      if (err?.name === "AbortError" || sharing !== qrInstance) return;
+      console.error("Failed to share QR code: ", err);
+      if (exportError) {
+        exportError.textContent = "Could not share the code. Download the PNG instead.";
+        exportError.hidden = false;
+      }
     }
   }
 
