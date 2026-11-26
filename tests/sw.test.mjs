@@ -18,6 +18,10 @@ for (const file of readdirSync(new URL("css/", root))) {
   assert.ok(shell.includes(`./css/${file}`), `css/${file} is loaded by the page, so it must be cached for offline use`);
 }
 
+// a hardcoded name has to be bumped by hand when SHELL changes, which is easy to miss
+assert.match(sw, /const CACHE = `qrix-\$\{\[\.\.\.SHELL\.join/, "the cache name is derived from SHELL, not hardcoded");
+assert.ok(sw.indexOf("const CACHE") > sw.indexOf("const SHELL"), "and it is computed after SHELL is defined");
+
 const html = readFileSync(new URL("index.html", root), "utf8");
 const library = html.match(/<script\s+src="(https:[^"]+)"/)[1];
 assert.ok(sw.includes(`const LIBRARY = "${library}"`), "the cached qr library is the one the page loads");

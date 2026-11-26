@@ -1,8 +1,6 @@
 // keeps qrix working offline: the network answers first, so visitors online always get the latest
 // files, and the cache answers only when the network cannot
 
-// bump when SHELL changes, so old caches are dropped
-const CACHE = "qrix-v1";
 const LIBRARY = "https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js";
 
 // everything the page needs to run with no connection; tests/sw.test.mjs checks each file exists
@@ -25,8 +23,13 @@ const SHELL = [
   "./js/utils.js",
   "./icons/icon.svg",
   "./icons/icon-192.png",
+  "./icons/apple-touch-icon.png",
   LIBRARY,
 ];
+
+// named after the list itself (fnv-1a of SHELL), so changing the list starts a new cache and activation drops
+// the old one; files that stay listed need no new name, since the network-first fetch refreshes them
+const CACHE = `qrix-${[...SHELL.join("\n")].reduce((hash, char) => Math.imul(hash ^ char.charCodeAt(0), 16777619) >>> 0, 2166136261).toString(36)}`;
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(SHELL)).then(() => self.skipWaiting()));
