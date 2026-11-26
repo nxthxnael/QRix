@@ -21,7 +21,12 @@ It allows users to generate, customize, and download QR codes instantly without 
 - Logo in the center of the code
 - Adjustable QR size and error correction
 - Download QR codes as **PNG** and **SVG**
-- Copy QR code to clipboard
+- Copy QR code to clipboard, or share it from a phone
+- Paste a link, email, phone link or Wi-Fi string and the right type is picked for you
+- A badge that says whether the code should scan
+- Remembers your last style, shares a style as a link, and keeps up to three saved styles
+- Keyboard shortcuts: Ctrl/⌘+S downloads the PNG, Ctrl/⌘+C copies from the focused preview
+- Installable, and works offline after the first visit
 - Responsive layout down to phone width
 - Light and dark theme that follows your system, with a toggle that remembers your choice
 - Keyboard and screen reader friendly controls
@@ -115,7 +120,6 @@ node tests/variables.test.mjs
 
 - QR code history using `localStorage`
 - Bulk QR generation
-- Progressive Web App (PWA) support
 
 ---
 
