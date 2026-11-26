@@ -299,17 +299,12 @@ input[type="checkbox"],
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 1.25rem 2.5rem;
-  border: 1px solid transparent;
+  /* cards line up at the top whatever their text length; they are not clickable, so no hover lift */
+  justify-content: flex-start;
+  padding: 1.25rem 1.5rem;
+  border: 1px solid var(--separator);
   border-radius: var(--radius-l);
   box-shadow: var(--shadow-rest);
-  transition: box-shadow var(--duration) var(--ease), border-color var(--duration) var(--ease);
-}
-
-.feature-card:hover {
-  box-shadow: var(--shadow-raised);
-  border: 1px solid var(--separator);
 }
 
 .icon-container {
