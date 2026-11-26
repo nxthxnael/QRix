@@ -124,10 +124,14 @@
   padding-bottom: 1.875rem;
 }
 
-.qr-code-container {
+/* the preview and its export controls stay together and in view while the form scrolls */
+.preview-column {
   flex: 1 1 300px;
   position: sticky;
-  top: 7.5rem;
+  top: 6rem;
+}
+
+.qr-code-container {
   min-height: 9.375rem;
   min-width: 9.375rem;
   aspect-ratio: 1 / 1;

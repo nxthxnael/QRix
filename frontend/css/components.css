@@ -122,6 +122,10 @@ input[type="checkbox"],
   transition: opacity var(--duration) var(--ease), transform var(--duration) var(--ease);
 }
 
+.qr-actions[hidden] {
+  display: none;
+}
+
 .qr-actions.visible {
   opacity: 1;
   transform: translateY(0);

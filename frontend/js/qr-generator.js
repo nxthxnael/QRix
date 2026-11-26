@@ -74,7 +74,7 @@ export function initQRGenerator() {
 
     // Show actions after a short delay for QR code to render
     actionsTimer = setTimeout(() => {
-      qrActions.style.display = "flex";
+      qrActions.hidden = false;
       setTimeout(() => qrActions.classList.add("visible"), 10);
     }, 100);
   }
@@ -84,7 +84,7 @@ export function initQRGenerator() {
     const text = document.createElement("p");
     text.textContent = message;
     qrContainer.replaceChildren(text);
-    qrActions.style.display = "none";
+    qrActions.hidden = true;
   }
 
   function svgMarkup({ size, transparent = false } = {}) {
