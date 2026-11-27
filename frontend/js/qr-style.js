@@ -180,7 +180,8 @@ export function initQRStyle() {
   document.addEventListener("change", remember);
 
   // a shared style link wins over the remembered style, then leaves the address so a reload keeps later changes;
-  // also on hashchange, for a link opened in a tab already showing the page
+  // also on hashchange, for a link opened in a tab already showing the page. a partly valid link applies its
+  // valid fields and ignores the rest, as remembered and saved styles do, and is removed from the address either way
   const applySharedStyle = () => {
     const shared = styleFromHash(location.hash);
     if (!Object.keys(shared).length) return;

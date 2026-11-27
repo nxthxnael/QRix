@@ -190,6 +190,15 @@ assert.equal(logoType({ name: "notes", type: "" }), "", "no type and no known ex
   location.hash = "#color=fedcba";
   windowListeners.hashchange();
   assert.equal(color.value, "#fedcba", "a style link opened in the same tab applies without a reload");
+
+  // a partly valid link: valid fields apply, invalid ones are ignored, and the hash goes either way
+  controls["qr-shape"] = { tagName: "SELECT", value: "square", options: [{ value: "square" }, { value: "dots" }], dispatchEvent() {} };
+  Object.assign(location, { hash: "#color=abcabc&shape=star", replaced: undefined });
+  windowListeners.hashchange();
+  assert.deepEqual([color.value, controls["qr-shape"].value, location.replaced], ["#abcabc", "square", "/?ref=x"], "the valid color applies, the unknown shape is ignored and the hash is removed");
+  Object.assign(location, { hash: "#color=nothex&shape=star", replaced: undefined });
+  windowListeners.hashchange();
+  assert.deepEqual([color.value, controls["qr-shape"].value, location.replaced], ["#abcabc", "square", "/?ref=x"], "a link with no valid field changes nothing, and is still removed");
 }
 
 console.log("qr-style: ok");
