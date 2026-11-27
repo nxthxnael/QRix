@@ -25,6 +25,43 @@ export function exportName(data) {
   return `qrix-${slug || "code"}${suffix}`;
 }
 
+// the keys a wi-fi code may hold: type, network name, password, hidden
+const WIFI_KEYS = ["T", "S", "P", "H"];
+
+// the fields of a WIFI: string, unescaped, e.g. { T: "WPA", S: "Home", P: "secret" }; null for anything else.
+// the whole text must be WIFI: then complete KEY:value; fields and an optional closing ;, with known keys
+// used once and a network name; values escape \ ; , : " as the format asks, so a bare : (such as a
+// second WIFI: stuck on) or an unterminated field is rejected rather than guessed at
+export function parseWifi(text) {
+  if (!/^WIFI:(?:[A-Za-z]+:(?:\\.|[^;\\:])*;)+;?$/.test(text)) return null;
+  const fields = {};
+  for (const [, key, value] of text.slice(5).matchAll(/([A-Za-z]+):((?:\\.|[^;\\:])*);/g)) {
+    const name = key.toUpperCase();
+    if (!WIFI_KEYS.includes(name) || name in fields) return null;
+    fields[name] = value.replace(/\\(.)/g, "$1");
+  }
+  return fields.S ? fields : null;
+}
+
+// what a pasted text is, as the type to switch to and the field values to fill, or null to paste as usual;
+// clear signals (a scheme, a wi-fi string, an email address) switch from any field, a bare phone number
+// only from the url field, where it cannot be meant as a link
+export function detectPaste(text, currentType) {
+  const wifi = parseWifi(text);
+  if (wifi) {
+    const encryption = /^WEP$/i.test(wifi.T) ? "WEP" : /^nopass$/i.test(wifi.T) || (!wifi.T && !wifi.P) ? "nopass" : "WPA";
+    return { type: "wi-fi", values: { "#wifi-ssid": wifi.S ?? "", "#wifi-password": wifi.P ?? "", "#wifi-encryption": encryption, "#hidden": wifi.H === "true" } };
+  }
+  let found = null;
+  if (/^https?:\/\/\S+$/i.test(text)) found = { type: "url", values: { "#qr-url": text } };
+  else if (/^mailto:/i.test(text) || /^[^\s@:/]+@[^\s@]+\.[^\s@]+$/.test(text)) found = { type: "email", values: { "#qr-email": text.replace(/^mailto:/i, "").split("?")[0] } };
+  else if (/^tel:/i.test(text)) found = { type: "phone", values: { "#qr-phone": text.slice(4) } };
+  else if (currentType === "url" && /^\+?[\d\s().-]+$/.test(text) && /^(\D*\d){7,15}\D*$/.test(text)) found = { type: "phone", values: { "#qr-phone": text } };
+  // pasting the same kind of content into its own field is an ordinary paste, except a tel: or mailto:
+  // link, whose scheme the form adds itself and must not be pasted twice
+  return found && (found.type !== currentType || /^(tel|mailto):/i.test(text)) ? found : null;
+}
+
 export function getQRData() {
   const activeForm = document.querySelector(".form-type.active");
   if (!activeForm) return null;
@@ -44,12 +81,13 @@ export function getQRData() {
 
     case "phone": {
       // tel: links allow - . ( ) as separators but not spaces, which strict scanners stop at
-      const value = activeForm.querySelector("input")?.value.replace(/\s+/g, "");
+      // a typed tel: link is taken as the number, so the scheme is never doubled
+      const value = activeForm.querySelector("input")?.value.replace(/\s+/g, "").replace(/^tel:/i, "");
       return value ? `tel:${value}` : null;
     }
 
     case "email": {
-      const value = activeForm.querySelector("input")?.value.trim();
+      const value = activeForm.querySelector("input")?.value.trim().replace(/^mailto:/i, "");
       return value ? `mailto:${value}` : null;
     }
 

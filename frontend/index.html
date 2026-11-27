@@ -3,6 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="icon" href="./icons/icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png" />
+    <meta name="theme-color" content="#fbfbfd" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
     <link rel="stylesheet" href="./css/reset.css" />
     <link rel="stylesheet" href="./css/variables.css" />
     <link rel="stylesheet" href="./css/layout.css" />
@@ -32,6 +37,8 @@
       <symbol id="i-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></symbol>
       <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
       <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+      <symbol id="i-share" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M8 7l4-4 4 4M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1"/></symbol>
+      <symbol id="i-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5L2.5 20h19z"/><path d="M12 10v4.5M12 17.5v.01"/></symbol>
       <symbol id="i-pointer" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3l14 7-6.2 2.2L10.5 19z"/></symbol>
       <symbol id="i-palette" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 0 18c1.2 0 2-.8 2-1.8 0-1.3-1.2-1.6-1.2-2.7 0-1 .8-1.7 1.8-1.7H17a4 4 0 0 0 4-4C21 6.6 17 3 12 3z"/><circle cx="7.5" cy="11" r="1"/><circle cx="10" cy="7" r="1"/><circle cx="15" cy="7.5" r="1"/></symbol>
       <symbol id="i-heart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></symbol>
@@ -75,6 +82,7 @@
             <button type="button" class="qr-type-btn" role="radio" data-type="wi-fi" aria-checked="false" tabindex="-1">Wi-Fi</button>
             <button type="button" class="qr-type-btn" role="radio" data-type="email" aria-checked="false" tabindex="-1">Email</button>
           </div>
+          <p id="pasteNote" class="field-hint paste-note" role="status"></p>
           <div class="qr-code-generation">
             <div class="form-column">
               <div class="form-section-container">
@@ -164,6 +172,13 @@
                     <button type="button" class="preset-btn" data-preset="dots">Dots</button>
                     <button type="button" class="preset-btn" data-preset="ocean">Ocean</button>
                   </div>
+                  <!-- the visitor's own styles, kept on this device -->
+                  <div class="preset-buttons brand-buttons" id="brandButtons" role="group" aria-label="Your saved styles" hidden></div>
+                  <form class="save-brand" id="saveBrand">
+                    <input type="text" id="brand-name" maxlength="30" placeholder="Name this style" aria-label="Name for your saved style" aria-describedby="brand-hint" autocomplete="off" />
+                    <button type="submit" class="action-btn secondary">Save style</button>
+                  </form>
+                  <p class="field-hint" id="brand-hint" role="status"></p>
                 </div>
               </div>
 
@@ -302,12 +317,25 @@
                   </p>
                 </div>
               </div>
+
+              <!-- a link that carries the look, so a team can reuse one brand style -->
+              <div class="share-style">
+                <div class="form-row">
+                  <button type="button" class="action-btn secondary" id="copyStyleLink">Copy style link</button>
+                  <p class="field-hint">Shares the colors, shape and size, never what you typed.</p>
+                </div>
+              </div>
               </details>
             </div>
             <div class="preview-column">
-            <div class="qr-code-container">
+            <!-- focusable so the copy shortcut has a place to act -->
+            <div class="qr-code-container" tabindex="0" role="group" aria-label="QR code preview">
               <p>Enter content to generate code</p>
             </div>
+            <p class="scan-badge" id="scanBadge" hidden>
+              <svg class="icon" aria-hidden="true"><use href="#i-check" /></svg>
+              <span></span>
+            </p>
             <div class="qr-actions" hidden>
               <div class="export-options">
                 <label class="export-option" for="exportScale">
@@ -332,6 +360,9 @@
                 </button>
                 <button class="action-btn secondary" id="copyQrBtn">
                   <svg class="icon" aria-hidden="true"><use href="#i-copy" /></svg> Copy
+                </button>
+                <button class="action-btn secondary" id="shareQrBtn" hidden>
+                  <svg class="icon" aria-hidden="true"><use href="#i-share" /></svg> Share
                 </button>
               </div>
               <p id="exportError" class="contrast-warning" role="alert" hidden></p>
@@ -404,6 +435,10 @@
           <details class="faq-item">
             <summary>Is what I type private?</summary>
             <p>Yes. QRix runs entirely in your browser. Nothing you type, and no logo you add, is uploaded anywhere.</p>
+          </details>
+          <details class="faq-item">
+            <summary>Does it work offline?</summary>
+            <p>Yes. After your first visit, QRix keeps working without a connection. You can also install it from your browser's menu to open it like an app.</p>
           </details>
           <details class="faq-item">
             <summary>How big should I print a code?</summary>

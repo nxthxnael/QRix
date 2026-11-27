@@ -96,6 +96,17 @@
 }
 
 /* a segmented control: a track with the selected segment raised */
+/* says what a paste switched to, right under the type it switched */
+.paste-note {
+  margin: -1.25rem 0 1.25rem;
+  text-align: center;
+}
+
+/* kept in the page so screen readers hear it when it fills, but takes no room while empty */
+.paste-note:empty {
+  position: absolute;
+}
+
 .generation-selection {
   display: flex;
   /* on the narrowest phones the five segments wrap to a second row instead of scrolling sideways */
@@ -147,7 +158,6 @@
   justify-content: center;
   align-items: center;
   padding: 0.625rem;
-  cursor: pointer;
   text-align: center;
   color: var(--label-secondary);
 }
@@ -168,6 +178,17 @@
 }
 
 /* the example code is faded and captioned so it never reads as the visitor's own */
+/* a new style fades in rather than jumping; reduced motion shortens it to nothing */
+.qr-code-container[data-fade] svg {
+  animation: qr-fade-in var(--duration) var(--ease);
+}
+
+@keyframes qr-fade-in {
+  from {
+    opacity: 0.4;
+  }
+}
+
 .qr-code-container[data-example] {
   flex-direction: column;
   gap: 0.5rem;

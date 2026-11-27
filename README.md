@@ -21,7 +21,12 @@ It allows users to generate, customize, and download QR codes instantly without 
 - Logo in the center of the code
 - Adjustable QR size and error correction
 - Download QR codes as **PNG** and **SVG**
-- Copy QR code to clipboard
+- Copy QR code to clipboard, or share it from a phone
+- Paste a link, email, phone link or Wi-Fi string and the right type is picked for you
+- A badge that says whether the code should scan
+- Remembers your last style, shares a style as a link, and keeps up to three saved styles
+- Keyboard shortcuts: Ctrl/⌘+S downloads the PNG, Ctrl/⌘+C copies from the focused preview
+- Installable, and works offline after the first visit
 - Responsive layout down to phone width
 - Light and dark theme that follows your system, with a toggle that remembers your choice
 - Keyboard and screen reader friendly controls
@@ -45,17 +50,21 @@ QRix/
 ├── frontend/
 │   ├── index.html          # Page markup
 │   ├── css/                # reset, variables, layout, components, main
-│   └── js/
-│       ├── app.js          # Entry point, wires the modules together
-│       ├── utils.js        # Builds the QR payload for each type
-│       ├── form-switcher.js # QR type segmented control
-│       ├── theme.js        # Light and dark theme toggle
-│       ├── color-picker.js # Colors, gradient and contrast check
-│       ├── qr-style.js     # Shapes, presets and logo
-│       ├── qr-svg.js       # SVG renderer used for preview and exports
-│       └── qr-generator.js # Preview, PNG/SVG download and copy
+│   ├── js/
+│   │   ├── app.js          # Entry point, wires the modules together
+│   │   ├── utils.js        # Builds the QR payload for each type
+│   │   ├── form-switcher.js # QR type segmented control
+│   │   ├── theme.js        # Light and dark theme toggle
+│   │   ├── color-picker.js # Colors, gradient and contrast check
+│   │   ├── qr-style.js     # Shapes, presets, logo, remembered and linked styles
+│   │   ├── brands.js       # Up to three saved styles, kept on this device
+│   │   ├── qr-svg.js       # SVG renderer used for preview and exports
+│   │   └── qr-generator.js # Preview, PNG/SVG download, copy, share and shortcuts
+│   ├── sw.js               # Offline support: network first, cache when offline
+│   ├── manifest.webmanifest # Install as an app
+│   └── icons/              # App and favicon icons
 ├── tests/                  # Node tests for the renderer, colors, styles and logo picker,
-│                           # qr payloads, the download and copy notes, the password toggle, the type switcher and the theme
+│                           # qr payloads, saved styles, the download and copy notes, the password toggle, the type switcher and the theme
 └── README.md
 
 ```
@@ -89,6 +98,8 @@ node tests/color-picker.test.mjs
 node tests/qr-style.test.mjs
 node tests/utils.test.mjs
 node tests/qr-generator.test.mjs
+node tests/brands.test.mjs
+node tests/sw.test.mjs
 node tests/form-switcher.test.mjs
 node tests/theme.test.mjs
 node tests/variables.test.mjs
@@ -109,7 +120,6 @@ node tests/variables.test.mjs
 
 - QR code history using `localStorage`
 - Bulk QR generation
-- Progressive Web App (PWA) support
 
 ---
 

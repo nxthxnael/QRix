@@ -1,7 +1,13 @@
 // run with: node tests/qr-style.test.mjs
 import assert from "node:assert/strict";
-import { PRESETS, initQRStyle, getQRStyle, logoType } from "../frontend/js/qr-style.js";
+import { PRESETS, initQRStyle, getQRStyle, logoType, applyStyle, readStyle, styleLink, styleFromHash } from "../frontend/js/qr-style.js";
 import { getContrastWarning } from "../frontend/js/color-picker.js";
+
+// no style link unless a test sets one
+globalThis.location = { hash: "", pathname: "/", search: "" };
+const windowListeners = {};
+globalThis.window = { addEventListener: (type, fn) => (windowListeners[type] = fn) };
+globalThis.history = { replaceState: (_, __, url) => Object.assign(location, { hash: "", replaced: url }) };
 
 for (const [name, preset] of Object.entries(PRESETS)) {
   const appearance = {
@@ -27,7 +33,7 @@ assert.equal(logoType({ name: "notes", type: "" }), "", "no type and no known ex
   const error = { hidden: true, textContent: "" };
   const clear = { hidden: true, addEventListener: (_, fn) => (handlers.clear = fn) };
   const controls = { "qr-logo": input, "qr-logo-clear": clear, "qr-error-correction": { value: "M", disabled: false }, "qr-logo-error": error };
-  globalThis.document = { getElementById: (id) => controls[id], querySelectorAll: () => [] };
+  globalThis.document = { getElementById: (id) => controls[id], querySelectorAll: () => [], addEventListener() {} };
   // reads finish only when the test calls finish(), newest last unless told otherwise
   const pending = [];
   globalThis.FileReader = class {
@@ -107,6 +113,92 @@ assert.equal(logoType({ name: "notes", type: "" }), "", "no type and no known ex
   handlers.clear();
   finish();
   assert.equal(getQRStyle().logo, null, "a read that finishes after remove does not bring the logo back");
+}
+
+// styles arrive from links and storage, so only values a control can hold are applied
+{
+  const select = (value, ...options) => ({ tagName: "SELECT", value, options: options.map((v) => ({ value: v })), dispatchEvent() { this.sent = true; } });
+  const controls = {
+    "qr-color-text": { tagName: "INPUT", type: "text", value: "#000000", dispatchEvent() {} },
+    "qr-shape": select("square", "square", "rounded", "dots"),
+    "qr-size": { tagName: "INPUT", type: "range", min: "128", max: "512", step: "8", value: "256", dispatchEvent() {} },
+    "qr-error-correction": { ...select("M", "L", "M", "Q", "H"), disabled: true },
+  };
+  globalThis.document = { getElementById: (id) => controls[id] };
+
+  applyStyle({ "qr-color-text": "#1f2937", "qr-shape": "dots", "qr-size": "320", "qr-error-correction": "L" });
+  assert.deepEqual(readStyle(), { "qr-color-text": "#1f2937", "qr-shape": "dots", "qr-size": "320", "qr-error-correction": "L" }, "valid values apply; a locked level is kept as the choice for when the lock goes");
+  assert.equal(controls["qr-error-correction"].value, "M", "the locked control itself is not changed");
+  assert.equal(controls["qr-shape"].sent, true, "an applied select tells the page it changed");
+
+  applyStyle({ "qr-color-text": "red;background:url(x)", "qr-shape": "star", "qr-size": "999", "qr-error-correction": "X", "qr-logo": "x" });
+  applyStyle({ "qr-size": "321" });
+  applyStyle({ "qr-color-text": 5 });
+  applyStyle(null);
+  assert.deepEqual(readStyle(), { "qr-color-text": "#1f2937", "qr-shape": "dots", "qr-size": "320", "qr-error-correction": "L" }, "bad colors, unknown options, out-of-range or off-step sizes, non-strings and unknown ids are ignored");
+
+  // the native picker holds the last valid color while the text box may be half typed
+  controls["qr-color"] = { value: "#abcdef" };
+  controls["qr-color-text"].value = "#ab";
+  assert.equal(readStyle()["qr-color-text"], "#ABCDEF", "a half-typed hex is never read; the picker's last valid color is");
+}
+
+// a style link carries the style only, and reads back to the same style
+{
+  const style = { "qr-color-text": "#1F2937", "qr-gradient": "diagonal", "qr-size": "320", "qr-error-correction": "H" };
+  const link = styleLink(style, "https://qrix.example/?ref=x#old");
+  assert.equal(link, "https://qrix.example/?ref=x#color=1F2937&gradient=diagonal&size=320&ec=H", "the link is the page address plus a readable style hash");
+  assert.deepEqual(styleFromHash(new URL(link).hash), style, "the hash reads back to the same style");
+  assert.deepEqual(styleFromHash("#url=https://x&text=hi"), {}, "keys that are not style are ignored");
+  assert.deepEqual(styleFromHash(""), {}, "no hash is no style");
+}
+
+// the last style is restored on load and saved whenever a style control changes
+{
+  const listeners = {};
+  const color = { id: "qr-color-text", tagName: "INPUT", type: "text", value: "#000000", dispatchEvent() {} };
+  const controls = { "qr-logo": { addEventListener() {} }, "qr-color-text": color };
+  globalThis.document = {
+    getElementById: (id) => controls[id],
+    querySelectorAll: () => [],
+    addEventListener: (type, fn) => (listeners[type] = fn),
+  };
+  const stored = { "qrix-style": JSON.stringify({ "qr-color-text": "#123456" }) };
+  globalThis.localStorage = { getItem: (key) => stored[key] ?? null, setItem: (key, value) => (stored[key] = value) };
+  initQRStyle();
+  assert.equal(color.value, "#123456", "the remembered style is applied on load");
+
+  color.value = "#654321";
+  listeners.input({ target: color });
+  assert.deepEqual(JSON.parse(stored["qrix-style"]), { "qr-color-text": "#654321" }, "a style change is remembered");
+
+  stored["qrix-style"] = "not json";
+  color.value = "#000000";
+  initQRStyle();
+  assert.equal(color.value, "#000000", "a broken entry is ignored");
+  listeners.input({ target: { id: "qr-url" } });
+  assert.equal(stored["qrix-style"], "not json", "content fields are never saved");
+  listeners.input({ target: { id: "qr-color" } });
+  assert.notEqual(stored["qrix-style"], "not json", "a change from the native color picker is remembered");
+
+  stored["qrix-style"] = JSON.stringify({ "qr-color-text": "#123456" });
+  Object.assign(location, { hash: "#color=abcdef", search: "?ref=x" });
+  initQRStyle();
+  assert.equal(color.value, "#abcdef", "a shared style link wins over the remembered style");
+  assert.equal(location.replaced, "/?ref=x", "the style leaves the address once applied");
+
+  location.hash = "#color=fedcba";
+  windowListeners.hashchange();
+  assert.equal(color.value, "#fedcba", "a style link opened in the same tab applies without a reload");
+
+  // a partly valid link: valid fields apply, invalid ones are ignored, and the hash goes either way
+  controls["qr-shape"] = { tagName: "SELECT", value: "square", options: [{ value: "square" }, { value: "dots" }], dispatchEvent() {} };
+  Object.assign(location, { hash: "#color=abcabc&shape=star", replaced: undefined });
+  windowListeners.hashchange();
+  assert.deepEqual([color.value, controls["qr-shape"].value, location.replaced], ["#abcabc", "square", "/?ref=x"], "the valid color applies, the unknown shape is ignored and the hash is removed");
+  Object.assign(location, { hash: "#color=nothex&shape=star", replaced: undefined });
+  windowListeners.hashchange();
+  assert.deepEqual([color.value, controls["qr-shape"].value, location.replaced], ["#abcabc", "square", "/?ref=x"], "a link with no valid field changes nothing, and is still removed");
 }
 
 console.log("qr-style: ok");

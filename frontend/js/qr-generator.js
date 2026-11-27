@@ -1,5 +1,5 @@
 import { getQRData, exportName } from "./utils.js";
-import { getQRAppearance } from "./color-picker.js";
+import { getQRAppearance, getScanAdvice } from "./color-picker.js";
 import { buildSvg, QUIET_ZONE } from "./qr-svg.js";
 import { getQRStyle } from "./qr-style.js";
 
@@ -20,11 +20,13 @@ export function initQRGenerator() {
   const downloadPngBtn = document.getElementById("downloadPngBtn");
   const downloadSvgBtn = document.getElementById("downloadSvgBtn");
   const copyQrBtn = document.getElementById("copyQrBtn");
+  const shareQrBtn = document.getElementById("shareQrBtn");
   const exportScale = document.getElementById("exportScale");
   const exportTransparent = document.getElementById("exportTransparent");
   const errorCorrection = document.getElementById("qr-error-correction");
   const exportError = document.getElementById("exportError");
   const exportNote = document.getElementById("exportNote");
+  const scanBadge = document.getElementById("scanBadge");
 
   if (
     !qrContainer ||
@@ -46,13 +48,47 @@ export function initQRGenerator() {
   downloadSvgBtn.addEventListener("click", downloadAsSvg);
   copyQrBtn.addEventListener("click", copyToClipboard);
 
+  // cmd/ctrl+s downloads the png while a code is ready; cmd/ctrl+c copies it from the focused preview,
+  // unless text is selected there; otherwise the browser keeps its own save and copy
+  const mac = /Mac|iPhone|iPad/.test(navigator.platform ?? "");
+  downloadPngBtn.title = `Download PNG (${mac ? "⌘S" : "Ctrl+S"})`;
+  copyQrBtn.title = `Copy (${mac ? "⌘C" : "Ctrl+C"} on the preview)`;
+  downloadPngBtn.setAttribute("aria-keyshortcuts", mac ? "Meta+S" : "Control+S");
+  qrContainer.setAttribute("aria-keyshortcuts", mac ? "Meta+C" : "Control+C");
+  document.addEventListener("keydown", (event) => {
+    // a held key repeats; one press is one download
+    if (!(mac ? event.metaKey : event.ctrlKey) || event.altKey || event.shiftKey || event.repeat || !qrInstance) return;
+    const key = event.key.toLowerCase();
+    if (key === "s") {
+      event.preventDefault();
+      downloadAsPng();
+    } else if (key === "c" && qrContainer.contains(document.activeElement) && !String(getSelection?.() ?? "")) {
+      event.preventDefault();
+      copyToClipboard();
+    }
+  });
+
+  // the system share sheet, offered only where it can take an image file (mostly phones)
+  const canShareFiles = () => {
+    try {
+      return Boolean(navigator.canShare?.({ files: [new File([""], "qrix.png", { type: "image/png" })] }));
+    } catch {
+      return false;
+    }
+  };
+  if (shareQrBtn && canShareFiles()) {
+    shareQrBtn.hidden = false;
+    shareQrBtn.addEventListener("click", shareCode);
+  }
+
   let actionsTimer;
 
   function generateQR(event) {
     // any change, including a new export scale, makes an earlier png failure stale
     if (exportError) exportError.hidden = true;
-    // export options only change the downloaded file, not the preview
-    if (event?.target.closest(".qr-actions")) return;
+    // export options only change the downloaded file, and naming a saved style changes nothing yet;
+    // the png scale still changes how many pixels each module gets
+    if (event?.target.closest(".qr-actions, .save-brand")) return updateBadge();
     // a new code makes the download note stale; export options leave it, so its one-time link is not lost
     if (exportNote) exportNote.replaceChildren();
 
@@ -79,6 +115,10 @@ export function initQRGenerator() {
     }
 
     const svg = new DOMParser().parseFromString(svgMarkup({ size }), "image/svg+xml");
+    // a settled change (a preset, select, type or released slider) fades the new code in; typing and
+    // dragging fire input, not change, and stay instant so the preview never flickers; content fields
+    // also fire change when left, which redraws the same code and must not fade it
+    qrContainer.toggleAttribute("data-fade", event?.type === "change" && !event.target.matches?.(".form-type input"));
     qrContainer.replaceChildren(document.importNode(svg.documentElement, true));
 
     qrData = data;
@@ -94,6 +134,8 @@ export function initQRGenerator() {
       qrContainer.append(caption);
       return;
     }
+
+    updateBadge();
 
     // Show actions after a short delay for QR code to render
     actionsTimer = setTimeout(() => {
@@ -116,6 +158,19 @@ export function initQRGenerator() {
   function hideActions() {
     qrActions.hidden = true;
     qrActions.classList.remove("visible");
+    updateBadge();
+  }
+
+  // whether the code on screen should scan; shown only for a code that can be exported
+  function updateBadge() {
+    if (!scanBadge) return;
+    scanBadge.hidden = !qrInstance;
+    if (!qrInstance) return;
+    const advice = getScanAdvice(getQRAppearance(), qrInstance._oQRCode.getModuleCount(), parseInt(exportScale?.value ?? "1", 10));
+    scanBadge.dataset.ok = advice.ok;
+    scanBadge.querySelector("use")?.setAttribute("href", advice.ok ? "#i-check" : "#i-alert");
+    const text = scanBadge.querySelector("span");
+    if (text) text.textContent = advice.text;
   }
 
   function svgMarkup({ size, transparent = false } = {}) {
@@ -231,6 +286,26 @@ export function initQRGenerator() {
       console.error("Failed to copy QR code: ", err);
       if (copying !== qrInstance) return;
       showCopyFeedback("x", "Copy failed", "error");
+    }
+  }
+
+  async function shareCode() {
+    if (!qrInstance) return;
+    if (exportError) exportError.hidden = true;
+    const sharing = qrInstance;
+    try {
+      const blob = await renderPngBlob();
+      if (sharing !== qrInstance) return;
+      await navigator.share({ files: [new File([blob], `${exportName(qrData)}.png`, { type: "image/png" })] });
+      if (sharing === qrInstance) showDownloadNote("Shared");
+    } catch (err) {
+      // closing the share sheet is not a failure
+      if (err?.name === "AbortError" || sharing !== qrInstance) return;
+      console.error("Failed to share QR code: ", err);
+      if (exportError) {
+        exportError.textContent = "Could not share the code. Download the PNG instead.";
+        exportError.hidden = false;
+      }
     }
   }
 
