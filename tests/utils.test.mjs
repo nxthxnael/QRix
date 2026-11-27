@@ -114,6 +114,19 @@ assert.equal(exportName("a".repeat(80)).length, "qrix-".length + 40, "long conte
 assert.deepEqual(parseWifi(`WIFI:T:WPA;S:${escapeWifi("My;Home")};P:${escapeWifi('p:w\\"')};H:true;;`), { T: "WPA", S: "My;Home", P: 'p:w\\"', H: "true" }, "escaped characters are unescaped");
 assert.equal(parseWifi("https://x"), null, "only wi-fi strings are parsed");
 assert.equal(parseWifi("WIFI:"), null, "a wi-fi string with no network name is no network");
+assert.deepEqual(parseWifi(`WIFI:T:WPA;S:${escapeWifi("a:b")};P:x;H:false;`), { T: "WPA", S: "a:b", P: "x", H: "false" }, "the generator's own output parses, with a single closing ;");
+assert.equal(parseWifi("WIFI:S:Home"), null, "an unterminated field is rejected");
+assert.equal(parseWifi("WIFI:S:A;X:1;;"), null, "an unknown key is rejected");
+assert.equal(parseWifi("WIFI:S:A;S:B;;"), null, "a repeated key is rejected");
+assert.equal(parseWifi("WIFI:S:A;;WIFI:S:B;;"), null, "two wi-fi strings stuck together are rejected");
+assert.equal(parseWifi("WIFI:S:a:b;;"), null, "an unescaped colon in a value is rejected");
+assert.equal(parseWifi("WIFI:S:A;;;"), null, "only one closing ; is allowed");
+{
+  // escapes and plain characters never overlap, so a long run of backslashes is read in one pass
+  const start = Date.now();
+  parseWifi(`WIFI:S:${"\\".repeat(3001)}`);
+  assert.ok(Date.now() - start < 100, "a long run of backslashes is rejected quickly");
+}
 assert.equal(detectPaste("WIFI: is down again", "text"), null, "text that only starts like a wi-fi string pastes as usual");
 
 const wifiPaste = (text, type = "url") => detectPaste(text, type)?.values;

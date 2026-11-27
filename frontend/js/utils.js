@@ -25,13 +25,20 @@ export function exportName(data) {
   return `qrix-${slug || "code"}${suffix}`;
 }
 
-// the fields of a WIFI: string, unescaped, e.g. { T: "WPA", S: "Home", P: "secret" }; null for anything
-// else, including a WIFI: text with no network name, which is no usable network
+// the keys a wi-fi code may hold: type, network name, password, hidden
+const WIFI_KEYS = ["T", "S", "P", "H"];
+
+// the fields of a WIFI: string, unescaped, e.g. { T: "WPA", S: "Home", P: "secret" }; null for anything else.
+// the whole text must be WIFI: then complete KEY:value; fields and an optional closing ;, with known keys
+// used once and a network name; values escape \ ; , : " as the format asks, so a bare : (such as a
+// second WIFI: stuck on) or an unterminated field is rejected rather than guessed at
 export function parseWifi(text) {
-  if (!text.startsWith("WIFI:")) return null;
+  if (!/^WIFI:(?:[A-Za-z]+:(?:\\.|[^;\\:])*;)+;?$/.test(text)) return null;
   const fields = {};
-  for (const [, key, value] of text.slice(5).matchAll(/([A-Za-z]+):((?:\\.|[^;\\])*);?/g)) {
-    fields[key.toUpperCase()] ??= value.replace(/\\(.)/g, "$1");
+  for (const [, key, value] of text.slice(5).matchAll(/([A-Za-z]+):((?:\\.|[^;\\:])*);/g)) {
+    const name = key.toUpperCase();
+    if (!WIFI_KEYS.includes(name) || name in fields) return null;
+    fields[name] = value.replace(/\\(.)/g, "$1");
   }
   return fields.S ? fields : null;
 }
